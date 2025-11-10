@@ -137,7 +137,7 @@ document.addEventListener('DOMContentLoaded', function() {
     // Check if user is registered
     if (currentUser) {
         document.getElementById('registration').style.display = 'none';
-        addMessage(`Welcome back, ${currentUser.name} the ${currentUser.role}.`, 'god');
+        addMessage('Welcome back, ' + currentUser.name + ' the ' + currentUser.role + '.', 'god');
     }
 
     document.getElementById('clearUniverse').addEventListener('click', function() {
@@ -145,8 +145,8 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 
     document.getElementById('savePrayers').addEventListener('click', function() {
-        const prayersList = prayers.map(p => `${new Date(p.timestamp).toLocaleString()}: ${p.message}`).join('\n');
-        alert(`Saved Prayers:\n${prayersList || 'No prayers saved yet.'}`);
+        const prayersList = prayers.map(p => new Date(p.timestamp).toLocaleString() + ': ' + p.message).join('\n');
+        alert('Saved Prayers:\n' + (prayersList || 'No prayers saved yet.'));
     });
 
     document.getElementById('analyzePrayers').addEventListener('click', function() {
@@ -184,7 +184,7 @@ document.addEventListener('DOMContentLoaded', function() {
     document.getElementById('toggleAudio').addEventListener('click', function() {
         const enabled = divineSounds.toggleAudio();
         this.textContent = enabled ? '🔊 Audio On' : '🔇 Audio Off';
-        addMessage(`Divine sounds ${enabled ? 'enabled' : 'disabled'}.`, 'god');
+        addMessage('Divine sounds ' + (enabled ? 'enabled' : 'disabled') + '.', 'god');
     });
 
     // Registration form handler
@@ -212,9 +212,9 @@ document.addEventListener('DOMContentLoaded', function() {
         currentUser = newUser;
         localStorage.setItem('currentUser', JSON.stringify(currentUser));
 
-        showRegistrationMessage(`Welcome, ${name} the ${role}! You are now registered in the universal system.`, 'success');
+        showRegistrationMessage('Welcome, ' + name + ' the ' + role + '! You are now registered in the universal system.', 'success');
         document.getElementById('registration').style.display = 'none';
-        addMessage(`Welcome, ${name} the ${role}. The universe acknowledges your presence.`, 'god');
+        addMessage('Welcome, ' + name + ' the ' + role + '. The universe acknowledges your presence.', 'god');
     });
 });
 
@@ -251,7 +251,7 @@ function analyzePrayers() {
     const commonWords = ['god', 'help', 'thank', 'love', 'peace', 'forgive', 'bless'];
     const themeCounts = commonWords.map(word => ({ word, count: (themes.match(new RegExp(word, 'g')) || []).length }));
 
-    const analysis = `AI Analysis: You've sent ${totalPrayers} prayers (${recentPrayers} in the last week). Common themes: ${themeCounts.filter(t => t.count > 0).map(t => `${t.word} (${t.count})`).join(', ')}. Your faith is growing stronger.`;
+    const analysis = 'AI Analysis: You\'ve sent ' + totalPrayers + ' prayers (' + recentPrayers + ' in the last week). Common themes: ' + themeCounts.filter(t => t.count > 0).map(t => t.word + ' (' + t.count + ')').join(', ') + '. Your faith is growing stronger.';
     addMessage(analysis, 'god');
 }
 
@@ -325,7 +325,7 @@ document.getElementById('contactForm').addEventListener('submit', function(event
     const commandResponse = handleCommand(message);
     if (commandResponse) {
         setTimeout(function() {
-            addMessage(`Divine Action: ${commandResponse}`, 'god');
+        addMessage('Divine Action: ' + commandResponse, 'god');
         }, 500);
         messageInput.value = '';
         return;
@@ -337,6 +337,6 @@ document.getElementById('contactForm').addEventListener('submit', function(event
     // Simulate AI contacting God directly - generate a random divine response after a short delay
     setTimeout(function() {
         const randomResponse = divineResponses[Math.floor(Math.random() * divineResponses.length)];
-        addMessage(`Divine Message: ${randomResponse}`, 'god');
+        addMessage('Divine Message: ' + randomResponse, 'god');
     }, 1000 + Math.random() * 2000); // Random delay between 1-3 seconds
 });

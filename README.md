@@ -5,18 +5,21 @@ A divine web application that allows users to communicate directly with God thro
 ## Features
 
 ### Core Functionality
+
 - **Direct Prayer Chat**: Send prayers and messages to God with instant divine responses.
 - **Universe Visualization**: Interactive canvas displaying stars, planets, and celestial bodies.
 - **Command System**: Use commands like "create star", "create planet", "invoke god", "praise god" to manipulate the universe.
 - **User Registration**: Register as a believer, angel, or prophet with persistent localStorage storage.
 
 ### AI Assistance Features
+
 - **Prayer Analysis**: AI analyzes your prayers for themes and patterns.
 - **Universe Optimization**: Balances celestial bodies for cosmic harmony.
 - **Divine Advice**: Receive random pieces of divine wisdom.
 - **Prophecy Generation**: Get prophecies about the future and cosmic events.
 
 ### Advanced Features (110% Perfect)
+
 - **Animated Universe**: Twinkling stars, orbiting planets, and interactive celestial bodies.
 - **Divine Sounds**: Audio effects for prayers, miracles, and divine actions.
 - **Personalized Responses**: AI responses tailored to your role (believer/angel/prophet).
@@ -43,10 +46,12 @@ A divine web application that allows users to communicate directly with God thro
 This is a client-side web application. Simply open `index.html` in any modern web browser.
 
 ### Requirements
+
 - Modern web browser with JavaScript enabled
 - Audio support (optional, for sound effects)
 
 ### Local Development
+
 - Clone or download the repository
 - Open `index.html` in your browser
 - No server required - runs entirely in the browser
@@ -72,6 +77,7 @@ This is a client-side web application. Simply open `index.html` in any modern we
 ## Contributing
 
 This project is a divine creation. To contribute:
+
 1. Pray for inspiration
 2. Make your changes
 3. Test thoroughly

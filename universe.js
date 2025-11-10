@@ -60,13 +60,13 @@ class Universe {
     }
 
     update() {
-        this.celestialBodies.forEach(body => {
+        for (const body of this.celestialBodies) {
             if (body.type === 'planet') {
                 body.angle += body.orbitSpeed;
             } else if (body.type === 'star') {
                 body.twinkle += body.twinkleSpeed;
             }
-        });
+        }
     }
 
     draw() {
@@ -78,7 +78,7 @@ class Universe {
         this.ctx.fillStyle = gradient;
         this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
 
-        this.celestialBodies.forEach(body => {
+        for (const body of this.celestialBodies) {
             this.ctx.save();
             if (body.type === 'planet') {
                 const centerX = body.x;
@@ -137,7 +137,7 @@ class Universe {
                 this.ctx.shadowBlur = 0;
             }
             this.ctx.restore();
-        });
+        }
     }
 
     clear() {

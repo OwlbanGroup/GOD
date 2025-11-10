@@ -108,6 +108,8 @@ p {
     padding: 8px;
     border-radius: 4px;
     display: none;
+    background-color: #f8f9fa;
+    color: #212529;
 }
 
 .registration-message.success {

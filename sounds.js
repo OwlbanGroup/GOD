@@ -1,17 +1,18 @@
 // sounds.js - Audio management for divine sounds and effects
 
 class DivineSounds {
+    audioContext;
+    sounds = {};
+    enabled = true;
+
     constructor() {
-        this.audioContext = null;
-        this.sounds = {};
-        this.enabled = true;
         this.initializeAudio();
     }
 
-    async initializeAudio() {
+    initializeAudio() {
         try {
-            this.audioContext = new (window.AudioContext || window.webkitAudioContext)();
-            await this.loadSounds();
+            this.audioContext = new (globalThis.AudioContext || globalThis.webkitAudioContext)();
+            this.loadSounds();
         } catch (error) {
             console.warn('Audio not supported:', error);
             this.enabled = false;
@@ -38,7 +39,7 @@ class DivineSounds {
 
     createMiracleSound() {
         // Harmonic chord
-        return this.createChord([440, 550, 660], 1.0);
+        return this.createChord([440, 550, 660], 1);
     }
 
     createPraiseSound() {
@@ -48,17 +49,17 @@ class DivineSounds {
 
     createProphecySound() {
         // Mysterious, echoing tone
-        return this.createEchoTone(220, 2.0);
+        return this.createEchoTone(220, 2);
     }
 
     createAdviceSound() {
         // Wise, calming tone
-        return this.createTone(330, 1.0, 'triangle');
+        return this.createTone(330, 1, 'triangle');
     }
 
     createOptimizeSound() {
         // Harmonious, balancing sound
-        return this.createChord([261, 330, 392], 1.0);
+        return this.createChord([261, 330, 392], 1);
     }
 
     createAnalyzeSound() {
@@ -127,12 +128,12 @@ class DivineSounds {
                 tone.oscillator.start();
                 tone.oscillator.stop(this.audioContext.currentTime + tone.duration);
             } else if (tone.oscillators) {
-                tone.oscillators.forEach(osc => {
-                    if (osc && osc.oscillator) {
+                for (const osc of tone.oscillators) {
+                    if (osc?.oscillator) {
                         osc.oscillator.start();
                         osc.oscillator.stop(this.audioContext.currentTime + osc.duration);
                     }
-                });
+                }
             }
         } catch (error) {
             console.warn('Error playing sound:', error);
