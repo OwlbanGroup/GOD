@@ -262,6 +262,35 @@ button:hover {
     }
 }
 
+.divine-modes {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    justify-content: center;
+    margin-top: 10px;
+}
+
+.divine-modes button {
+    background: linear-gradient(135deg, #ff6b6b, #4ecdc4);
+    color: white;
+    border: none;
+    padding: 8px 12px;
+    border-radius: 20px;
+    cursor: pointer;
+    font-size: 14px;
+    transition: all 0.3s ease;
+}
+
+.divine-modes button:hover {
+    transform: scale(1.05);
+    box-shadow: 0 4px 15px rgba(255, 107, 107, 0.4);
+}
+
+.divine-modes button.active {
+    background: linear-gradient(135deg, #ffd93d, #ff6b6b);
+    box-shadow: 0 0 20px rgba(255, 217, 61, 0.6);
+}
+
 /* Responsive design */
 @media (max-width: 768px) {
     .main-content {
@@ -278,6 +307,11 @@ button:hover {
     }
 
     .controls {
+        flex-direction: column;
+        align-items: center;
+    }
+
+    .divine-modes {
         flex-direction: column;
         align-items: center;
     }

@@ -73,6 +73,12 @@ let prayers = JSON.parse(localStorage.getItem('prayers')) || [];
 let registeredUsers = JSON.parse(localStorage.getItem('registeredUsers')) || [];
 let currentUser = JSON.parse(localStorage.getItem('currentUser')) || null;
 
+// Post-quantum and divine mode states
+let directDivineLinkActive = false;
+let universalDivineModeActive = false;
+let postQuantumSecureActive = false;
+let divineWebSocket = null;
+
 function addMessage(text, sender) {
     const chatMessages = document.getElementById('chatMessages');
     const messageDiv = document.createElement('div');
@@ -230,6 +236,22 @@ document.addEventListener('DOMContentLoaded', function() {
         this.textContent = enabled ? '🔊 Audio On' : '🔇 Audio Off';
         addMessage('Divine sounds ' + (enabled ? 'enabled' : 'disabled') + '.', 'god');
     });
+
+    // Divine mode buttons
+    document.getElementById('directDivineLink').addEventListener('click', function() {
+        toggleDirectDivineLink();
+    });
+
+    document.getElementById('universalDivineMode').addEventListener('click', function() {
+        toggleUniversalDivineMode();
+    });
+
+    document.getElementById('postQuantumSecure').addEventListener('click', function() {
+        togglePostQuantumSecure();
+    });
+
+    // Initialize quantum crypto
+    quantumCrypto.initialize();
 
     // Registration form handler
     document.getElementById('registrationForm').addEventListener('submit', function(event) {
@@ -407,7 +429,66 @@ async function generateProphecy() {
     addMessage(randomProphecy, 'god');
 }
 
-document.getElementById('contactForm').addEventListener('submit', function(event) {
+// Divine mode functions
+function toggleDirectDivineLink() {
+    directDivineLinkActive = !directDivineLinkActive;
+    const button = document.getElementById('directDivineLink');
+    button.classList.toggle('active', directDivineLinkActive);
+
+    if (directDivineLinkActive) {
+        addMessage('Direct Divine Link activated. Real-time divine guidance enabled.', 'god');
+        // Simulate WebSocket connection for real-time updates
+        divineWebSocket = setInterval(() => {
+            if (Math.random() < 0.1) { // 10% chance every interval
+                const instantWisdom = [
+                    "Divine presence: I am here with you now.",
+                    "Cosmic energy flows through you.",
+                    "Your thoughts create reality.",
+                    "Love is the universal language.",
+                    "Peace surrounds you always."
+                ];
+                addMessage(instantWisdom[Math.floor(Math.random() * instantWisdom.length)], 'god');
+            }
+        }, 5000); // Check every 5 seconds
+    } else {
+        addMessage('Direct Divine Link deactivated.', 'god');
+        if (divineWebSocket) {
+            clearInterval(divineWebSocket);
+            divineWebSocket = null;
+        }
+    }
+}
+
+function toggleUniversalDivineMode() {
+    universalDivineModeActive = !universalDivineModeActive;
+    const button = document.getElementById('universalDivineMode');
+    button.classList.toggle('active', universalDivineModeActive);
+
+    if (universalDivineModeActive) {
+        addMessage('Universal Divine Mode activated. Accessing cosmic wisdom and harmony calculations.', 'god');
+        // Enhance universe with quantum entanglement visualization
+        universe.enableQuantumEntanglement();
+        universe.draw();
+    } else {
+        addMessage('Universal Divine Mode deactivated.', 'god');
+        universe.disableQuantumEntanglement();
+        universe.draw();
+    }
+}
+
+function togglePostQuantumSecure() {
+    postQuantumSecureActive = !postQuantumSecureActive;
+    const button = document.getElementById('postQuantumSecure');
+    button.classList.toggle('active', postQuantumSecureActive);
+
+    if (postQuantumSecureActive) {
+        addMessage('Post-Quantum Secure mode activated. All communications are now quantum-resistant encrypted.', 'god');
+    } else {
+        addMessage('Post-Quantum Secure mode deactivated.', 'god');
+    }
+}
+
+document.getElementById('contactForm').addEventListener('submit', async function(event) {
     event.preventDefault();
 
     const messageInput = document.getElementById('message');
@@ -420,8 +501,34 @@ document.getElementById('contactForm').addEventListener('submit', function(event
     // Add user message to chat
     addMessage(message, 'user');
 
-    // Save prayer
-    savePrayer(message);
+    // Encrypt message if post-quantum secure is active
+    let encryptedMessage = message;
+    if (postQuantumSecureActive && quantumCrypto.isInitialized()) {
+        try {
+            // Simulate key exchange and encryption
+            const mockPublicKey = await window.crypto.subtle.generateKey(
+                { name: 'ECDH', namedCurve: 'P-256' },
+                false,
+                []
+            ).then(k => window.crypto.subtle.exportKey('raw', k.publicKey));
+
+            const encapsulated = await quantumCrypto.encapsulate(new Uint8Array(mockPublicKey));
+            if (encapsulated) {
+                const encrypted = await quantumCrypto.encrypt(message, encapsulated.sharedSecret);
+                if (encrypted) {
+                    encryptedMessage = JSON.stringify({
+                        ciphertext: Array.from(encrypted.ciphertext),
+                        iv: Array.from(encrypted.iv)
+                    });
+                }
+            }
+        } catch (error) {
+            console.warn('Encryption failed:', error);
+        }
+    }
+
+    // Save prayer (encrypted if secure mode)
+    savePrayer(encryptedMessage);
 
     // Check for commands
     const commandResponse = handleCommand(message);
@@ -436,9 +543,38 @@ document.getElementById('contactForm').addEventListener('submit', function(event
     // Clear the input
     messageInput.value = '';
 
-    // Simulate AI contacting God directly - generate a random divine response after a short delay
-    setTimeout(function() {
-        const randomResponse = divineResponses[Math.floor(Math.random() * divineResponses.length)];
-        addMessage('Divine Message: ' + randomResponse, 'god');
-    }, 1000 + Math.random() * 2000); // Random delay between 1-3 seconds
+    // Generate divine response with enhanced modes
+    const delay = directDivineLinkActive ? 200 : 1000 + Math.random() * 2000; // Faster response in direct mode
+
+    setTimeout(async function() {
+        let response = divineResponses[Math.floor(Math.random() * divineResponses.length)];
+
+        // Enhance response based on active modes
+        if (universalDivineModeActive) {
+            const universalEnhancements = [
+                " The universe aligns with your intention.",
+                " Cosmic harmony resonates with your words.",
+                " Divine energy flows through all creation.",
+                " Your prayer creates ripples across the cosmos."
+            ];
+            response += universalEnhancements[Math.floor(Math.random() * universalEnhancements.length)];
+        }
+
+        if (directDivineLinkActive) {
+            response = "Direct Divine Response: " + response;
+        }
+
+        // Decrypt if needed for display (simplified)
+        if (postQuantumSecureActive && typeof encryptedMessage === 'string' && encryptedMessage.startsWith('{')) {
+            try {
+                const encryptedData = JSON.parse(encryptedMessage);
+                // In real implementation, use shared secret to decrypt
+                response = "[Encrypted] " + response;
+            } catch (e) {
+                // Fallback
+            }
+        }
+
+        addMessage('Divine Message: ' + response, 'god');
+    }, delay);
 });

@@ -147,6 +147,7 @@ class Universe {
                 this.particles.splice(i, 1);
             }
         }
+        this.updateEntanglementConnections();
     }
 
     draw() {
@@ -193,6 +194,9 @@ class Universe {
 
         // Draw particles
         gl.drawArrays(gl.POINTS, 0, this.particles.length);
+
+        // Draw entanglement connections
+        this.drawEntanglementConnections();
     }
 
     clear() {
@@ -323,6 +327,99 @@ class Universe {
                 this.ctx.arc(body.x, body.y, body.radius * 1.5, 0, Math.PI * 2);
                 this.ctx.fill();
                 this.ctx.shadowBlur = 0;
+            }
+            this.ctx.restore();
+        }
+
+        // Draw entanglement connections for 2D
+        this.drawEntanglementConnections();
+    }
+
+    // Divine mode methods
+    enableQuantumEntanglement() {
+        this.quantumEntanglementActive = true;
+        // Add entanglement connections between nearby particles
+        this.entanglementConnections = [];
+        this.updateEntanglementConnections();
+    }
+
+    disableQuantumEntanglement() {
+        this.quantumEntanglementActive = false;
+        this.entanglementConnections = [];
+    }
+
+    updateEntanglementConnections() {
+        if (!this.quantumEntanglementActive) return;
+
+        this.entanglementConnections = [];
+        const particles = this.useWebGL ? this.particles : this.celestialBodies;
+
+        for (let i = 0; i < particles.length; i++) {
+            for (let j = i + 1; j < particles.length; j++) {
+                const p1 = particles[i];
+                const p2 = particles[j];
+                const dx = p1.x - p2.x;
+                const dy = p1.y - p2.y;
+                const distance = Math.sqrt(dx * dx + dy * dy);
+
+                if (distance < 100) { // Connection threshold
+                    this.entanglementConnections.push({
+                        x1: p1.x, y1: p1.y,
+                        x2: p2.x, y2: p2.y,
+                        strength: 1 - (distance / 100),
+                        color: this.quantumEntanglementColor || [0.5, 0.8, 1.0, 0.3]
+                    });
+                }
+            }
+        }
+    }
+
+    drawEntanglementConnections() {
+        if (!this.quantumEntanglementActive || !this.entanglementConnections.length) return;
+
+        if (this.useWebGL) {
+            // WebGL entanglement lines
+            const gl = this.gl;
+            gl.useProgram(this.program);
+
+            const matrix = new Float32Array([
+                2 / this.canvas.width, 0, 0, 0,
+                0, -2 / this.canvas.height, 0, 0,
+                0, 0, 1, 0,
+                -1, 1, 0, 1
+            ]);
+            const matrixLocation = gl.getUniformLocation(this.program, 'u_matrix');
+            gl.uniformMatrix4fv(matrixLocation, false, matrix);
+
+            // Draw lines for entanglement
+            for (const conn of this.entanglementConnections) {
+                const vertices = [conn.x1, conn.y1, conn.x2, conn.y2];
+                const colors = [...conn.color, ...conn.color];
+
+                gl.bindBuffer(gl.ARRAY_BUFFER, this.vertexBuffer);
+                gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(vertices), gl.DYNAMIC_DRAW);
+                const positionLocation = gl.getAttribLocation(this.program, 'a_position');
+                gl.enableVertexAttribArray(positionLocation);
+                gl.vertexAttribPointer(positionLocation, 2, gl.FLOAT, false, 0, 0);
+
+                gl.bindBuffer(gl.ARRAY_BUFFER, this.colorBuffer);
+                gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(colors), gl.DYNAMIC_DRAW);
+                const colorLocation = gl.getAttribLocation(this.program, 'a_color');
+                gl.enableVertexAttribArray(colorLocation);
+                gl.vertexAttribPointer(colorLocation, 4, gl.FLOAT, false, 0, 0);
+
+                gl.drawArrays(gl.LINES, 0, 2);
+            }
+        } else {
+            // 2D entanglement lines
+            this.ctx.save();
+            for (const conn of this.entanglementConnections) {
+                this.ctx.strokeStyle = `rgba(${Math.floor(conn.color[0] * 255)}, ${Math.floor(conn.color[1] * 255)}, ${Math.floor(conn.color[2] * 255)}, ${conn.strength * 0.5})`;
+                this.ctx.lineWidth = conn.strength * 2;
+                this.ctx.beginPath();
+                this.ctx.moveTo(conn.x1, conn.y1);
+                this.ctx.lineTo(conn.x2, conn.y2);
+                this.ctx.stroke();
             }
             this.ctx.restore();
         }
