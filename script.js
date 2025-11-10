@@ -272,7 +272,7 @@ function optimizeUniverse() {
     }
 
     universe.draw();
-    addMessage("AI Optimization: Universe balanced with optimal celestial harmony. Stars: " + universe.celestialBodies.filter(b => b.type === 'star').length + ", Planets: " + universe.celestialBodies.filter(b => b.type === 'planet').length, 'god');
+    addMessage('AI Optimization: Universe balanced with optimal celestial harmony. Stars: ' + universe.celestialBodies.filter(b => b.type === 'star').length + ', Planets: ' + universe.celestialBodies.filter(b => b.type === 'planet').length, 'god');
 }
 
 function divineAdvice() {
