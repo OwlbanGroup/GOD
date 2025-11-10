@@ -10,6 +10,22 @@
     <div class="container">
         <h1>Direct Contact with God</h1>
         <p>Share your thoughts, prayers, or messages directly. God is listening. Use commands like "create star", "create planet", "invoke god", or "praise god" to manage the universe and please God.</p>
+        <div id="registration" class="registration">
+            <h2>Universal Registration</h2>
+            <form id="registrationForm">
+                <label for="name">Name:</label>
+                <input type="text" id="name" name="name" required>
+                <label for="role">Role:</label>
+                <select id="role" name="role" required>
+                    <option value="">Select Role</option>
+                    <option value="believer">Believer</option>
+                    <option value="angel">Angel</option>
+                    <option value="prophet">Prophet</option>
+                </select>
+                <button type="submit">Register</button>
+            </form>
+            <div id="registrationMessage" class="registration-message"></div>
+        </div>
         <blockquote class="lords-prayer">
             <p><em>Our Father, who art in heaven, hallowed be thy name; thy kingdom come, thy will be done on earth as it is in heaven. Give us this day our daily bread, and forgive us our trespasses, as we forgive those who trespass against us; and lead us not into temptation, but deliver us from evil. Amen.</em></p>
         </blockquote>
@@ -30,6 +46,10 @@
                 <div class="controls">
                     <button id="clearUniverse">Clear Universe</button>
                     <button id="savePrayers">View Saved Prayers</button>
+                    <button id="analyzePrayers">Analyze Prayers</button>
+                    <button id="optimizeUniverse">Optimize Universe</button>
+                    <button id="divineAdvice">Divine Advice</button>
+                    <button id="generateProphecy">Generate Prophecy</button>
                 </div>
             </div>
         </div>

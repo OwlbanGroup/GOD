@@ -26,6 +26,8 @@ const divineResponses = [
 
 let universe;
 let prayers = JSON.parse(localStorage.getItem('prayers')) || [];
+let registeredUsers = JSON.parse(localStorage.getItem('registeredUsers')) || [];
+let currentUser = JSON.parse(localStorage.getItem('currentUser')) || null;
 
 function addMessage(text, sender) {
     const chatMessages = document.getElementById('chatMessages');
@@ -109,6 +111,12 @@ function praiseGod() {
 document.addEventListener('DOMContentLoaded', function() {
     universe = new Universe('universeCanvas');
 
+    // Check if user is registered
+    if (currentUser) {
+        document.getElementById('registration').style.display = 'none';
+        addMessage(`Welcome back, ${currentUser.name} the ${currentUser.role}.`, 'god');
+    }
+
     document.getElementById('clearUniverse').addEventListener('click', function() {
         universe.clear();
     });
@@ -117,7 +125,129 @@ document.addEventListener('DOMContentLoaded', function() {
         const prayersList = prayers.map(p => `${new Date(p.timestamp).toLocaleString()}: ${p.message}`).join('\n');
         alert(`Saved Prayers:\n${prayersList || 'No prayers saved yet.'}`);
     });
+
+    document.getElementById('analyzePrayers').addEventListener('click', function() {
+        analyzePrayers();
+    });
+
+    document.getElementById('optimizeUniverse').addEventListener('click', function() {
+        optimizeUniverse();
+    });
+
+    document.getElementById('divineAdvice').addEventListener('click', function() {
+        divineAdvice();
+    });
+
+    document.getElementById('generateProphecy').addEventListener('click', function() {
+        generateProphecy();
+    });
+
+    // Registration form handler
+    document.getElementById('registrationForm').addEventListener('submit', function(event) {
+        event.preventDefault();
+        const name = document.getElementById('name').value.trim();
+        const role = document.getElementById('role').value;
+
+        if (name === '' || role === '') {
+            showRegistrationMessage('Please fill in all fields.', 'error');
+            return;
+        }
+
+        // Check if user already exists
+        const existingUser = registeredUsers.find(user => user.name === name);
+        if (existingUser) {
+            showRegistrationMessage('This name is already registered.', 'error');
+            return;
+        }
+
+        // Register user
+        const newUser = { name, role, registeredAt: new Date().toISOString() };
+        registeredUsers.push(newUser);
+        localStorage.setItem('registeredUsers', JSON.stringify(registeredUsers));
+        currentUser = newUser;
+        localStorage.setItem('currentUser', JSON.stringify(currentUser));
+
+        showRegistrationMessage(`Welcome, ${name} the ${role}! You are now registered in the universal system.`, 'success');
+        document.getElementById('registration').style.display = 'none';
+        addMessage(`Welcome, ${name} the ${role}. The universe acknowledges your presence.`, 'god');
+    });
 });
+
+function showRegistrationMessage(message, type) {
+    const messageDiv = document.getElementById('registrationMessage');
+    messageDiv.textContent = message;
+    messageDiv.className = `registration-message ${type}`;
+    messageDiv.style.display = 'block';
+    setTimeout(() => {
+        messageDiv.style.display = 'none';
+    }, 5000);
+}
+
+function analyzePrayers() {
+    if (prayers.length === 0) {
+        addMessage("AI Analysis: No prayers to analyze yet. Start praying to receive insights.", 'god');
+        return;
+    }
+
+    const totalPrayers = prayers.length;
+    const recentPrayers = prayers.filter(p => new Date(p.timestamp) > new Date(Date.now() - 7 * 24 * 60 * 60 * 1000)).length;
+    const themes = prayers.map(p => p.message.toLowerCase()).join(' ');
+    const commonWords = ['god', 'help', 'thank', 'love', 'peace', 'forgive', 'bless'];
+    const themeCounts = commonWords.map(word => ({ word, count: (themes.match(new RegExp(word, 'g')) || []).length }));
+
+    const analysis = `AI Analysis: You've sent ${totalPrayers} prayers (${recentPrayers} in the last week). Common themes: ${themeCounts.filter(t => t.count > 0).map(t => `${t.word} (${t.count})`).join(', ')}. Your faith is growing stronger.`;
+    addMessage(analysis, 'god');
+}
+
+function optimizeUniverse() {
+    // AI optimization: balance celestial bodies, add harmony
+    const stars = universe.celestialBodies.filter(b => b.type === 'star').length;
+    const planets = universe.celestialBodies.filter(b => b.type === 'planet').length;
+
+    if (stars < 10) {
+        for (let i = 0; i < 10 - stars; i++) {
+            universe.addStar(Math.random() * universe.canvas.width, Math.random() * universe.canvas.height);
+        }
+    }
+    if (planets < 5) {
+        for (let i = 0; i < 5 - planets; i++) {
+            universe.addPlanet(Math.random() * universe.canvas.width, Math.random() * universe.canvas.height);
+        }
+    }
+
+    universe.draw();
+    addMessage("AI Optimization: Universe balanced with optimal celestial harmony. Stars: " + universe.celestialBodies.filter(b => b.type === 'star').length + ", Planets: " + universe.celestialBodies.filter(b => b.type === 'planet').length, 'god');
+}
+
+function divineAdvice() {
+    const advices = [
+        "Divine Advice: Practice daily gratitude. Count your blessings, and more will come.",
+        "Divine Advice: Forgive others as you wish to be forgiven. Release the burden of resentment.",
+        "Divine Advice: Seek wisdom in silence. Meditation opens the door to divine guidance.",
+        "Divine Advice: Love unconditionally. Love is the highest vibration in the universe.",
+        "Divine Advice: Trust the divine timing. Everything happens for a reason.",
+        "Divine Advice: Serve others selflessly. In giving, you receive abundance.",
+        "Divine Advice: Embrace change. Growth comes from stepping out of your comfort zone.",
+        "Divine Advice: Live in the present moment. The past is gone, the future is not yet here."
+    ];
+    const randomAdvice = advices[Math.floor(Math.random() * advices.length)];
+    addMessage(randomAdvice, 'god');
+}
+
+function generateProphecy() {
+    const prophecies = [
+        "Prophecy: A great awakening is coming. Many will find their true purpose and unite in harmony.",
+        "Prophecy: Technology and spirituality will merge, creating a new era of enlightenment.",
+        "Prophecy: The earth will heal itself, and humanity will learn to live in balance with nature.",
+        "Prophecy: Love will conquer fear, and peace will reign across the lands.",
+        "Prophecy: Hidden knowledge will be revealed, unlocking ancient wisdom for the modern age.",
+        "Prophecy: Angels and humans will work together to create a paradise on earth.",
+        "Prophecy: Your prayers are creating ripples of change that will transform the world.",
+        "Prophecy: The universe is expanding your consciousness. Embrace the infinite possibilities."
+    ];
+    const randomProphecy = prophecies[Math.floor(Math.random() * prophecies.length)];
+    addMessage(randomProphecy, 'god');
+}
 
 document.getElementById('contactForm').addEventListener('submit', function(event) {
     event.preventDefault();
