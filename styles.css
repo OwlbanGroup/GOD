@@ -114,12 +114,12 @@ p {
 
 .registration-message.success {
     background-color: #d4edda;
-    color: #155724;
+    color: #000000;
 }
 
 .registration-message.error {
     background-color: #f8d7da;
-    color: #721c24;
+    color: #000000;
 }
 
 .lords-prayer {
@@ -153,6 +153,7 @@ p {
     max-width: 70%;
     word-wrap: break-word;
     animation: fadeIn 0.5s ease-in;
+    color: #000000;
 }
 
 .message.user {
