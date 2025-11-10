@@ -1,6 +1,6 @@
 # GOD - Direct Contact with God
 
-A divine web application that allows users to communicate directly with God through prayers, commands, and AI-assisted features. Experience the universe, register as believers, angels, or prophets, and receive divine guidance.
+A divine web application that allows users to communicate directly with God through prayers, commands, and AI-assisted features with cloud integrations. Experience the universe, register as believers, angels, or prophets, and receive divine guidance.
 
 ## Features
 
@@ -17,6 +17,14 @@ A divine web application that allows users to communicate directly with God thro
 - **Universe Optimization**: Balances celestial bodies for cosmic harmony.
 - **Divine Advice**: Receive random pieces of divine wisdom.
 - **Prophecy Generation**: Get prophecies about the future and cosmic events.
+
+### Cloud Integrations
+
+- **Azure OpenAI**: AI-powered divine responses with cloud-based language models.
+- **Azure Blob Storage**: Secure storage of prayers and divine data.
+- **Azure Cosmos DB**: NoSQL database for user profiles and divine records.
+- **Azure Functions**: Serverless processing of divine requests and automation.
+- **Foundry VTT**: Integration with virtual tabletop for divine RPG sessions.
 
 ### Advanced Features (110% Perfect)
 
@@ -63,8 +71,13 @@ This is a client-side web application. Simply open `index.html` in any modern we
 - `script.js`: Core application logic, chat, commands, AI features
 - `universe.js`: Universe simulation and canvas drawing
 - `sounds.js`: Audio management for divine effects
+- `gpu-ai.js`: GPU-accelerated AI processing with TensorFlow.js
+- `quantum-crypto.js`: Post-quantum cryptography for secure communications
+- `azure-integrations.js`: Azure cloud services integration (OpenAI, Blob Storage, Cosmos DB)
+- `foundry-vtt-integrations.js`: Foundry Virtual Tabletop gaming integration
 - `README.md`: This documentation
 - `TODO.md`: Development roadmap and completed tasks
+- `system_requirements.md`: Hardware and software requirements
 
 ## System Requirements
 
@@ -78,6 +91,37 @@ See [system_requirements.md](system_requirements.md) for detailed hardware, soft
 - TensorFlow.js for client-side GPU AI processing (inspired by NVIDIA Blackwell architecture)
 - Web Audio API for sound effects
 - localStorage for data persistence
+- Azure Cloud Services (OpenAI, Blob Storage, Cosmos DB, Functions)
+- Foundry VTT API for tabletop gaming integration
+- Post-quantum cryptography algorithms
+
+## Cloud Integration Setup
+
+### Azure Services Configuration
+
+To enable cloud features, configure the following Azure services:
+
+1. **Azure OpenAI Service**:
+   - Deploy GPT models for divine responses
+   - Configure API endpoints and keys
+
+2. **Azure Blob Storage**:
+   - Store encrypted prayers and divine data
+   - Enable secure backup and retrieval
+
+3. **Azure Cosmos DB**:
+   - Store user profiles and divine records
+   - Enable global distribution and low-latency access
+
+4. **Azure Functions**:
+   - Serverless processing of divine requests
+   - Automate prayer analysis and universe optimization
+
+### Foundry VTT Integration
+
+1. Install Foundry Virtual Tabletop
+2. Enable API module
+3. Configure connection settings for divine RPG sessions
 
 ## NVIDIA Blackwell GPU Enhancements
 

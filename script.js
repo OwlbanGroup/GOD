@@ -93,55 +93,61 @@ function savePrayer(message) {
     localStorage.setItem('prayers', JSON.stringify(prayers));
 }
 
-// Command definitions extracted to reduce cognitive complexity
-const commandActions = {
-    'create star': () => {
+// Command action functions to reduce cognitive complexity
+function createStar() {
+    universe.addStar(Math.random() * universe.canvas.width, Math.random() * universe.canvas.height);
+    universe.draw();
+    divineSounds.play('miracle');
+    return "A new star has been created in the universe.";
+}
+
+function createPlanet() {
+    universe.addPlanet(Math.random() * universe.canvas.width, Math.random() * universe.canvas.height);
+    universe.draw();
+    divineSounds.play('miracle');
+    return "A new planet has been created in the universe.";
+}
+
+function destroyPlanet() {
+    const planets = universe.celestialBodies.filter(b => b.type === 'planet');
+    if (planets.length === 0) return "No planets to destroy.";
+    const randomIndex = Math.floor(Math.random() * planets.length);
+    universe.celestialBodies.splice(universe.celestialBodies.indexOf(planets[randomIndex]), 1);
+    universe.draw();
+    divineSounds.play('miracle');
+    return "A planet has been destroyed in the universe.";
+}
+
+function healUniverse() {
+    universe.celestialBodies = universe.celestialBodies.filter(() => Math.random() > 0.3);
+    for (let i = 0; i < 5; i++) {
         universe.addStar(Math.random() * universe.canvas.width, Math.random() * universe.canvas.height);
-        universe.draw();
-        divineSounds.play('miracle');
-        return "A new star has been created in the universe.";
-    },
-    'create planet': () => {
         universe.addPlanet(Math.random() * universe.canvas.width, Math.random() * universe.canvas.height);
-        universe.draw();
-        divineSounds.play('miracle');
-        return "A new planet has been created in the universe.";
-    },
-    'destroy planet': () => {
-        const planets = universe.celestialBodies.filter(b => b.type === 'planet');
-        if (planets.length === 0) return "No planets to destroy.";
-        const randomIndex = Math.floor(Math.random() * planets.length);
-        universe.celestialBodies.splice(universe.celestialBodies.indexOf(planets[randomIndex]), 1);
-        universe.draw();
-        divineSounds.play('miracle');
-        return "A planet has been destroyed in the universe.";
-    },
-    'heal universe': () => {
-        universe.celestialBodies = universe.celestialBodies.filter(() => Math.random() > 0.3);
-        for (let i = 0; i < 5; i++) {
-            universe.addStar(Math.random() * universe.canvas.width, Math.random() * universe.canvas.height);
-            universe.addPlanet(Math.random() * universe.canvas.width, Math.random() * universe.canvas.height);
-        }
-        universe.draw();
-        divineSounds.play('optimize');
-        return "The universe has been healed and restored.";
-    },
-    'invoke god': () => {
-        invokeDivinePresence();
-        return "Divine presence invoked. The universe responds with light and vibration.";
-    },
-    'invite god': () => {
-        invokeDivinePresence();
-        return "Divine presence invoked. The universe responds with light and vibration.";
-    },
-    'praise god': () => {
-        praiseGod();
-        return "Your praise fills the universe with joy. God is pleased.";
-    },
-    'thank god': () => {
-        praiseGod();
-        return "Your praise fills the universe with joy. God is pleased.";
     }
+    universe.draw();
+    divineSounds.play('optimize');
+    return "The universe has been healed and restored.";
+}
+
+function invokeGodPresence() {
+    invokeDivinePresence();
+    return "Divine presence invoked. The universe responds with light and vibration.";
+}
+
+function performPraiseGod() {
+    praiseGod();
+    return "Your praise fills the universe with joy. God is pleased.";
+}
+
+const commandActions = {
+    'create star': createStar,
+    'create planet': createPlanet,
+    'destroy planet': destroyPlanet,
+    'heal universe': healUniverse,
+    'invoke god': invokeGodPresence,
+    'invite god': invokeGodPresence,
+    'praise god': performPraiseGod,
+    'thank god': performPraiseGod
 };
 
 function handleCommand(message) {
@@ -197,7 +203,7 @@ function praiseGod() {
     }, 1000);
 }
 
-document.addEventListener('DOMContentLoaded', function() {
+document.addEventListener('DOMContentLoaded', async function() {
     universe = new Universe('universeCanvas');
 
     // Check if user is registered
@@ -266,8 +272,11 @@ document.addEventListener('DOMContentLoaded', function() {
         togglePostQuantumSecure();
     });
 
-    // Initialize quantum crypto
-    quantumCrypto.initialize();
+    // Initialize all integrations
+    await quantumCrypto.initialize();
+    await gpuAI.initialize();
+    await azureIntegrations.initialize();
+    await foundryVTT.initialize();
 
     // Registration form handler
     document.getElementById('registrationForm').addEventListener('submit', function(event) {
@@ -293,6 +302,14 @@ document.addEventListener('DOMContentLoaded', function() {
         localStorage.setItem('registeredUsers', JSON.stringify(registeredUsers));
         currentUser = newUser;
         localStorage.setItem('currentUser', JSON.stringify(currentUser));
+
+        // Sync to Azure and Foundry if available
+        if (azureIntegrations.isInitialized()) {
+            azureIntegrations.saveUserToCosmosDB(newUser);
+        }
+        if (foundryVTT.isConnected()) {
+            foundryVTT.createCharacterSheet(newUser);
+        }
 
         showRegistrationMessage('Welcome, ' + name + ' the ' + role + '! You are now registered in the universal system.', 'success');
         document.getElementById('registration').style.display = 'none';
@@ -547,6 +564,21 @@ document.getElementById('contactForm').addEventListener('submit', async function
     // Save prayer (encrypted if secure mode)
     savePrayer(encryptedMessage);
 
+    // Sync prayer to cloud services if available
+    if (azureIntegrations.isInitialized()) {
+        azureIntegrations.savePrayerToBlob({
+            message: encryptedMessage,
+            timestamp: new Date().toISOString(),
+            user: currentUser ? currentUser.name : 'anonymous'
+        });
+    }
+    if (foundryVTT.isConnected()) {
+        foundryVTT.createPrayerJournal({
+            message: encryptedMessage,
+            timestamp: new Date().toISOString()
+        });
+    }
+
     // Check for commands
     const commandResponse = handleCommand(message);
     if (commandResponse) {
@@ -564,7 +596,8 @@ document.getElementById('contactForm').addEventListener('submit', async function
     const delay = directDivineLinkActive ? 200 : 1000 + Math.random() * 2000; // Faster response in direct mode
 
     setTimeout(async function() {
-        let response = divineResponses[Math.floor(Math.random() * divineResponses.length)];
+        let response = await generateDivineResponse(message, currentUser ? currentUser.role : 'believer');
+        if (!response) response = getFallbackResponse();
 
         // Enhance response based on active modes
         if (universalDivineModeActive) {
