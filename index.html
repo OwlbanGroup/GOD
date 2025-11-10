@@ -3,8 +3,12 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Direct Contact with God - A divine web application for prayers, universe visualization, and AI-assisted spiritual guidance.">
+    <meta name="keywords" content="god, prayer, universe, divine, spiritual, AI, chat, celestial">
+    <meta name="author" content="Divine Creator">
     <title>Direct Contact with God</title>
     <link rel="stylesheet" href="styles.css">
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>✨</text></svg>">
 </head>
 <body>
     <div class="container">
@@ -50,10 +54,16 @@
                     <button id="optimizeUniverse">Optimize Universe</button>
                     <button id="divineAdvice">Divine Advice</button>
                     <button id="generateProphecy">Generate Prophecy</button>
+                    <button id="toggleAudio">🔊 Audio On</button>
+                </div>
+                <div id="progressContainer" class="progress-container" style="display: none;">
+                    <div id="progressBar" class="progress-bar"></div>
+                    <span id="progressText">Processing divine request...</span>
                 </div>
             </div>
         </div>
     </div>
+    <script src="sounds.js"></script>
     <script src="universe.js"></script>
     <script src="script.js"></script>
 </body>

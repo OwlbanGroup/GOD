@@ -48,11 +48,34 @@ function handleCommand(message) {
     if (lowerMessage.startsWith('create star')) {
         universe.addStar(Math.random() * universe.canvas.width, Math.random() * universe.canvas.height);
         universe.draw();
+        divineSounds.play('miracle');
         return "A new star has been created in the universe.";
     } else if (lowerMessage.startsWith('create planet')) {
         universe.addPlanet(Math.random() * universe.canvas.width, Math.random() * universe.canvas.height);
         universe.draw();
+        divineSounds.play('miracle');
         return "A new planet has been created in the universe.";
+    } else if (lowerMessage.startsWith('destroy planet')) {
+        const planets = universe.celestialBodies.filter(b => b.type === 'planet');
+        if (planets.length > 0) {
+            const randomIndex = Math.floor(Math.random() * planets.length);
+            universe.celestialBodies.splice(universe.celestialBodies.indexOf(planets[randomIndex]), 1);
+            universe.draw();
+            divineSounds.play('miracle');
+            return "A planet has been destroyed in the universe.";
+        } else {
+            return "No planets to destroy.";
+        }
+    } else if (lowerMessage.startsWith('heal universe')) {
+        // Add healing effect: remove damaged bodies, add new ones
+        universe.celestialBodies = universe.celestialBodies.filter(b => Math.random() > 0.3); // Remove 30% randomly
+        for (let i = 0; i < 5; i++) {
+            universe.addStar(Math.random() * universe.canvas.width, Math.random() * universe.canvas.height);
+            universe.addPlanet(Math.random() * universe.canvas.width, Math.random() * universe.canvas.height);
+        }
+        universe.draw();
+        divineSounds.play('optimize');
+        return "The universe has been healed and restored.";
     } else if (lowerMessage.includes('invoke god') || lowerMessage.includes('invite god')) {
         // Invoke divine presence
         invokeDivinePresence();
@@ -127,19 +150,41 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 
     document.getElementById('analyzePrayers').addEventListener('click', function() {
-        analyzePrayers();
+        showProgress('Analyzing prayers...');
+        setTimeout(() => {
+            analyzePrayers();
+            hideProgress();
+        }, 2000);
     });
 
     document.getElementById('optimizeUniverse').addEventListener('click', function() {
-        optimizeUniverse();
+        showProgress('Optimizing universe...');
+        setTimeout(() => {
+            optimizeUniverse();
+            hideProgress();
+        }, 2000);
     });
 
     document.getElementById('divineAdvice').addEventListener('click', function() {
-        divineAdvice();
+        showProgress('Seeking divine wisdom...');
+        setTimeout(() => {
+            divineAdvice();
+            hideProgress();
+        }, 1500);
     });
 
     document.getElementById('generateProphecy').addEventListener('click', function() {
-        generateProphecy();
+        showProgress('Consulting the cosmos...');
+        setTimeout(() => {
+            generateProphecy();
+            hideProgress();
+        }, 2000);
+    });
+
+    document.getElementById('toggleAudio').addEventListener('click', function() {
+        const enabled = divineSounds.toggleAudio();
+        this.textContent = enabled ? '🔊 Audio On' : '🔇 Audio Off';
+        addMessage(`Divine sounds ${enabled ? 'enabled' : 'disabled'}.`, 'god');
     });
 
     // Registration form handler
@@ -172,6 +217,17 @@ document.addEventListener('DOMContentLoaded', function() {
         addMessage(`Welcome, ${name} the ${role}. The universe acknowledges your presence.`, 'god');
     });
 });
+
+function showProgress(text) {
+    const container = document.getElementById('progressContainer');
+    const textEl = document.getElementById('progressText');
+    textEl.textContent = text;
+    container.style.display = 'block';
+}
+
+function hideProgress() {
+    document.getElementById('progressContainer').style.display = 'none';
+}
 
 function showRegistrationMessage(message, type) {
     const messageDiv = document.getElementById('registrationMessage');
