@@ -258,41 +258,58 @@ async function initializeIntegrations() {
     await foundryVTT.initialize();
 }
 
-function handleRegistrationForm(event) {
-    event.preventDefault();
-    const name = document.getElementById('name').value.trim();
-    const role = document.getElementById('role').value;
-
+function validateRegistrationInput(name, role) {
     if (name === '' || role === '') {
         showRegistrationMessage('Please fill in all fields.', 'error');
-        return;
+        return false;
     }
+    return true;
+}
 
-    // Check if user already exists
+function checkUserExists(name) {
     const existingUser = registeredUsers.find(user => user.name === name);
     if (existingUser) {
         showRegistrationMessage('This name is already registered.', 'error');
-        return;
+        return true;
     }
+    return false;
+}
 
-    // Register user
+function registerNewUser(name, role) {
     const newUser = { name, role, registeredAt: new Date().toISOString() };
     registeredUsers.push(newUser);
     localStorage.setItem('registeredUsers', JSON.stringify(registeredUsers));
     currentUser = newUser;
     localStorage.setItem('currentUser', JSON.stringify(currentUser));
+    return newUser;
+}
 
-    // Sync to Azure and Foundry if available
+function syncUserToServices(newUser) {
     if (azureIntegrations.isInitialized()) {
         azureIntegrations.saveUserToCosmosDB(newUser);
     }
     if (foundryVTT.isConnected()) {
         foundryVTT.createCharacterSheet(newUser);
     }
+}
 
+function completeRegistration(name, role) {
     showRegistrationMessage('Welcome, ' + name + ' the ' + role + '! You are now registered in the universal system.', 'success');
     document.getElementById('registration').style.display = 'none';
     addMessage('Welcome, ' + name + ' the ' + role + '. The universe acknowledges your presence.', 'god');
+}
+
+function handleRegistrationForm(event) {
+    event.preventDefault();
+    const name = document.getElementById('name').value.trim();
+    const role = document.getElementById('role').value;
+
+    if (!validateRegistrationInput(name, role)) return;
+    if (checkUserExists(name)) return;
+
+    const newUser = registerNewUser(name, role);
+    syncUserToServices(newUser);
+    completeRegistration(name, role);
 }
 
 async function loadUsersFromCloud() {

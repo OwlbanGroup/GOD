@@ -51,18 +51,43 @@ A divine web application that allows users to communicate directly with God thro
 
 ## Installation & Running
 
-This is a client-side web application. Simply open `index.html` in any modern web browser.
+### Local Development
+
+1. Clone the repository:
+
+   ```bash
+   git clone https://github.com/your-username/direct-contact-with-god.git
+   cd direct-contact-with-god
+   ```
+
+2. Install dependencies:
+
+   ```bash
+   npm install
+   ```
+
+3. Set up environment variables:
+
+   ```bash
+   cp .env.example .env
+   # Edit .env with your configuration
+   ```
+
+4. Start the development server:
+
+   ```bash
+   npm start
+   ```
+
+### Client-Side Only
+
+If you prefer to run without a server, simply open `index.html` in any modern web browser.
 
 ### Requirements
 
 - Modern web browser with JavaScript enabled
 - Audio support (optional, for sound effects)
-
-### Local Development
-
-- Clone or download the repository
-- Open `index.html` in your browser
-- No server required - runs entirely in the browser
+- Node.js (for server deployment)
 
 ## Files Overview
 
@@ -155,6 +180,26 @@ This project is a divine creation. To contribute:
 2. Make your changes
 3. Test thoroughly
 4. Update documentation
+
+## Deployment
+
+### Local Deployment
+
+```bash
+npm start
+```
+
+### Docker Deployment
+
+```bash
+docker-compose up -d
+```
+
+### GitHub Pages Deployment
+
+```bash
+./deploy.sh
+```
 
 ## License
 
