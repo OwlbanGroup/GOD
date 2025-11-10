@@ -1,13 +1,214 @@
 class Universe {
     constructor(canvasId) {
         this.canvas = document.getElementById(canvasId);
-        this.ctx = this.canvas.getContext('2d');
-        this.celestialBodies = [];
-        this.animationId = null;
-        this.init();
+        this.gl = this.canvas.getContext('webgl') || this.canvas.getContext('experimental-webgl');
+        if (!this.gl) {
+            console.error('WebGL not supported, falling back to 2D canvas');
+            // Fallback to 2D if WebGL fails
+            this.ctx = this.canvas.getContext('2d');
+            this.useWebGL = false;
+            this.celestialBodies = [];
+            this.animationId = null;
+            this.init2D();
+            return;
+        }
+        this.useWebGL = true;
+        this.particles = []; // For particle system
+        this.program = null;
+        this.vertexBuffer = null;
+        this.colorBuffer = null;
+        this.initWebGL();
     }
 
-    init() {
+    initWebGL() {
+        // Initialize WebGL context
+        const gl = this.gl;
+        gl.viewport(0, 0, this.canvas.width, this.canvas.height);
+        gl.clearColor(0.0, 0.0, 0.05, 1.0); // Dark space background
+        gl.enable(gl.BLEND);
+        gl.blendFunc(gl.SRC_ALPHA, gl.ONE);
+
+        // Vertex shader
+        const vertexShaderSource = `
+            attribute vec2 a_position;
+            attribute vec4 a_color;
+            uniform mat4 u_matrix;
+            varying vec4 v_color;
+            void main() {
+                gl_Position = u_matrix * vec4(a_position, 0.0, 1.0);
+                gl_PointSize = 5.0;
+                v_color = a_color;
+            }
+        `;
+
+        // Fragment shader
+        const fragmentShaderSource = `
+            precision mediump float;
+            varying vec4 v_color;
+            void main() {
+                float dist = distance(gl_PointCoord, vec2(0.5, 0.5));
+                if (dist > 0.5) discard;
+                gl_FragColor = v_color;
+            }
+        `;
+
+        const vertexShader = this.createShader(gl, gl.VERTEX_SHADER, vertexShaderSource);
+        const fragmentShader = this.createShader(gl, gl.FRAGMENT_SHADER, fragmentShaderSource);
+        this.program = this.createProgram(gl, vertexShader, fragmentShader);
+
+        this.vertexBuffer = gl.createBuffer();
+        this.colorBuffer = gl.createBuffer();
+
+        // Add initial particles
+        for (let i = 0; i < 100; i++) {
+            this.addParticle(Math.random() * this.canvas.width, Math.random() * this.canvas.height, 'star');
+        }
+
+        this.canvas.addEventListener('click', (event) => {
+            const rect = this.canvas.getBoundingClientRect();
+            const x = event.clientX - rect.left;
+            const y = event.clientY - rect.top;
+            this.addParticle(x, y, Math.random() < 0.7 ? 'star' : 'planet');
+        });
+
+        this.animate();
+    }
+
+    createShader(gl, type, source) {
+        const shader = gl.createShader(type);
+        gl.shaderSource(shader, source);
+        gl.compileShader(shader);
+        if (!gl.getShaderParameter(shader, gl.COMPILE_STATUS)) {
+            console.error('Shader compile error:', gl.getShaderInfoLog(shader));
+            gl.deleteShader(shader);
+            return null;
+        }
+        return shader;
+    }
+
+    createProgram(gl, vertexShader, fragmentShader) {
+        const program = gl.createProgram();
+        gl.attachShader(program, vertexShader);
+        gl.attachShader(program, fragmentShader);
+        gl.linkProgram(program);
+        if (!gl.getProgramParameter(program, gl.LINK_STATUS)) {
+            console.error('Program link error:', gl.getProgramInfoLog(program));
+            gl.deleteProgram(program);
+            return null;
+        }
+        return program;
+    }
+
+    addParticle(x, y, type) {
+        const particle = {
+            x: x,
+            y: y,
+            type: type,
+            size: type === 'star' ? Math.random() * 3 + 1 : Math.random() * 8 + 3,
+            color: type === 'star' ? [1.0, 1.0, 1.0, 1.0] : [Math.random(), Math.random(), Math.random(), 1.0],
+            velocity: [Math.random() * 2 - 1, Math.random() * 2 - 1],
+            life: 1.0,
+            twinkle: Math.random() * Math.PI * 2,
+            twinkleSpeed: Math.random() * 0.1 + 0.05,
+            orbitRadius: type === 'planet' ? Math.random() * 50 + 20 : 0,
+            orbitSpeed: type === 'planet' ? Math.random() * 0.02 + 0.005 : 0,
+            angle: Math.random() * Math.PI * 2
+        };
+        this.particles.push(particle);
+    }
+
+    animate() {
+        this.update();
+        this.draw();
+        this.animationId = requestAnimationFrame(() => this.animate());
+    }
+
+    update() {
+        for (let i = this.particles.length - 1; i >= 0; i--) {
+            const p = this.particles[i];
+            if (p.type === 'planet') {
+                p.angle += p.orbitSpeed;
+                p.x += Math.cos(p.angle) * p.orbitRadius * 0.01; // Subtle movement
+                p.y += Math.sin(p.angle) * p.orbitRadius * 0.01;
+            } else if (p.type === 'star') {
+                p.twinkle += p.twinkleSpeed;
+                p.color[3] = 0.3 + 0.7 * Math.sin(p.twinkle); // Twinkle effect
+            }
+            // Simple physics
+            p.x += p.velocity[0];
+            p.y += p.velocity[1];
+            // Wrap around edges
+            if (p.x < 0) p.x = this.canvas.width;
+            if (p.x > this.canvas.width) p.x = 0;
+            if (p.y < 0) p.y = this.canvas.height;
+            if (p.y > this.canvas.height) p.y = 0;
+            p.life -= 0.001;
+            if (p.life <= 0) {
+                this.particles.splice(i, 1);
+            }
+        }
+    }
+
+    draw() {
+        if (!this.useWebGL) {
+            this.draw2D();
+            return;
+        }
+        const gl = this.gl;
+        gl.clear(gl.COLOR_BUFFER_BIT);
+
+        gl.useProgram(this.program);
+
+        // Set up matrices for 2D projection
+        const matrix = new Float32Array([
+            2 / this.canvas.width, 0, 0, 0,
+            0, -2 / this.canvas.height, 0, 0,
+            0, 0, 1, 0,
+            -1, 1, 0, 1
+        ]);
+        const matrixLocation = gl.getUniformLocation(this.program, 'u_matrix');
+        gl.uniformMatrix4fv(matrixLocation, false, matrix);
+
+        // Prepare vertex and color data
+        const vertices = [];
+        const colors = [];
+        for (const p of this.particles) {
+            vertices.push(p.x, p.y);
+            colors.push(...p.color);
+        }
+
+        // Bind vertex buffer
+        gl.bindBuffer(gl.ARRAY_BUFFER, this.vertexBuffer);
+        gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(vertices), gl.DYNAMIC_DRAW);
+        const positionLocation = gl.getAttribLocation(this.program, 'a_position');
+        gl.enableVertexAttribArray(positionLocation);
+        gl.vertexAttribPointer(positionLocation, 2, gl.FLOAT, false, 0, 0);
+
+        // Bind color buffer
+        gl.bindBuffer(gl.ARRAY_BUFFER, this.colorBuffer);
+        gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(colors), gl.DYNAMIC_DRAW);
+        const colorLocation = gl.getAttribLocation(this.program, 'a_color');
+        gl.enableVertexAttribArray(colorLocation);
+        gl.vertexAttribPointer(colorLocation, 4, gl.FLOAT, false, 0, 0);
+
+        // Draw particles
+        gl.drawArrays(gl.POINTS, 0, this.particles.length);
+    }
+
+    clear() {
+        if (this.useWebGL) {
+            this.particles = [];
+            for (let i = 0; i < 100; i++) {
+                this.addParticle(Math.random() * this.canvas.width, Math.random() * this.canvas.height, 'star');
+            }
+        } else {
+            this.celestialBodies = [];
+            this.draw2D();
+        }
+    }
+
+    // Fallback 2D methods
+    init2D() {
         this.canvas.addEventListener('click', (event) => {
             const rect = this.canvas.getBoundingClientRect();
             const x = event.clientX - rect.left;
@@ -18,13 +219,12 @@ class Universe {
     }
 
     addCelestialBodyAt(x, y) {
-        // Randomly add a star or planet
         if (Math.random() < 0.7) {
             this.addStar(x, y);
         } else {
             this.addPlanet(x, y);
         }
-        this.draw();
+        this.draw2D();
     }
 
     addStar(x, y) {
@@ -49,17 +249,11 @@ class Universe {
             orbitRadius: Math.random() * 50 + 20,
             orbitSpeed: Math.random() * 0.02 + 0.005,
             angle: Math.random() * Math.PI * 2,
-            rings: Math.random() > 0.7 // Some planets have rings
+            rings: Math.random() > 0.7
         });
     }
 
-    animate() {
-        this.update();
-        this.draw();
-        this.animationId = requestAnimationFrame(() => this.animate());
-    }
-
-    update() {
+    update2D() {
         for (const body of this.celestialBodies) {
             if (body.type === 'planet') {
                 body.angle += body.orbitSpeed;
@@ -69,8 +263,7 @@ class Universe {
         }
     }
 
-    draw() {
-        // Create gradient background
+    draw2D() {
         const gradient = this.ctx.createLinearGradient(0, 0, 0, this.canvas.height);
         gradient.addColorStop(0, '#000011');
         gradient.addColorStop(0.5, '#000033');
@@ -86,20 +279,17 @@ class Universe {
                 const orbitX = centerX + Math.cos(body.angle) * body.orbitRadius;
                 const orbitY = centerY + Math.sin(body.angle) * body.orbitRadius;
 
-                // Draw orbit path (subtle)
                 this.ctx.strokeStyle = 'rgba(255, 255, 255, 0.1)';
                 this.ctx.lineWidth = 1;
                 this.ctx.beginPath();
                 this.ctx.arc(centerX, centerY, body.orbitRadius, 0, Math.PI * 2);
                 this.ctx.stroke();
 
-                // Draw planet
                 this.ctx.fillStyle = body.color;
                 this.ctx.beginPath();
                 this.ctx.arc(orbitX, orbitY, body.radius, 0, Math.PI * 2);
                 this.ctx.fill();
 
-                // Draw rings if applicable
                 if (body.rings) {
                     this.ctx.strokeStyle = 'rgba(255, 255, 255, 0.3)';
                     this.ctx.lineWidth = 2;
@@ -115,7 +305,6 @@ class Universe {
                 this.ctx.arc(body.x, body.y, body.radius, 0, Math.PI * 2);
                 this.ctx.fill();
 
-                // Add star glow effect
                 this.ctx.shadowColor = '#ffffff';
                 this.ctx.shadowBlur = 10;
                 this.ctx.beginPath();
@@ -128,7 +317,6 @@ class Universe {
                 this.ctx.arc(body.x, body.y, body.radius, 0, Math.PI * 2);
                 this.ctx.fill();
 
-                // Golden glow
                 this.ctx.shadowColor = '#FFD700';
                 this.ctx.shadowBlur = 15;
                 this.ctx.beginPath();
@@ -140,8 +328,14 @@ class Universe {
         }
     }
 
-    clear() {
-        this.celestialBodies = [];
-        this.draw();
+    animate() {
+        if (this.useWebGL) {
+            this.update();
+            this.draw();
+        } else {
+            this.update2D();
+            this.draw2D();
+        }
+        this.animationId = requestAnimationFrame(() => this.animate());
     }
 }

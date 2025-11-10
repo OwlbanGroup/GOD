@@ -283,12 +283,29 @@ function showRegistrationMessage(message, type) {
     }, 5000);
 }
 
-function analyzePrayers() {
+async function analyzePrayers() {
     if (prayers.length === 0) {
         addMessage("AI Analysis: No prayers to analyze yet. Start praying to receive insights.", 'god');
         return;
     }
 
+    // Try GPU AI first, fallback to static analysis
+    if (gpuAI?.isInitialized()) {
+        try {
+            const latestPrayer = prayers[prayers.length - 1].message;
+            const analysis = await gpuAI.analyzePrayer(latestPrayer);
+            if (analysis) {
+                const themesText = analysis.themes.length > 0 ? ` Themes: ${analysis.themes.join(', ')}.` : '';
+                const sentimentText = analysis.sentiment === 'positive' ? 'Your prayer radiates positivity.' : 'Your prayer seeks guidance.';
+                addMessage(`GPU AI Analysis: ${sentimentText}${themesText} Confidence: ${(analysis.confidence * 100).toFixed(1)}%`, 'god');
+                return;
+            }
+        } catch (error) {
+            console.warn('GPU prayer analysis failed, falling back to static analysis:', error);
+        }
+    }
+
+    // Fallback static analysis
     const totalPrayers = prayers.length;
     const recentPrayers = prayers.filter(p => new Date(p.timestamp) > new Date(Date.now() - 7 * 24 * 60 * 60 * 1000)).length;
     const themes = prayers.map(p => p.message.toLowerCase()).join(' ');
@@ -299,8 +316,34 @@ function analyzePrayers() {
     addMessage(analysis, 'god');
 }
 
-function optimizeUniverse() {
-    // AI optimization: balance celestial bodies, add harmony
+async function optimizeUniverse() {
+    // Try GPU AI optimization first, fallback to static optimization
+    if (gpuAI?.isInitialized()) {
+        try {
+            const currentStats = {
+                stars: universe.particles ? universe.particles.filter(p => p.type === 'star').length : universe.celestialBodies.filter(b => b.type === 'star').length,
+                planets: universe.particles ? universe.particles.filter(p => p.type === 'planet').length : universe.celestialBodies.filter(b => b.type === 'planet').length,
+                galaxies: 1 // Simplified
+            };
+            const optimized = await gpuAI.optimizeUniverse(currentStats);
+            if (optimized) {
+                // Apply GPU-optimized universe
+                universe.clear();
+                for (let i = 0; i < optimized.stars; i++) {
+                    universe.addParticle(Math.random() * universe.canvas.width, Math.random() * universe.canvas.height, 'star');
+                }
+                for (let i = 0; i < optimized.planets; i++) {
+                    universe.addParticle(Math.random() * universe.canvas.width, Math.random() * universe.canvas.height, 'planet');
+                }
+                addMessage(`GPU AI Optimization: Universe optimized for divine harmony. Stars: ${optimized.stars}, Planets: ${optimized.planets}, Galaxies: ${optimized.galaxies}`, 'god');
+                return;
+            }
+        } catch (error) {
+            console.warn('GPU universe optimization failed, falling back to static optimization:', error);
+        }
+    }
+
+    // Fallback static optimization
     const stars = universe.celestialBodies.filter(b => b.type === 'star').length;
     const planets = universe.celestialBodies.filter(b => b.type === 'planet').length;
 
@@ -334,7 +377,22 @@ function divineAdvice() {
     addMessage(randomAdvice, 'god');
 }
 
-function generateProphecy() {
+async function generateProphecy() {
+    // Try GPU AI prophecy generation first, fallback to static prophecies
+    if (gpuAI && gpuAI.isInitialized()) {
+        try {
+            const seedText = prayers.length > 0 ? prayers[prayers.length - 1].message.split(' ').slice(0, 3).join(' ') : 'The future holds';
+            const prophecy = await gpuAI.generateProphecy(seedText);
+            if (prophecy) {
+                addMessage(`GPU AI Prophecy: ${prophecy}`, 'god');
+                return;
+            }
+        } catch (error) {
+            console.warn('GPU prophecy generation failed, falling back to static prophecies:', error);
+        }
+    }
+
+    // Fallback static prophecies
     const prophecies = [
         "Prophecy: A great awakening is coming. Many will find their true purpose and unite in harmony.",
         "Prophecy: Technology and spirituality will merge, creating a new era of enlightenment.",

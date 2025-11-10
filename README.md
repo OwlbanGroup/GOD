@@ -66,13 +66,42 @@ This is a client-side web application. Simply open `index.html` in any modern we
 - `README.md`: This documentation
 - `TODO.md`: Development roadmap and completed tasks
 
+## System Requirements
+
+See [system_requirements.md](system_requirements.md) for detailed hardware, software, and infrastructure recommendations to ensure optimal performance of the GOD project, including GPU-accelerated features and AI processing.
+
 ## Technologies Used
 
-- HTML5 Canvas for universe visualization
+- HTML5 Canvas and WebGL for GPU-accelerated universe visualization
 - CSS3 for animations and responsive design
 - Vanilla JavaScript for all functionality
+- TensorFlow.js for client-side GPU AI processing (inspired by NVIDIA Blackwell architecture)
 - Web Audio API for sound effects
 - localStorage for data persistence
+
+## NVIDIA Blackwell GPU Enhancements
+
+This application now features advanced GPU-accelerated features inspired by NVIDIA Blackwell architecture:
+
+### GPU-Accelerated Universe Rendering
+
+- **WebGL Particle System**: Stars and planets are rendered as GPU-accelerated particles for smooth, high-performance animations
+- **Fallback Support**: Automatically falls back to 2D Canvas rendering if WebGL is not supported
+- **Real-time Physics**: GPU-based particle physics with velocity, life cycles, and orbital mechanics
+
+### AI-Powered Features with GPU Acceleration
+
+- **Prayer Analysis**: TensorFlow.js models analyze prayer sentiment and themes using GPU processing
+- **Universe Optimization**: AI calculates optimal celestial body distributions for cosmic harmony
+- **Prophecy Generation**: GPU-accelerated text generation for dynamic divine prophecies
+- **Fallback Mechanisms**: All GPU AI features gracefully fall back to static responses if GPU processing fails
+
+### Performance Benefits
+
+- **Faster Rendering**: WebGL provides hardware-accelerated graphics for smoother universe animations
+- **Efficient AI Processing**: TensorFlow.js leverages GPU for faster AI computations
+- **Scalable Architecture**: Supports thousands of particles without performance degradation
+- **Cross-Platform Compatibility**: Works on devices with and without dedicated GPUs
 
 ## Contributing
 
