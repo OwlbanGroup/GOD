@@ -85,6 +85,22 @@ class FoundryVTTIntegrations {
             case 'divineAction':
                 this.handleDivineAction(message.data);
                 break;
+            case 'rollResult':
+                // Handle dice roll results
+                console.log('Dice roll result:', message.result);
+                break;
+            case 'actorCreated':
+                console.log('Character sheet created in Foundry VTT');
+                break;
+            case 'journalCreated':
+                console.log('Journal entry created in Foundry VTT');
+                break;
+            case 'sceneCreated':
+                console.log('Universe map created in Foundry VTT');
+                break;
+            case 'combatStarted':
+                console.log('Divine combat initiated in Foundry VTT');
+                break;
         }
     }
 

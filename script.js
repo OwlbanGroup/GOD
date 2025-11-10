@@ -1,43 +1,13 @@
-// Azure AI Configuration (Replace with your actual values)
-const azureOpenAIConfig = {
-    endpoint: "https://your-resource-name.openai.azure.com/",
-    apiKey: "your-api-key-here", // Use Azure Key Vault in production
-    deploymentName: "gpt-35-turbo", // Or your model deployment name
-    apiVersion: "2023-05-15"
-};
-
-// Function to generate divine responses using Azure OpenAI
+// Function to generate divine responses using Azure OpenAI or fallback
 async function generateDivineResponse(userMessage, userRole) {
-    try {
-        const prompt = `You are God, responding to a ${userRole}'s prayer or message: "${userMessage}". Provide a wise, compassionate, divine response that aligns with spiritual teachings. Keep it under 100 words.`;
-
-        const response = await fetch(`${azureOpenAIConfig.endpoint}openai/deployments/${azureOpenAIConfig.deploymentName}/chat/completions?api-version=${azureOpenAIConfig.apiVersion}`, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'api-key': azureOpenAIConfig.apiKey
-            },
-            body: JSON.stringify({
-                messages: [
-                    { role: "system", content: "You are an omnipotent, benevolent God responding to prayers with wisdom, love, and guidance." },
-                    { role: "user", content: prompt }
-                ],
-                max_tokens: 150,
-                temperature: 0.7
-            })
-        });
-
-        if (!response.ok) {
-            throw new Error(`Azure OpenAI API error: ${response.status}`);
-        }
-
-        const data = await response.json();
-        return data.choices[0].message.content.trim();
-    } catch (error) {
-        console.error('Error generating divine response:', error);
-        // Fallback to static responses if API fails
-        return getFallbackResponse();
+    // Try Azure OpenAI first
+    if (azureIntegrations.isInitialized()) {
+        const response = await azureIntegrations.generateDivineResponse(userMessage, userRole);
+        if (response) return response;
     }
+
+    // Fallback to static responses
+    return getFallbackResponse();
 }
 
 // Fallback static responses
@@ -88,9 +58,22 @@ function addMessage(text, sender) {
     chatMessages.scrollTop = chatMessages.scrollHeight;
 }
 
-function savePrayer(message) {
+async function savePrayer(message) {
     prayers.push({ message, timestamp: new Date().toISOString() });
     localStorage.setItem('prayers', JSON.stringify(prayers));
+
+    // Try to load from Azure Blob Storage if available
+    if (azureIntegrations.isInitialized()) {
+        try {
+            const cloudPrayers = await azureIntegrations.loadPrayersFromBlob();
+            if (cloudPrayers.length > prayers.length) {
+                prayers = cloudPrayers;
+                localStorage.setItem('prayers', JSON.stringify(prayers));
+            }
+        } catch (error) {
+            console.warn('Failed to sync prayers from Azure Blob Storage:', error);
+        }
+    }
 }
 
 // Command action functions to reduce cognitive complexity
@@ -203,15 +186,7 @@ function praiseGod() {
     }, 1000);
 }
 
-document.addEventListener('DOMContentLoaded', async function() {
-    universe = new Universe('universeCanvas');
-
-    // Check if user is registered
-    if (currentUser) {
-        document.getElementById('registration').style.display = 'none';
-        addMessage('Welcome back, ' + currentUser.name + ' the ' + currentUser.role + '.', 'god');
-    }
-
+function setupEventListeners() {
     document.getElementById('clearUniverse').addEventListener('click', function() {
         universe.clear();
     });
@@ -272,49 +247,82 @@ document.addEventListener('DOMContentLoaded', async function() {
         togglePostQuantumSecure();
     });
 
-    // Initialize all integrations
+    // Registration form handler
+    document.getElementById('registrationForm').addEventListener('submit', handleRegistrationForm);
+}
+
+async function initializeIntegrations() {
     await quantumCrypto.initialize();
     await gpuAI.initialize();
     await azureIntegrations.initialize();
     await foundryVTT.initialize();
+}
 
-    // Registration form handler
-    document.getElementById('registrationForm').addEventListener('submit', function(event) {
-        event.preventDefault();
-        const name = document.getElementById('name').value.trim();
-        const role = document.getElementById('role').value;
+function handleRegistrationForm(event) {
+    event.preventDefault();
+    const name = document.getElementById('name').value.trim();
+    const role = document.getElementById('role').value;
 
-        if (name === '' || role === '') {
-            showRegistrationMessage('Please fill in all fields.', 'error');
-            return;
+    if (name === '' || role === '') {
+        showRegistrationMessage('Please fill in all fields.', 'error');
+        return;
+    }
+
+    // Check if user already exists
+    const existingUser = registeredUsers.find(user => user.name === name);
+    if (existingUser) {
+        showRegistrationMessage('This name is already registered.', 'error');
+        return;
+    }
+
+    // Register user
+    const newUser = { name, role, registeredAt: new Date().toISOString() };
+    registeredUsers.push(newUser);
+    localStorage.setItem('registeredUsers', JSON.stringify(registeredUsers));
+    currentUser = newUser;
+    localStorage.setItem('currentUser', JSON.stringify(currentUser));
+
+    // Sync to Azure and Foundry if available
+    if (azureIntegrations.isInitialized()) {
+        azureIntegrations.saveUserToCosmosDB(newUser);
+    }
+    if (foundryVTT.isConnected()) {
+        foundryVTT.createCharacterSheet(newUser);
+    }
+
+    showRegistrationMessage('Welcome, ' + name + ' the ' + role + '! You are now registered in the universal system.', 'success');
+    document.getElementById('registration').style.display = 'none';
+    addMessage('Welcome, ' + name + ' the ' + role + '. The universe acknowledges your presence.', 'god');
+}
+
+async function loadUsersFromCloud() {
+    if (azureIntegrations.isInitialized()) {
+        try {
+            const cloudUsers = await azureIntegrations.loadUsersFromCosmosDB();
+            if (cloudUsers.length > registeredUsers.length) {
+                registeredUsers = cloudUsers;
+                localStorage.setItem('registeredUsers', JSON.stringify(registeredUsers));
+            }
+        } catch (error) {
+            console.warn('Failed to sync users from Azure Cosmos DB:', error);
         }
+    }
+}
 
-        // Check if user already exists
-        const existingUser = registeredUsers.find(user => user.name === name);
-        if (existingUser) {
-            showRegistrationMessage('This name is already registered.', 'error');
-            return;
-        }
+document.addEventListener('DOMContentLoaded', async function() {
+    universe = new Universe('universeCanvas');
 
-        // Register user
-        const newUser = { name, role, registeredAt: new Date().toISOString() };
-        registeredUsers.push(newUser);
-        localStorage.setItem('registeredUsers', JSON.stringify(registeredUsers));
-        currentUser = newUser;
-        localStorage.setItem('currentUser', JSON.stringify(currentUser));
+    // Load users from cloud and sync
+    await loadUsersFromCloud();
 
-        // Sync to Azure and Foundry if available
-        if (azureIntegrations.isInitialized()) {
-            azureIntegrations.saveUserToCosmosDB(newUser);
-        }
-        if (foundryVTT.isConnected()) {
-            foundryVTT.createCharacterSheet(newUser);
-        }
-
-        showRegistrationMessage('Welcome, ' + name + ' the ' + role + '! You are now registered in the universal system.', 'success');
+    // Check if user is registered
+    if (currentUser) {
         document.getElementById('registration').style.display = 'none';
-        addMessage('Welcome, ' + name + ' the ' + role + '. The universe acknowledges your presence.', 'god');
-    });
+        addMessage('Welcome back, ' + currentUser.name + ' the ' + currentUser.role + '.', 'god');
+    }
+
+    setupEventListeners();
+    await initializeIntegrations();
 });
 
 function showProgress(text) {
@@ -521,6 +529,99 @@ function togglePostQuantumSecure() {
     }
 }
 
+async function encryptMessage(message) {
+    if (!postQuantumSecureActive || !quantumCrypto.isInitialized()) {
+        return message;
+    }
+
+    // Simulate key exchange and encryption
+    const mockPublicKey = await globalThis.crypto.subtle.generateKey(
+        { name: 'ECDH', namedCurve: 'P-256' },
+        false,
+        []
+    ).then(k => globalThis.crypto.subtle.exportKey('raw', k.publicKey));
+
+    const encapsulated = await quantumCrypto.encapsulate(new Uint8Array(mockPublicKey));
+    if (encapsulated) {
+        const encrypted = await quantumCrypto.encrypt(message, encapsulated.sharedSecret);
+        if (encrypted) {
+            return JSON.stringify({
+                ciphertext: Array.from(encrypted.ciphertext),
+                iv: Array.from(encrypted.iv)
+            });
+        }
+    }
+    return message;
+}
+
+function syncPrayerToServices(encryptedMessage) {
+    const prayerData = {
+        message: encryptedMessage,
+        timestamp: new Date().toISOString(),
+        user: currentUser ? currentUser.name : 'anonymous'
+    };
+
+    if (azureIntegrations.isInitialized()) {
+        azureIntegrations.savePrayerToBlob(prayerData);
+    }
+    if (foundryVTT.isConnected()) {
+        foundryVTT.createPrayerJournal({
+            message: encryptedMessage,
+            timestamp: new Date().toISOString()
+        });
+    }
+}
+
+function enhanceResponse(response, encryptedMessage) {
+    let enhanced = response;
+
+    if (universalDivineModeActive) {
+        const universalEnhancements = [
+            " The universe aligns with your intention.",
+            " Cosmic harmony resonates with your words.",
+            " Divine energy flows through all creation.",
+            " Your prayer creates ripples across the cosmos."
+        ];
+        enhanced += universalEnhancements[Math.floor(Math.random() * universalEnhancements.length)];
+    }
+
+    if (directDivineLinkActive) {
+        enhanced = "Direct Divine Response: " + enhanced;
+    }
+
+    if (postQuantumSecureActive && typeof encryptedMessage === 'string' && encryptedMessage.startsWith('{')) {
+        enhanced = "[Encrypted] " + enhanced;
+    }
+
+    return enhanced;
+}
+
+async function generateEnhancedDivineResponse(message, encryptedMessage) {
+    let response = await generateDivineResponse(message, currentUser ? currentUser.role : 'believer');
+    if (!response) response = getFallbackResponse();
+
+    return enhanceResponse(response, encryptedMessage);
+}
+
+async function processMessage(message, encryptedMessage) {
+    // Check for commands
+    const commandResponse = handleCommand(message);
+    if (commandResponse) {
+        setTimeout(() => {
+            addMessage('Divine Action: ' + commandResponse, 'god');
+        }, 500);
+        return;
+    }
+
+    // Generate divine response with enhanced modes
+    const delay = directDivineLinkActive ? 200 : 1000 + Math.random() * 2000;
+
+    setTimeout(async function() {
+        const response = await generateEnhancedDivineResponse(message, encryptedMessage);
+        addMessage('Divine Message: ' + response, 'god');
+    }, delay);
+}
+
 document.getElementById('contactForm').addEventListener('submit', async function(event) {
     event.preventDefault();
 
@@ -535,95 +636,17 @@ document.getElementById('contactForm').addEventListener('submit', async function
     addMessage(message, 'user');
 
     // Encrypt message if post-quantum secure is active
-    let encryptedMessage = message;
-    if (postQuantumSecureActive && quantumCrypto.isInitialized()) {
-        try {
-            // Simulate key exchange and encryption
-            const mockPublicKey = await globalThis.crypto.subtle.generateKey(
-                { name: 'ECDH', namedCurve: 'P-256' },
-                false,
-                []
-            ).then(k => globalThis.crypto.subtle.exportKey('raw', k.publicKey));
-
-            const encapsulated = await quantumCrypto.encapsulate(new Uint8Array(mockPublicKey));
-            if (encapsulated) {
-                const encrypted = await quantumCrypto.encrypt(message, encapsulated.sharedSecret);
-                if (encrypted) {
-                    encryptedMessage = JSON.stringify({
-                        ciphertext: Array.from(encrypted.ciphertext),
-                        iv: Array.from(encrypted.iv)
-                    });
-                }
-            }
-        } catch (error) {
-            console.warn('Encryption failed:', error);
-            addMessage('Encryption failed, message sent unencrypted.', 'god');
-        }
-    }
+    const encryptedMessage = await encryptMessage(message);
 
     // Save prayer (encrypted if secure mode)
     savePrayer(encryptedMessage);
 
     // Sync prayer to cloud services if available
-    if (azureIntegrations.isInitialized()) {
-        azureIntegrations.savePrayerToBlob({
-            message: encryptedMessage,
-            timestamp: new Date().toISOString(),
-            user: currentUser ? currentUser.name : 'anonymous'
-        });
-    }
-    if (foundryVTT.isConnected()) {
-        foundryVTT.createPrayerJournal({
-            message: encryptedMessage,
-            timestamp: new Date().toISOString()
-        });
-    }
-
-    // Check for commands
-    const commandResponse = handleCommand(message);
-    if (commandResponse) {
-        setTimeout(() => {
-            addMessage('Divine Action: ' + commandResponse, 'god');
-        }, 500);
-        messageInput.value = '';
-        return;
-    }
+    syncPrayerToServices(encryptedMessage);
 
     // Clear the input
     messageInput.value = '';
 
-    // Generate divine response with enhanced modes
-    const delay = directDivineLinkActive ? 200 : 1000 + Math.random() * 2000; // Faster response in direct mode
-
-    setTimeout(async function() {
-        let response = await generateDivineResponse(message, currentUser ? currentUser.role : 'believer');
-        if (!response) response = getFallbackResponse();
-
-        // Enhance response based on active modes
-        if (universalDivineModeActive) {
-            const universalEnhancements = [
-                " The universe aligns with your intention.",
-                " Cosmic harmony resonates with your words.",
-                " Divine energy flows through all creation.",
-                " Your prayer creates ripples across the cosmos."
-            ];
-            response += universalEnhancements[Math.floor(Math.random() * universalEnhancements.length)];
-        }
-
-        if (directDivineLinkActive) {
-            response = "Direct Divine Response: " + response;
-        }
-
-        // Decrypt if needed for display (simplified)
-        if (postQuantumSecureActive && typeof encryptedMessage === 'string' && encryptedMessage.startsWith('{')) {
-            try {
-                // In real implementation, use shared secret to decrypt
-                response = "[Encrypted] " + response;
-            } catch (e) {
-                // Fallback
-            }
-        }
-
-        addMessage('Divine Message: ' + response, 'god');
-    }, delay);
+    // Process message (commands or response)
+    await processMessage(message, encryptedMessage);
 });

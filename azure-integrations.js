@@ -102,9 +102,39 @@ class AzureIntegrations {
     async loadPrayersFromBlob() {
         if (!this.initialized) return [];
 
-        // In a real implementation, you'd list blobs and fetch them
-        // For demo, return empty array as fallback
-        return [];
+        try {
+            // First, list blobs in the container
+            const listUrl = `https://${this.config.blobStorage.accountName}.blob.core.windows.net/${this.config.blobStorage.containerName}?restype=container&comp=list${this.config.blobStorage.sasToken}`;
+            const listResponse = await fetch(listUrl);
+
+            if (!listResponse.ok) {
+                console.warn('Failed to list blobs:', listResponse.status);
+                return [];
+            }
+
+            const listData = await listResponse.text();
+            const parser = new DOMParser();
+            const xmlDoc = parser.parseFromString(listData, 'text/xml');
+            const blobs = xmlDoc.getElementsByTagName('Blob');
+
+            const prayers = [];
+            for (let blob of blobs) {
+                const name = blob.getElementsByTagName('Name')[0].textContent;
+                if (name.startsWith('prayer-')) {
+                    const blobUrl = `https://${this.config.blobStorage.accountName}.blob.core.windows.net/${this.config.blobStorage.containerName}/${name}${this.config.blobStorage.sasToken}`;
+                    const blobResponse = await fetch(blobUrl);
+                    if (blobResponse.ok) {
+                        const prayerData = await blobResponse.json();
+                        prayers.push(prayerData);
+                    }
+                }
+            }
+
+            return prayers;
+        } catch (error) {
+            console.warn('Azure Blob Storage load failed:', error);
+            return [];
+        }
     }
 
     // Azure Functions for Serverless Processing
