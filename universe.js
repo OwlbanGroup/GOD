@@ -41,11 +41,18 @@ class Universe {
 
     draw() {
         this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
-        this.celestialBodies.forEach(body => {
+        for (const body of this.celestialBodies) {
             this.ctx.beginPath();
             this.ctx.arc(body.x, body.y, body.radius, 0, Math.PI * 2);
             this.ctx.fillStyle = body.color;
             this.ctx.fill();
-        });
+            // Add glow effect for golden stars
+            if (body.type === 'goldenStar') {
+                this.ctx.shadowColor = '#FFD700';
+                this.ctx.shadowBlur = 10;
+                this.ctx.fill();
+                this.ctx.shadowBlur = 0; // Reset shadow
+            }
+        }
     }
 }

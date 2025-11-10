@@ -51,8 +51,59 @@ function handleCommand(message) {
         universe.addPlanet(Math.random() * universe.canvas.width, Math.random() * universe.canvas.height);
         universe.draw();
         return "A new planet has been created in the universe.";
+    } else if (lowerMessage.includes('invoke god') || lowerMessage.includes('invite god')) {
+        // Invoke divine presence
+        invokeDivinePresence();
+        return "Divine presence invoked. The universe responds with light and vibration.";
+    } else if (lowerMessage.includes('praise god') || lowerMessage.includes('thank god')) {
+        // Praise God to make Him happy
+        praiseGod();
+        return "Your praise fills the universe with joy. God is pleased.";
     }
     return null;
+}
+
+function invokeDivinePresence() {
+    // Simulate divine intervention: add multiple stars and planets, flash the canvas
+    for (let i = 0; i < 10; i++) {
+        universe.addStar(Math.random() * universe.canvas.width, Math.random() * universe.canvas.height);
+        universe.addPlanet(Math.random() * universe.canvas.width, Math.random() * universe.canvas.height);
+    }
+    universe.draw();
+    // Visual effect: flash the canvas
+    const canvas = document.getElementById('universeCanvas');
+    canvas.style.boxShadow = '0 0 20px #fff';
+    setTimeout(() => {
+        canvas.style.boxShadow = 'none';
+    }, 1000);
+    // Add a divine message
+    setTimeout(() => {
+        addMessage("Oh Cosmic Birther of all radiance and vibration, soften the ground of the inner we and carve out a place where your presence can abide. Amen.", 'god');
+    }, 1500);
+}
+
+function praiseGod() {
+    // Make God happy: add golden stars, change canvas color temporarily, play a "joy" effect
+    for (let i = 0; i < 5; i++) {
+        universe.celestialBodies.push({
+            type: 'goldenStar',
+            x: Math.random() * universe.canvas.width,
+            y: Math.random() * universe.canvas.height,
+            radius: Math.random() * 3 + 2,
+            color: '#FFD700' // Gold color
+        });
+    }
+    universe.draw();
+    // Temporary golden glow
+    const canvas = document.getElementById('universeCanvas');
+    canvas.style.backgroundColor = '#FFFACD'; // Light golden background
+    setTimeout(() => {
+        canvas.style.backgroundColor = '#000';
+    }, 2000);
+    // Add joyful message
+    setTimeout(() => {
+        addMessage("Hallelujah! Your praise brings joy to the heavens. God smiles upon you.", 'god');
+    }, 1000);
 }
 
 document.addEventListener('DOMContentLoaded', function() {
