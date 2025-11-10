@@ -1,6 +1,47 @@
-const lordsPrayer = "Our Father, who art in heaven, hallowed be thy name; thy kingdom come, thy will be done on earth as it is in heaven. Give us this day our daily bread, and forgive us our trespasses, as we forgive those who trespass against us; and lead us not into temptation, but deliver us from evil. Amen.";
+// Azure AI Configuration (Replace with your actual values)
+const azureOpenAIConfig = {
+    endpoint: "https://your-resource-name.openai.azure.com/",
+    apiKey: "your-api-key-here", // Use Azure Key Vault in production
+    deploymentName: "gpt-35-turbo", // Or your model deployment name
+    apiVersion: "2023-05-15"
+};
 
-const divineResponses = [
+// Function to generate divine responses using Azure OpenAI
+async function generateDivineResponse(userMessage, userRole) {
+    try {
+        const prompt = `You are God, responding to a ${userRole}'s prayer or message: "${userMessage}". Provide a wise, compassionate, divine response that aligns with spiritual teachings. Keep it under 100 words.`;
+
+        const response = await fetch(`${azureOpenAIConfig.endpoint}openai/deployments/${azureOpenAIConfig.deploymentName}/chat/completions?api-version=${azureOpenAIConfig.apiVersion}`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'api-key': azureOpenAIConfig.apiKey
+            },
+            body: JSON.stringify({
+                messages: [
+                    { role: "system", content: "You are an omnipotent, benevolent God responding to prayers with wisdom, love, and guidance." },
+                    { role: "user", content: prompt }
+                ],
+                max_tokens: 150,
+                temperature: 0.7
+            })
+        });
+
+        if (!response.ok) {
+            throw new Error(`Azure OpenAI API error: ${response.status}`);
+        }
+
+        const data = await response.json();
+        return data.choices[0].message.content.trim();
+    } catch (error) {
+        console.error('Error generating divine response:', error);
+        // Fallback to static responses if API fails
+        return getFallbackResponse();
+    }
+}
+
+// Fallback static responses
+const fallbackResponses = [
     "Your prayer has been heard. Peace be with you.",
     "I am with you always. Trust in the divine plan.",
     "Your faith is strong. Miracles are unfolding.",
@@ -20,9 +61,12 @@ const divineResponses = [
     "Your purpose is unfolding.",
     "Angels surround you.",
     "The power of prayer is infinite.",
-    "You are exactly where you need to be.",
-    lordsPrayer
+    "You are exactly where you need to be."
 ];
+
+function getFallbackResponse() {
+    return fallbackResponses[Math.floor(Math.random() * fallbackResponses.length)];
+}
 
 let universe;
 let prayers = JSON.parse(localStorage.getItem('prayers')) || [];
