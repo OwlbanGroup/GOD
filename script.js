@@ -93,32 +93,31 @@ function savePrayer(message) {
     localStorage.setItem('prayers', JSON.stringify(prayers));
 }
 
-function handleCommand(message) {
-    const lowerMessage = message.toLowerCase();
-    if (lowerMessage.startsWith('create star')) {
+// Command definitions extracted to reduce cognitive complexity
+const commandActions = {
+    'create star': () => {
         universe.addStar(Math.random() * universe.canvas.width, Math.random() * universe.canvas.height);
         universe.draw();
         divineSounds.play('miracle');
         return "A new star has been created in the universe.";
-    } else if (lowerMessage.startsWith('create planet')) {
+    },
+    'create planet': () => {
         universe.addPlanet(Math.random() * universe.canvas.width, Math.random() * universe.canvas.height);
         universe.draw();
         divineSounds.play('miracle');
         return "A new planet has been created in the universe.";
-    } else if (lowerMessage.startsWith('destroy planet')) {
+    },
+    'destroy planet': () => {
         const planets = universe.celestialBodies.filter(b => b.type === 'planet');
-        if (planets.length > 0) {
-            const randomIndex = Math.floor(Math.random() * planets.length);
-            universe.celestialBodies.splice(universe.celestialBodies.indexOf(planets[randomIndex]), 1);
-            universe.draw();
-            divineSounds.play('miracle');
-            return "A planet has been destroyed in the universe.";
-        } else {
-            return "No planets to destroy.";
-        }
-    } else if (lowerMessage.startsWith('heal universe')) {
-        // Add healing effect: remove damaged bodies, add new ones
-        universe.celestialBodies = universe.celestialBodies.filter(b => Math.random() > 0.3); // Remove 30% randomly
+        if (planets.length === 0) return "No planets to destroy.";
+        const randomIndex = Math.floor(Math.random() * planets.length);
+        universe.celestialBodies.splice(universe.celestialBodies.indexOf(planets[randomIndex]), 1);
+        universe.draw();
+        divineSounds.play('miracle');
+        return "A planet has been destroyed in the universe.";
+    },
+    'heal universe': () => {
+        universe.celestialBodies = universe.celestialBodies.filter(() => Math.random() > 0.3);
         for (let i = 0; i < 5; i++) {
             universe.addStar(Math.random() * universe.canvas.width, Math.random() * universe.canvas.height);
             universe.addPlanet(Math.random() * universe.canvas.width, Math.random() * universe.canvas.height);
@@ -126,14 +125,31 @@ function handleCommand(message) {
         universe.draw();
         divineSounds.play('optimize');
         return "The universe has been healed and restored.";
-    } else if (lowerMessage.includes('invoke god') || lowerMessage.includes('invite god')) {
-        // Invoke divine presence
+    },
+    'invoke god': () => {
         invokeDivinePresence();
         return "Divine presence invoked. The universe responds with light and vibration.";
-    } else if (lowerMessage.includes('praise god') || lowerMessage.includes('thank god')) {
-        // Praise God to make Him happy
+    },
+    'invite god': () => {
+        invokeDivinePresence();
+        return "Divine presence invoked. The universe responds with light and vibration.";
+    },
+    'praise god': () => {
         praiseGod();
         return "Your praise fills the universe with joy. God is pleased.";
+    },
+    'thank god': () => {
+        praiseGod();
+        return "Your praise fills the universe with joy. God is pleased.";
+    }
+};
+
+function handleCommand(message) {
+    const lowerMessage = message.toLowerCase();
+    for (const [cmd, action] of Object.entries(commandActions)) {
+        if (lowerMessage.includes(cmd)) {
+            return action();
+        }
     }
     return null;
 }
@@ -401,7 +417,7 @@ function divineAdvice() {
 
 async function generateProphecy() {
     // Try GPU AI prophecy generation first, fallback to static prophecies
-    if (gpuAI && gpuAI.isInitialized()) {
+    if (gpuAI?.isInitialized()) {
         try {
             const seedText = prayers.length > 0 ? prayers[prayers.length - 1].message.split(' ').slice(0, 3).join(' ') : 'The future holds';
             const prophecy = await gpuAI.generateProphecy(seedText);
@@ -506,11 +522,11 @@ document.getElementById('contactForm').addEventListener('submit', async function
     if (postQuantumSecureActive && quantumCrypto.isInitialized()) {
         try {
             // Simulate key exchange and encryption
-            const mockPublicKey = await window.crypto.subtle.generateKey(
+            const mockPublicKey = await globalThis.crypto.subtle.generateKey(
                 { name: 'ECDH', namedCurve: 'P-256' },
                 false,
                 []
-            ).then(k => window.crypto.subtle.exportKey('raw', k.publicKey));
+            ).then(k => globalThis.crypto.subtle.exportKey('raw', k.publicKey));
 
             const encapsulated = await quantumCrypto.encapsulate(new Uint8Array(mockPublicKey));
             if (encapsulated) {
@@ -524,6 +540,7 @@ document.getElementById('contactForm').addEventListener('submit', async function
             }
         } catch (error) {
             console.warn('Encryption failed:', error);
+            addMessage('Encryption failed, message sent unencrypted.', 'god');
         }
     }
 
@@ -533,8 +550,8 @@ document.getElementById('contactForm').addEventListener('submit', async function
     // Check for commands
     const commandResponse = handleCommand(message);
     if (commandResponse) {
-        setTimeout(function() {
-        addMessage('Divine Action: ' + commandResponse, 'god');
+        setTimeout(() => {
+            addMessage('Divine Action: ' + commandResponse, 'god');
         }, 500);
         messageInput.value = '';
         return;
@@ -567,7 +584,6 @@ document.getElementById('contactForm').addEventListener('submit', async function
         // Decrypt if needed for display (simplified)
         if (postQuantumSecureActive && typeof encryptedMessage === 'string' && encryptedMessage.startsWith('{')) {
             try {
-                const encryptedData = JSON.parse(encryptedMessage);
                 // In real implementation, use shared secret to decrypt
                 response = "[Encrypted] " + response;
             } catch (e) {

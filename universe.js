@@ -24,7 +24,7 @@ class Universe {
         // Initialize WebGL context
         const gl = this.gl;
         gl.viewport(0, 0, this.canvas.width, this.canvas.height);
-        gl.clearColor(0.0, 0.0, 0.05, 1.0); // Dark space background
+        gl.clearColor(0, 0, 0.05, 1); // Dark space background
         gl.enable(gl.BLEND);
         gl.blendFunc(gl.SRC_ALPHA, gl.ONE);
 
@@ -35,8 +35,8 @@ class Universe {
             uniform mat4 u_matrix;
             varying vec4 v_color;
             void main() {
-                gl_Position = u_matrix * vec4(a_position, 0.0, 1.0);
-                gl_PointSize = 5.0;
+                gl_Position = u_matrix * vec4(a_position, 0, 1);
+                gl_PointSize = 5;
                 v_color = a_color;
             }
         `;
@@ -105,9 +105,9 @@ class Universe {
             y: y,
             type: type,
             size: type === 'star' ? Math.random() * 3 + 1 : Math.random() * 8 + 3,
-            color: type === 'star' ? [1.0, 1.0, 1.0, 1.0] : [Math.random(), Math.random(), Math.random(), 1.0],
+            color: type === 'star' ? [1, 1, 1, 1] : [Math.random(), Math.random(), Math.random(), 1],
             velocity: [Math.random() * 2 - 1, Math.random() * 2 - 1],
-            life: 1.0,
+            life: 1,
             twinkle: Math.random() * Math.PI * 2,
             twinkleSpeed: Math.random() * 0.1 + 0.05,
             orbitRadius: type === 'planet' ? Math.random() * 50 + 20 : 0,
@@ -115,12 +115,6 @@ class Universe {
             angle: Math.random() * Math.PI * 2
         };
         this.particles.push(particle);
-    }
-
-    animate() {
-        this.update();
-        this.draw();
-        this.animationId = requestAnimationFrame(() => this.animate());
     }
 
     update() {
@@ -360,14 +354,14 @@ class Universe {
                 const p2 = particles[j];
                 const dx = p1.x - p2.x;
                 const dy = p1.y - p2.y;
-                const distance = Math.sqrt(dx * dx + dy * dy);
+                const distance = Math.hypot(dx, dy);
 
                 if (distance < 100) { // Connection threshold
                     this.entanglementConnections.push({
                         x1: p1.x, y1: p1.y,
                         x2: p2.x, y2: p2.y,
                         strength: 1 - (distance / 100),
-                        color: this.quantumEntanglementColor || [0.5, 0.8, 1.0, 0.3]
+                        color: this.quantumEntanglementColor || [0.5, 0.8, 1, 0.3]
                     });
                 }
             }

@@ -3,22 +3,20 @@
 // Uses Web Crypto API with fallback to basic encryption for unsupported browsers
 
 class QuantumCrypto {
-    constructor() {
-        this.initialized = false;
-        this.keyPair = null;
-        this.sharedSecret = null;
-    }
+    initialized = false;
+    keyPair = null;
+    sharedSecret = null;
 
     async initialize() {
         try {
             // Check for Web Crypto API support
-            if (!window.crypto || !window.crypto.subtle) {
+            if (!globalThis.crypto?.subtle) {
                 throw new Error('Web Crypto API not supported');
             }
 
             // Generate Kyber-like key pair (simplified using ECDH for demo)
             // In production, use actual post-quantum library like ml-kem
-            this.keyPair = await window.crypto.subtle.generateKey(
+            this.keyPair = await globalThis.crypto.subtle.generateKey(
                 {
                     name: 'ECDH',
                     namedCurve: 'P-256'
@@ -41,7 +39,7 @@ class QuantumCrypto {
         try {
             // Simulate Kyber encapsulation
             // Generate ephemeral key pair
-            const ephemeralKeyPair = await window.crypto.subtle.generateKey(
+            const ephemeralKeyPair = await globalThis.crypto.subtle.generateKey(
                 {
                     name: 'ECDH',
                     namedCurve: 'P-256'
@@ -51,7 +49,7 @@ class QuantumCrypto {
             );
 
             // Derive shared secret
-            const sharedSecret = await window.crypto.subtle.deriveBits(
+            const sharedSecret = await globalThis.crypto.subtle.deriveBits(
                 {
                     name: 'ECDH',
                     public: publicKey
@@ -61,7 +59,7 @@ class QuantumCrypto {
             );
 
             // Export public key as ciphertext
-            const ciphertext = await window.crypto.subtle.exportKey('raw', ephemeralKeyPair.publicKey);
+            const ciphertext = await globalThis.crypto.subtle.exportKey('raw', ephemeralKeyPair.publicKey);
 
             return {
                 ciphertext: new Uint8Array(ciphertext),
@@ -78,7 +76,7 @@ class QuantumCrypto {
 
         try {
             // Import ciphertext as public key
-            const publicKey = await window.crypto.subtle.importKey(
+            const publicKey = await globalThis.crypto.subtle.importKey(
                 'raw',
                 ciphertext,
                 {
@@ -90,7 +88,7 @@ class QuantumCrypto {
             );
 
             // Derive shared secret
-            const sharedSecret = await window.crypto.subtle.deriveBits(
+            const sharedSecret = await globalThis.crypto.subtle.deriveBits(
                 {
                     name: 'ECDH',
                     public: publicKey
@@ -110,7 +108,7 @@ class QuantumCrypto {
         if (!this.initialized || !sharedSecret) return message; // Fallback to plain text
 
         try {
-            const key = await window.crypto.subtle.importKey(
+            const key = await globalThis.crypto.subtle.importKey(
                 'raw',
                 sharedSecret.slice(0, 32),
                 'AES-GCM',
@@ -118,8 +116,8 @@ class QuantumCrypto {
                 ['encrypt']
             );
 
-            const iv = window.crypto.getRandomValues(new Uint8Array(12));
-            const encrypted = await window.crypto.subtle.encrypt(
+            const iv = globalThis.crypto.getRandomValues(new Uint8Array(12));
+            const encrypted = await globalThis.crypto.subtle.encrypt(
                 {
                     name: 'AES-GCM',
                     iv: iv
@@ -142,7 +140,7 @@ class QuantumCrypto {
         if (!this.initialized || !sharedSecret || !encryptedData.iv) return new TextDecoder().decode(encryptedData.ciphertext);
 
         try {
-            const key = await window.crypto.subtle.importKey(
+            const key = await globalThis.crypto.subtle.importKey(
                 'raw',
                 sharedSecret.slice(0, 32),
                 'AES-GCM',
@@ -150,7 +148,7 @@ class QuantumCrypto {
                 ['decrypt']
             );
 
-            const decrypted = await window.crypto.subtle.decrypt(
+            const decrypted = await globalThis.crypto.subtle.decrypt(
                 {
                     name: 'AES-GCM',
                     iv: encryptedData.iv
