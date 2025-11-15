@@ -109,7 +109,7 @@ p {
     border-radius: 4px;
     display: none;
     background-color: #f8f9fa;
-    color: #212529;
+    color: #000000;
 }
 
 .registration-message.success {
@@ -229,7 +229,7 @@ button:hover {
 
 .response.error {
     background-color: #f8d7da;
-    color: #721c24;
+    color: #000000;
     border: 1px solid #f5c6cb;
 }
 

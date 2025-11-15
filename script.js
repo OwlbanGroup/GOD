@@ -299,17 +299,58 @@ function completeRegistration(name, role) {
     addMessage('Welcome, ' + name + ' the ' + role + '. The universe acknowledges your presence.', 'god');
 }
 
+function validateInput(name, role) {
+    if (name === '' || role === '') {
+        showRegistrationMessage('Please fill in all fields.', 'error');
+        return false;
+    }
+    return true;
+}
+
+function checkExistingUser(name) {
+    const existingUser = registeredUsers.find(user => user.name === name);
+    if (existingUser) {
+        showRegistrationMessage('This name is already registered.', 'error');
+        return true;
+    }
+    return false;
+}
+
+function createUser(name, role) {
+    const newUser = { name, role, registeredAt: new Date().toISOString() };
+    registeredUsers.push(newUser);
+    localStorage.setItem('registeredUsers', JSON.stringify(registeredUsers));
+    currentUser = newUser;
+    localStorage.setItem('currentUser', JSON.stringify(currentUser));
+    return newUser;
+}
+
+function syncToCloud(newUser) {
+    if (azureIntegrations.isInitialized()) {
+        azureIntegrations.saveUserToCosmosDB(newUser);
+    }
+    if (foundryVTT.isConnected()) {
+        foundryVTT.createCharacterSheet(newUser);
+    }
+}
+
+function finalizeRegistration(name, role) {
+    showRegistrationMessage('Welcome, ' + name + ' the ' + role + '! You are now registered in the universal system.', 'success');
+    document.getElementById('registration').style.display = 'none';
+    addMessage('Welcome, ' + name + ' the ' + role + '. The universe acknowledges your presence.', 'god');
+}
+
 function handleRegistrationForm(event) {
     event.preventDefault();
     const name = document.getElementById('name').value.trim();
     const role = document.getElementById('role').value;
 
-    if (!validateRegistrationInput(name, role)) return;
-    if (checkUserExists(name)) return;
+    if (!validateInput(name, role)) return;
+    if (checkExistingUser(name)) return;
 
-    const newUser = registerNewUser(name, role);
-    syncUserToServices(newUser);
-    completeRegistration(name, role);
+    const newUser = createUser(name, role);
+    syncToCloud(newUser);
+    finalizeRegistration(name, role);
 }
 
 async function loadUsersFromCloud() {
