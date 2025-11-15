@@ -258,46 +258,7 @@ async function initializeIntegrations() {
     await foundryVTT.initialize();
 }
 
-function validateRegistrationInput(name, role) {
-    if (name === '' || role === '') {
-        showRegistrationMessage('Please fill in all fields.', 'error');
-        return false;
-    }
-    return true;
-}
 
-function checkUserExists(name) {
-    const existingUser = registeredUsers.find(user => user.name === name);
-    if (existingUser) {
-        showRegistrationMessage('This name is already registered.', 'error');
-        return true;
-    }
-    return false;
-}
-
-function registerNewUser(name, role) {
-    const newUser = { name, role, registeredAt: new Date().toISOString() };
-    registeredUsers.push(newUser);
-    localStorage.setItem('registeredUsers', JSON.stringify(registeredUsers));
-    currentUser = newUser;
-    localStorage.setItem('currentUser', JSON.stringify(currentUser));
-    return newUser;
-}
-
-function syncUserToServices(newUser) {
-    if (azureIntegrations.isInitialized()) {
-        azureIntegrations.saveUserToCosmosDB(newUser);
-    }
-    if (foundryVTT.isConnected()) {
-        foundryVTT.createCharacterSheet(newUser);
-    }
-}
-
-function completeRegistration(name, role) {
-    showRegistrationMessage('Welcome, ' + name + ' the ' + role + '! You are now registered in the universal system.', 'success');
-    document.getElementById('registration').style.display = 'none';
-    addMessage('Welcome, ' + name + ' the ' + role + '. The universe acknowledges your presence.', 'god');
-}
 
 function validateInput(name, role) {
     if (name === '' || role === '') {
@@ -410,6 +371,8 @@ async function analyzePrayers() {
         return;
     }
 
+    let analysisMessage = '';
+
     // Try GPU AI first, fallback to static analysis
     if (gpuAI?.isInitialized()) {
         try {
@@ -418,53 +381,47 @@ async function analyzePrayers() {
             if (analysis) {
                 const themesText = analysis.themes.length > 0 ? ` Themes: ${analysis.themes.join(', ')}.` : '';
                 const sentimentText = analysis.sentiment === 'positive' ? 'Your prayer radiates positivity.' : 'Your prayer seeks guidance.';
-                addMessage(`GPU AI Analysis: ${sentimentText}${themesText} Confidence: ${(analysis.confidence * 100).toFixed(1)}%`, 'god');
-                return;
+                analysisMessage = `GPU AI Analysis: ${sentimentText}${themesText} Confidence: ${(analysis.confidence * 100).toFixed(1)}%`;
             }
         } catch (error) {
             console.warn('GPU prayer analysis failed, falling back to static analysis:', error);
         }
     }
 
-    // Fallback static analysis
-    const totalPrayers = prayers.length;
-    const recentPrayers = prayers.filter(p => new Date(p.timestamp) > new Date(Date.now() - 7 * 24 * 60 * 60 * 1000)).length;
-    const themes = prayers.map(p => p.message.toLowerCase()).join(' ');
-    const commonWords = ['god', 'help', 'thank', 'love', 'peace', 'forgive', 'bless'];
-    const themeCounts = commonWords.map(word => ({ word, count: (themes.match(new RegExp(word, 'g')) || []).length }));
+    // Fallback static analysis if GPU AI failed or not available
+    if (!analysisMessage) {
+        const totalPrayers = prayers.length;
+        const recentPrayers = prayers.filter(p => new Date(p.timestamp) > new Date(Date.now() - 7 * 24 * 60 * 60 * 1000)).length;
+        const themes = prayers.map(p => p.message.toLowerCase()).join(' ');
+        const commonWords = ['god', 'help', 'thank', 'love', 'peace', 'forgive', 'bless'];
+        const themeCounts = commonWords.map(word => ({ word, count: (themes.match(new RegExp(word, 'g')) || []).length }));
 
-    const analysis = 'AI Analysis: You\'ve sent ' + totalPrayers + ' prayers (' + recentPrayers + ' in the last week). Common themes: ' + themeCounts.filter(t => t.count > 0).map(t => t.word + ' (' + t.count + ')').join(', ') + '. Your faith is growing stronger.';
-    addMessage(analysis, 'god');
-}
-
-async function optimizeUniverse() {
-    // Try GPU AI optimization first, fallback to static optimization
-    if (gpuAI?.isInitialized()) {
-        try {
-            const currentStats = {
-                stars: universe.particles ? universe.particles.filter(p => p.type === 'star').length : universe.celestialBodies.filter(b => b.type === 'star').length,
-                planets: universe.particles ? universe.particles.filter(p => p.type === 'planet').length : universe.celestialBodies.filter(b => b.type === 'planet').length,
-                galaxies: 1 // Simplified
-            };
-            const optimized = await gpuAI.optimizeUniverse(currentStats);
-            if (optimized) {
-                // Apply GPU-optimized universe
-                universe.clear();
-                for (let i = 0; i < optimized.stars; i++) {
-                    universe.addParticle(Math.random() * universe.canvas.width, Math.random() * universe.canvas.height, 'star');
-                }
-                for (let i = 0; i < optimized.planets; i++) {
-                    universe.addParticle(Math.random() * universe.canvas.width, Math.random() * universe.canvas.height, 'planet');
-                }
-                addMessage(`GPU AI Optimization: Universe optimized for divine harmony. Stars: ${optimized.stars}, Planets: ${optimized.planets}, Galaxies: ${optimized.galaxies}`, 'god');
-                return;
-            }
-        } catch (error) {
-            console.warn('GPU universe optimization failed, falling back to static optimization:', error);
-        }
+        analysisMessage = 'AI Analysis: You\'ve sent ' + totalPrayers + ' prayers (' + recentPrayers + ' in the last week). Common themes: ' + themeCounts.filter(t => t.count > 0).map(t => t.word + ' (' + t.count + ')').join(', ') + '. Your faith is growing stronger.';
     }
 
-    // Fallback static optimization
+    addMessage(analysisMessage, 'god');
+}
+
+function getCurrentUniverseStats() {
+    return {
+        stars: universe.particles ? universe.particles.filter(p => p.type === 'star').length : universe.celestialBodies.filter(b => b.type === 'star').length,
+        planets: universe.particles ? universe.particles.filter(p => p.type === 'planet').length : universe.celestialBodies.filter(b => b.type === 'planet').length,
+        galaxies: 1 // Simplified
+    };
+}
+
+function applyGpuOptimization(optimized) {
+    universe.clear();
+    for (let i = 0; i < optimized.stars; i++) {
+        universe.addParticle(Math.random() * universe.canvas.width, Math.random() * universe.canvas.height, 'star');
+    }
+    for (let i = 0; i < optimized.planets; i++) {
+        universe.addParticle(Math.random() * universe.canvas.width, Math.random() * universe.canvas.height, 'planet');
+    }
+    addMessage(`GPU AI Optimization: Universe optimized for divine harmony. Stars: ${optimized.stars}, Planets: ${optimized.planets}, Galaxies: ${optimized.galaxies}`, 'god');
+}
+
+function applyStaticOptimization() {
     const stars = universe.celestialBodies.filter(b => b.type === 'star').length;
     const planets = universe.celestialBodies.filter(b => b.type === 'planet').length;
 
@@ -481,6 +438,29 @@ async function optimizeUniverse() {
 
     universe.draw();
     addMessage('AI Optimization: Universe balanced with optimal celestial harmony. Stars: ' + universe.celestialBodies.filter(b => b.type === 'star').length + ', Planets: ' + universe.celestialBodies.filter(b => b.type === 'planet').length, 'god');
+}
+
+async function tryGpuOptimization() {
+    if (!gpuAI?.isInitialized()) return false;
+
+    try {
+        const currentStats = getCurrentUniverseStats();
+        const optimized = await gpuAI.optimizeUniverse(currentStats);
+        if (optimized) {
+            applyGpuOptimization(optimized);
+            return true;
+        }
+    } catch (error) {
+        console.warn('GPU universe optimization failed, falling back to static optimization:', error);
+    }
+    return false;
+}
+
+async function optimizeUniverse() {
+    const gpuOptimized = await tryGpuOptimization();
+    if (!gpuOptimized) {
+        applyStaticOptimization();
+    }
 }
 
 function divineAdvice() {
