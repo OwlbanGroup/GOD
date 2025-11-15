@@ -342,6 +342,9 @@ document.addEventListener('DOMContentLoaded', async function() {
 
     setupEventListeners();
     await initializeIntegrations();
+
+    // Initialize theme toggle
+    initializeThemeToggle();
 });
 
 function showProgress(text) {
@@ -658,6 +661,27 @@ async function processMessage(message, encryptedMessage) {
         const response = await generateEnhancedDivineResponse(message, encryptedMessage);
         addMessage('Divine Message: ' + response, 'god');
     }, delay);
+}
+
+function initializeThemeToggle() {
+    const themeToggle = document.getElementById('themeToggle');
+    const body = document.body;
+
+    // Load saved theme
+    const savedTheme = localStorage.getItem('theme') || 'dark';
+    body.className = savedTheme + '-theme';
+    themeToggle.textContent = savedTheme === 'dark' ? '🌙' : '☀️';
+
+    themeToggle.addEventListener('click', function() {
+        const currentTheme = body.classList.contains('dark-theme') ? 'dark' : 'light';
+        const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+
+        body.className = newTheme + '-theme';
+        themeToggle.textContent = newTheme === 'dark' ? '🌙' : '☀️';
+        localStorage.setItem('theme', newTheme);
+
+        addMessage(`Theme switched to ${newTheme} mode.`, 'god');
+    });
 }
 
 document.getElementById('contactForm').addEventListener('submit', async function(event) {
