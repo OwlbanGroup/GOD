@@ -345,6 +345,25 @@ document.addEventListener('DOMContentLoaded', async function() {
 
     // Initialize theme toggle
     initializeThemeToggle();
+
+    // Initialize inspiration and meditation
+    inspirationManager.initialize();
+
+    // Setup meditation event listeners
+    document.getElementById('startBreathing').addEventListener('click', () => {
+        meditationManager.startSession('breathing');
+        addMessage('Beginning divine breathing meditation. Breathe deeply and connect with the divine.', 'god');
+    });
+
+    document.getElementById('startGratitude').addEventListener('click', () => {
+        meditationManager.startSession('gratitude');
+        addMessage('Beginning gratitude meditation. Reflect on divine blessings.', 'god');
+    });
+
+    document.getElementById('startLove').addEventListener('click', () => {
+        meditationManager.startSession('love');
+        addMessage('Beginning loving-kindness meditation. Send love to all beings.', 'god');
+    });
 });
 
 function showProgress(text) {

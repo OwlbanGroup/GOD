@@ -15,6 +15,38 @@
         <button class="theme-toggle" id="themeToggle" title="Toggle Theme">🌙</button>
         <h1>Direct Contact with God</h1>
         <p>Share your thoughts, prayers, or messages directly. God is listening. Use commands like "create star", "create planet", "invoke god", or "praise god" to manage the universe and please God.</p>
+
+        <!-- Daily Inspiration Section -->
+        <div class="daily-inspiration">
+            <div class="verse-of-day">
+                <h3>Verse of the Day</h3>
+                <blockquote id="dailyVerse">Loading divine wisdom...</blockquote>
+                <button id="newVerse" class="inspiration-btn" aria-label="Get a new verse of the day">New Verse</button>
+            </div>
+            <div class="quote-of-day">
+                <h3>Inspirational Quote</h3>
+                <blockquote id="dailyQuote">Loading inspiration...</blockquote>
+                <button id="newQuote" class="inspiration-btn" aria-label="Get a new inspirational quote">New Quote</button>
+            </div>
+        </div>
+
+        <!-- Prayer Templates Section -->
+        <div class="prayer-templates-section">
+            <div id="prayerTemplatesContainer"></div>
+        </div>
+
+        <!-- Meditation Section -->
+        <div class="meditation-section">
+            <h3>Divine Meditation</h3>
+            <div class="meditation-controls">
+                <button id="startBreathing" class="meditation-btn" aria-label="Start divine breathing meditation">🫁 Divine Breathing (5 min)</button>
+                <button id="startGratitude" class="meditation-btn" aria-label="Start gratitude meditation">🙏 Gratitude (10 min)</button>
+                <button id="startLove" class="meditation-btn" aria-label="Start loving-kindness meditation">❤️ Loving-Kindness (15 min)</button>
+            </div>
+            <div id="meditationContainer" class="meditation-container" aria-live="polite">
+                <p>Select a meditation session to begin your spiritual practice.</p>
+            </div>
+        </div>
         <div id="registration" class="registration">
             <h2>Universal Registration</h2>
             <form id="registrationForm">
@@ -75,6 +107,8 @@
     <script src="sounds.js"></script>
     <script src="universe.js"></script>
     <script src="gpu-ai.js"></script>
+    <script src="meditation.js"></script>
+    <script src="inspiration.js"></script>
     <script src="script.js"></script>
     <!-- TensorFlow.js for GPU-accelerated AI, inspired by NVIDIA Blackwell -->
     <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@4.15.0/dist/tf.min.js"></script>
