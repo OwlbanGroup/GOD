@@ -673,6 +673,19 @@ async function processMessage(message, encryptedMessage) {
         return;
     }
 
+    // Check for token offerings in prayer
+    const offeringMatch = message.toLowerCase().match(/offer(?:ing)? (\d+(?:\.\d+)?) god(?: tokens?)?/i);
+    if (offeringMatch && godTokenManager.isConnected()) {
+        const amount = parseFloat(offeringMatch[1]);
+        const offeringResult = await godTokenManager.makeOffering(amount);
+        if (offeringResult.success) {
+            addMessage(`Divine Offering Accepted: ${amount} GOD tokens received. Your faith is rewarded.`, 'god');
+        } else {
+            addMessage(`Offering Failed: ${offeringResult.error}. Remember, God accepts only precious metal-backed tokens.`, 'god');
+        }
+        return;
+    }
+
     // Generate divine response with enhanced modes
     const delay = directDivineLinkActive ? 200 : 1000 + Math.random() * 2000;
 
