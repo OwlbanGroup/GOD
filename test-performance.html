@@ -1,0 +1,294 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Performance Test - GOD Universe</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 20px;
+            background: #000;
+            color: #fff;
+            font-family: Arial, sans-serif;
+        }
+        #universeCanvas {
+            border: 1px solid #333;
+            display: block;
+            margin: 20px auto;
+        }
+        #controls {
+            text-align: center;
+            margin: 20px;
+        }
+        button {
+            margin: 5px;
+            padding: 10px 20px;
+            font-size: 14px;
+            cursor: pointer;
+            background: #333;
+            color: #fff;
+            border: 1px solid #666;
+            border-radius: 4px;
+        }
+        button:hover {
+            background: #555;
+        }
+        button.active {
+            background: #0066cc;
+            border-color: #0088ff;
+        }
+        #stats {
+            position: fixed;
+            top: 10px;
+            right: 10px;
+            background: rgba(0,0,0,0.8);
+            padding: 15px;
+            border: 1px solid #333;
+            border-radius: 4px;
+            font-family: 'Courier New', monospace;
+            font-size: 12px;
+            min-width: 200px;
+        }
+        #stats div {
+            margin: 5px 0;
+        }
+        #stats .label {
+            color: #888;
+            display: inline-block;
+            width: 120px;
+        }
+        #stats .value {
+            color: #0f0;
+            font-weight: bold;
+        }
+        #testResults {
+            margin: 20px auto;
+            max-width: 800px;
+            background: rgba(255,255,255,0.1);
+            padding: 20px;
+            border-radius: 4px;
+        }
+        .test-item {
+            margin: 10px 0;
+            padding: 10px;
+            background: rgba(0,0,0,0.3);
+            border-left: 3px solid #666;
+        }
+        .test-item.pass {
+            border-left-color: #0f0;
+        }
+        .test-item.fail {
+            border-left-color: #f00;
+        }
+        .test-item.pending {
+            border-left-color: #ff0;
+        }
+    </style>
+</head>
+<body>
+    <h1 style="text-align: center;">GOD Universe - Performance Test</h1>
+    
+    <canvas id="universeCanvas" width="800" height="600"></canvas>
+    
+    <div id="controls">
+        <h3>Performance Mode Controls</h3>
+        <button onclick="setMode('low')">Low (500)</button>
+        <button onclick="setMode('medium')">Medium (2000)</button>
+        <button onclick="setMode('high')">High (5000)</button>
+        <button onclick="setMode('ultra')">Ultra (10000)</button>
+        <button onclick="setMode('auto')" class="active">Auto</button>
+        <br><br>
+        <button onclick="addManyParticles(100)">Add 100 Particles</button>
+        <button onclick="addManyParticles(500)">Add 500 Particles</button>
+        <button onclick="universe.clear()">Clear Universe</button>
+        <button onclick="runTests()">Run Tests</button>
+    </div>
+    
+    <div id="stats">
+        <h3 style="margin-top: 0;">Performance Stats</h3>
+        <div><span class="label">FPS:</span><span class="value" id="fps">--</span></div>
+        <div><span class="label">Particles:</span><span class="value" id="particles">--</span></div>
+        <div><span class="label">Max Particles:</span><span class="value" id="maxParticles">--</span></div>
+        <div><span class="label">Device Tier:</span><span class="value" id="deviceTier">--</span></div>
+        <div><span class="label">Performance Mode:</span><span class="value" id="perfMode">--</span></div>
+        <div><span class="label">Pool Size:</span><span class="value" id="poolSize">--</span></div>
+    </div>
+    
+    <div id="testResults">
+        <h3>Test Results</h3>
+        <div id="testList"></div>
+    </div>
+
+    <script src="universe.js"></script>
+    <script>
+        let universe;
+        let testResults = [];
+
+        // Initialize universe
+        window.addEventListener('DOMContentLoaded', () => {
+            universe = new Universe('universeCanvas');
+            
+            // Update stats every second
+            setInterval(updateStats, 1000);
+            
+            // Run initial tests after 2 seconds
+            setTimeout(() => {
+                addTestResult('Universe Initialization', universe !== null, 'Universe object created');
+                addTestResult('WebGL Support', universe.useWebGL === true, 'WebGL context available');
+                addTestResult('Device Capabilities', universe.deviceCapabilities !== undefined, 'Device capabilities detected');
+                addTestResult('FPS Monitoring', universe.fps !== undefined, 'FPS tracking initialized');
+                addTestResult('Object Pooling', universe.particlePool !== undefined, 'Particle pool created');
+            }, 2000);
+        });
+
+        function updateStats() {
+            if (!universe || !universe.getPerformanceStats) return;
+            
+            const stats = universe.getPerformanceStats();
+            document.getElementById('fps').textContent = stats.fps;
+            document.getElementById('particles').textContent = stats.particleCount;
+            document.getElementById('maxParticles').textContent = stats.maxParticles;
+            document.getElementById('deviceTier').textContent = stats.deviceTier;
+            document.getElementById('perfMode').textContent = stats.performanceMode;
+            document.getElementById('poolSize').textContent = stats.poolSize;
+        }
+
+        function setMode(mode) {
+            if (!universe) return;
+            universe.setPerformanceMode(mode);
+            
+            // Update button states
+            document.querySelectorAll('#controls button').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            event.target.classList.add('active');
+            
+            addTestResult(`Set Mode: ${mode}`, true, `Performance mode changed to ${mode}`);
+        }
+
+        function addManyParticles(count) {
+            if (!universe) return;
+            
+            const startCount = universe.particles.length;
+            for (let i = 0; i < count; i++) {
+                universe.addParticle(
+                    Math.random() * universe.canvas.width,
+                    Math.random() * universe.canvas.height,
+                    Math.random() < 0.7 ? 'star' : 'planet'
+                );
+            }
+            const endCount = universe.particles.length;
+            const added = endCount - startCount;
+            
+            addTestResult(`Add ${count} Particles`, added > 0, `Added ${added} particles (limited by max: ${universe.maxParticles})`);
+        }
+
+        function addTestResult(name, passed, details) {
+            const result = { name, passed, details, timestamp: new Date().toISOString() };
+            testResults.push(result);
+            
+            const testList = document.getElementById('testList');
+            const testItem = document.createElement('div');
+            testItem.className = `test-item ${passed ? 'pass' : 'fail'}`;
+            testItem.innerHTML = `
+                <strong>${passed ? '✓' : '✗'} ${name}</strong><br>
+                <small>${details}</small>
+            `;
+            testList.appendChild(testItem);
+        }
+
+        function runTests() {
+            addTestResult('Running Tests', true, 'Starting comprehensive test suite...');
+            
+            // Test 1: GPU Capability Detection
+            setTimeout(() => {
+                const caps = universe.deviceCapabilities;
+                addTestResult('GPU Detection', 
+                    caps && caps.tier && caps.maxTextureSize > 0,
+                    `Tier: ${caps.tier}, Max Texture: ${caps.maxTextureSize}`
+                );
+            }, 500);
+            
+            // Test 2: FPS Monitoring
+            setTimeout(() => {
+                addTestResult('FPS Monitoring',
+                    universe.fps > 0 && universe.fps <= 120,
+                    `Current FPS: ${universe.fps}`
+                );
+            }, 1000);
+            
+            // Test 3: Performance Mode Switching
+            setTimeout(() => {
+                const originalMode = universe.performanceMode;
+                universe.setPerformanceMode('high');
+                const switched = universe.performanceMode === 'high';
+                universe.setPerformanceMode(originalMode);
+                addTestResult('Mode Switching',
+                    switched,
+                    `Successfully switched to high mode and back`
+                );
+            }, 1500);
+            
+            // Test 4: Object Pooling
+            setTimeout(() => {
+                const poolBefore = universe.particlePool.length;
+                universe.clear();
+                const poolAfter = universe.particlePool.length;
+                addTestResult('Object Pooling',
+                    poolAfter > poolBefore,
+                    `Pool grew from ${poolBefore} to ${poolAfter} after clear`
+                );
+            }, 2000);
+            
+            // Test 5: Max Particle Limit
+            setTimeout(() => {
+                const maxBefore = universe.maxParticles;
+                for (let i = 0; i < maxBefore + 100; i++) {
+                    universe.addParticle(
+                        Math.random() * universe.canvas.width,
+                        Math.random() * universe.canvas.height,
+                        'star'
+                    );
+                }
+                const actualCount = universe.particles.length;
+                addTestResult('Max Particle Limit',
+                    actualCount <= maxBefore,
+                    `Particles capped at ${actualCount} (max: ${maxBefore})`
+                );
+            }, 2500);
+            
+            // Test 6: Performance Stats API
+            setTimeout(() => {
+                const stats = universe.getPerformanceStats();
+                const hasAllStats = stats.fps !== undefined && 
+                                   stats.particleCount !== undefined &&
+                                   stats.maxParticles !== undefined &&
+                                   stats.deviceTier !== undefined;
+                addTestResult('Performance Stats API',
+                    hasAllStats,
+                    `All stats available: FPS=${stats.fps}, Particles=${stats.particleCount}`
+                );
+            }, 3000);
+            
+            // Final summary
+            setTimeout(() => {
+                const passed = testResults.filter(r => r.passed).length;
+                const total = testResults.length;
+                addTestResult('Test Suite Complete',
+                    passed === total,
+                    `${passed}/${total} tests passed`
+                );
+            }, 3500);
+        }
+
+        // Cleanup on unload
+        window.addEventListener('beforeunload', () => {
+            if (universe && universe.dispose) {
+                universe.dispose();
+                console.log('Universe disposed on page unload');
+            }
+        });
+    </script>
+</body>
+</html>

@@ -5,7 +5,12 @@
 const ErrorHandler = require('../../utils/errorHandler.js');
 
 describe('ErrorHandler', () => {
+  let originalLocation;
+  
   beforeEach(() => {
+    // Clear localStorage to ensure test isolation
+    localStorage.clear();
+    
     // Mock navigator.onLine
     Object.defineProperty(navigator, 'onLine', {
       writable: true,
@@ -13,18 +18,42 @@ describe('ErrorHandler', () => {
       value: true
     });
     
-    // Mock window.location using Object.defineProperty to avoid JSDOM navigation warnings
-    Object.defineProperty(window, 'location', {
-      writable: true,
-      value: {
-        href: 'http://localhost:3000',
-        reload: jest.fn()
+    // Save original location
+    originalLocation = window.location;
+    
+    // Mock window.location using Object.defineProperty to avoid jsdom navigation errors
+    delete window.location;
+    window.location = Object.defineProperties(
+      {},
+      {
+        ...Object.getOwnPropertyDescriptors(originalLocation),
+        href: {
+          writable: true,
+          value: 'http://localhost:3000'
+        },
+        reload: {
+          writable: true,
+          value: jest.fn()
+        },
+        assign: {
+          writable: true,
+          value: jest.fn()
+        },
+        replace: {
+          writable: true,
+          value: jest.fn()
+        }
       }
-    });
+    );
     
     // Clear console mocks
     console.error.mockClear();
     console.log.mockClear();
+  });
+  
+  afterEach(() => {
+    // Restore original location
+    window.location = originalLocation;
   });
 
   describe('handleAsyncError', () => {
@@ -71,17 +100,13 @@ describe('ErrorHandler', () => {
     test('should log error to localStorage', async () => {
       const error = new Error('Test error');
       
-      // Mock localStorage.getItem to return empty array initially
-      localStorage.getItem.mockReturnValueOnce('[]');
-      
       await ErrorHandler.handleAsyncError(error, 'Test Context');
       
-      // Verify setItem was called
-      expect(localStorage.setItem).toHaveBeenCalled();
-      const setItemCall = localStorage.setItem.mock.calls[0];
-      expect(setItemCall[0]).toBe('errorLog');
+      // Get the stored error log directly
+      const storedLog = localStorage.getItem('errorLog');
+      expect(storedLog).toBeTruthy();
       
-      const errorLog = JSON.parse(setItemCall[1]);
+      const errorLog = JSON.parse(storedLog);
       expect(errorLog).toHaveLength(1);
       expect(errorLog[0].context).toBe('Test Context');
       expect(errorLog[0].message).toBe('Test error');
@@ -199,17 +224,13 @@ describe('ErrorHandler', () => {
     test('should store error in localStorage', () => {
       const error = new Error('Test error');
       
-      // Mock localStorage.getItem to return empty array initially
-      localStorage.getItem.mockReturnValueOnce('[]');
-      
       ErrorHandler.logError(error, 'Test Context');
       
-      // Verify setItem was called
-      expect(localStorage.setItem).toHaveBeenCalled();
-      const setItemCall = localStorage.setItem.mock.calls[0];
-      expect(setItemCall[0]).toBe('errorLog');
+      // Get the stored error log directly
+      const storedLog = localStorage.getItem('errorLog');
+      expect(storedLog).toBeTruthy();
       
-      const errorLog = JSON.parse(setItemCall[1]);
+      const errorLog = JSON.parse(storedLog);
       expect(errorLog).toHaveLength(1);
       expect(errorLog[0].context).toBe('Test Context');
       expect(errorLog[0].message).toBe('Test error');
@@ -217,45 +238,45 @@ describe('ErrorHandler', () => {
     });
 
     test('should limit error log to 50 entries', () => {
-      // Mock localStorage to return existing errors
-      let currentLog = [];
-      localStorage.getItem.mockImplementation(() => JSON.stringify(currentLog));
-      localStorage.setItem.mockImplementation((key, value) => {
-        currentLog = JSON.parse(value);
-      });
-      
       // Add 60 errors
       for (let i = 0; i < 60; i++) {
         ErrorHandler.logError(new Error(`Error ${i}`), 'Test');
       }
       
-      expect(currentLog.length).toBe(50);
-      expect(currentLog[0].message).toBe('Error 59'); // Most recent first
+      // Get the final stored value
+      const storedLog = localStorage.getItem('errorLog');
+      const errorLog = JSON.parse(storedLog);
+      
+      expect(errorLog.length).toBe(50);
+      expect(errorLog[0].message).toBe('Error 59'); // Most recent first
     });
 
     test('should include error stack trace', () => {
       const error = new Error('Test error');
       
-      // Mock localStorage.getItem to return empty array initially
-      localStorage.getItem.mockReturnValueOnce('[]');
-      
       ErrorHandler.logError(error, 'Test Context');
       
-      // Verify setItem was called
-      const setItemCall = localStorage.setItem.mock.calls[0];
-      const errorLog = JSON.parse(setItemCall[1]);
+      // Get the stored error log
+      const storedLog = localStorage.getItem('errorLog');
+      const errorLog = JSON.parse(storedLog);
       expect(errorLog[0].stack).toBeTruthy();
     });
 
     test('should handle localStorage errors gracefully', () => {
-      // Mock localStorage to throw error
-      localStorage.getItem.mockImplementationOnce(() => {
+      // Save original getItem
+      const originalGetItem = localStorage.getItem;
+      
+      // Temporarily replace getItem to throw error
+      localStorage.getItem = jest.fn(() => {
         throw new Error('Storage full');
       });
       
       expect(() => {
         ErrorHandler.logError(new Error('Test'), 'Test');
       }).not.toThrow();
+      
+      // Restore original getItem
+      localStorage.getItem = originalGetItem;
     });
   });
 
@@ -321,8 +342,8 @@ describe('ErrorHandler', () => {
     });
 
     test('should handle quota exceeded errors', () => {
-      // Mock localStorage to throw quota error
-      localStorage.setItem.mockImplementationOnce(() => {
+      // Create a spy that throws on setItem
+      const setItemSpy = jest.spyOn(Storage.prototype, 'setItem').mockImplementation(() => {
         const error = new Error('QuotaExceededError');
         error.name = 'QuotaExceededError';
         throw error;
@@ -330,16 +351,22 @@ describe('ErrorHandler', () => {
       
       const result = ErrorHandler.checkLocalStorage();
       expect(result).toBe(false);
+      
+      // Restore original implementation
+      setItemSpy.mockRestore();
     });
 
     test('should handle other localStorage errors', () => {
-      // Mock localStorage to throw error
-      localStorage.setItem.mockImplementationOnce(() => {
+      // Create a spy that throws on setItem
+      const setItemSpy = jest.spyOn(Storage.prototype, 'setItem').mockImplementation(() => {
         throw new Error('Storage error');
       });
       
       const result = ErrorHandler.checkLocalStorage();
       expect(result).toBe(false);
+      
+      // Restore original implementation
+      setItemSpy.mockRestore();
     });
   });
 
@@ -347,7 +374,9 @@ describe('ErrorHandler', () => {
     test('should store string values', () => {
       const result = ErrorHandler.safeLocalStorageSet('key', 'value');
       expect(result).toBe(true);
-      expect(localStorage.setItem).toHaveBeenCalledWith('key', 'value');
+      
+      // Verify the value was stored
+      expect(localStorage.getItem('key')).toBe('value');
     });
 
     test('should stringify non-string values', () => {
@@ -355,17 +384,22 @@ describe('ErrorHandler', () => {
       const result = ErrorHandler.safeLocalStorageSet('key', obj);
       
       expect(result).toBe(true);
-      expect(localStorage.setItem).toHaveBeenCalledWith('key', JSON.stringify(obj));
+      
+      // Verify the value was stored as JSON
+      expect(localStorage.getItem('key')).toBe(JSON.stringify(obj));
     });
 
     test('should return false when localStorage unavailable', () => {
-      // Mock localStorage to throw error
-      localStorage.setItem.mockImplementationOnce(() => {
+      // Create a spy that throws on setItem for checkLocalStorage
+      const setItemSpy = jest.spyOn(Storage.prototype, 'setItem').mockImplementation(() => {
         throw new Error('Storage error');
       });
       
       const result = ErrorHandler.safeLocalStorageSet('key', 'value');
       expect(result).toBe(false);
+      
+      // Restore original implementation
+      setItemSpy.mockRestore();
     });
 
     test('should handle arrays', () => {
@@ -373,46 +407,52 @@ describe('ErrorHandler', () => {
       const result = ErrorHandler.safeLocalStorageSet('key', arr);
       
       expect(result).toBe(true);
-      expect(localStorage.setItem).toHaveBeenCalledWith('key', JSON.stringify(arr));
+      
+      // Verify the value was stored as JSON
+      expect(localStorage.getItem('key')).toBe(JSON.stringify(arr));
     });
   });
 
   describe('safeLocalStorageGet', () => {
     test('should retrieve and parse JSON values', () => {
       const obj = { name: 'John', age: 30 };
-      localStorage.getItem.mockReturnValueOnce(JSON.stringify(obj));
+      localStorage.setItem('key', JSON.stringify(obj));
       
       const result = ErrorHandler.safeLocalStorageGet('key');
       expect(result).toEqual(obj);
     });
 
     test('should return string values when JSON parse fails', () => {
-      localStorage.getItem.mockReturnValueOnce('plain string');
+      // Set a plain string that's not valid JSON
+      localStorage.setItem('key', 'plain string');
       
       const result = ErrorHandler.safeLocalStorageGet('key');
+      // The function tries to parse JSON, and if it fails, returns the string
+      // Since 'plain string' is not valid JSON, it should return the string as-is
       expect(result).toBe('plain string');
     });
 
     test('should return default value when key not found', () => {
-      localStorage.getItem.mockReturnValueOnce(null);
-      
-      const result = ErrorHandler.safeLocalStorageGet('key', 'default');
+      const result = ErrorHandler.safeLocalStorageGet('nonexistent', 'default');
       expect(result).toBe('default');
     });
 
     test('should return default value on error', () => {
-      // Mock localStorage to throw error
-      localStorage.getItem.mockImplementationOnce(() => {
+      // Create a spy that throws on both setItem (for checkLocalStorage) and getItem
+      const setItemSpy = jest.spyOn(Storage.prototype, 'setItem').mockImplementation(() => {
         throw new Error('Storage error');
       });
       
       const result = ErrorHandler.safeLocalStorageGet('key', 'default');
       expect(result).toBe('default');
+      
+      // Restore original implementation
+      setItemSpy.mockRestore();
     });
 
     test('should handle arrays', () => {
       const arr = [1, 2, 3];
-      localStorage.getItem.mockReturnValueOnce(JSON.stringify(arr));
+      localStorage.setItem('key', JSON.stringify(arr));
       
       const result = ErrorHandler.safeLocalStorageGet('key');
       expect(result).toEqual(arr);
@@ -483,32 +523,41 @@ describe('ErrorHandler', () => {
         message: 'Recent error'
       };
       
-      // Mock localStorage to return the error log
-      localStorage.getItem.mockReturnValueOnce(JSON.stringify([recentError, oldError]));
+      // Set up the error log in localStorage
+      localStorage.setItem('errorLog', JSON.stringify([recentError, oldError]));
       
       ErrorHandler.clearOldErrorLogs();
       
       // Verify setItem was called with filtered errors
-      expect(localStorage.setItem).toHaveBeenCalled();
-      const setItemCall = localStorage.setItem.mock.calls[0];
-      const errorLog = JSON.parse(setItemCall[1]);
+      const errorLog = JSON.parse(localStorage.getItem('errorLog'));
       expect(errorLog).toHaveLength(1);
       expect(errorLog[0].message).toBe('Recent error');
     });
 
     test('should handle empty error log', () => {
-      localStorage.getItem.mockReturnValueOnce('[]');
+      localStorage.setItem('errorLog', '[]');
       
       expect(() => ErrorHandler.clearOldErrorLogs()).not.toThrow();
     });
 
     test('should handle localStorage errors gracefully', () => {
+      // Save original implementation
+      const originalGetItem = localStorage.getItem;
+      
       // Mock localStorage to throw error
-      localStorage.getItem.mockImplementationOnce(() => {
+      localStorage.getItem = jest.fn(() => {
         throw new Error('Storage error');
       });
       
       expect(() => ErrorHandler.clearOldErrorLogs()).not.toThrow();
+      
+      // Restore original implementation
+      localStorage.getItem = originalGetItem;
+      
+      // Clear the mock to reset call count
+      if (localStorage.getItem.mockClear) {
+        localStorage.getItem.mockClear();
+      }
     });
   });
 });

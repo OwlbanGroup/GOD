@@ -309,12 +309,19 @@ describe('Sanitizer', () => {
     });
 
     test('should handle localStorage errors gracefully', () => {
-      localStorage.getItem.mockImplementation(() => {
+      // Save the original mock implementation
+      const originalGetItem = localStorage.getItem;
+      
+      // Temporarily replace with error-throwing implementation
+      localStorage.getItem = jest.fn(() => {
         throw new Error('Storage error');
       });
       
       const result = Sanitizer.checkRateLimit('test', 5, 60000);
       expect(result).toBe(true); // Should allow on error
+      
+      // Restore original mock
+      localStorage.getItem = originalGetItem;
     });
 
     test('should use default parameters', () => {

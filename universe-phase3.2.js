@@ -1,9 +1,3 @@
-/**
- * Universe Class - Complete Phase 3 Implementation
- * Includes: Phase 3.1 (Dynamic Scaling) + 3.2 (Shader Optimization) + 
- *           3.3 (Memory Management) + 3.4 (Caching) + 3.5 (Request Optimization)
- */
-
 class Universe {
     constructor(canvasId) {
         this.canvas = document.getElementById(canvasId);
@@ -22,27 +16,27 @@ class Universe {
         this.program = null;
         this.interleavedBuffer = null;
         
-        // Performance monitoring (Phase 3.1)
+        // Performance monitoring
         this.fps = 60;
         this.frameCount = 0;
         this.lastFpsUpdate = performance.now();
         this.performanceMode = 'auto';
         
-        // Device capabilities (Phase 3.1)
+        // Device capabilities
         this.deviceCapabilities = this.detectDeviceCapabilities();
         this.maxParticles = this.calculateMaxParticles();
         this.targetFps = 60;
         this.minFps = 30;
         
-        // Object pooling (Phase 3.1)
+        // Object pooling
         this.particlePool = [];
         this.poolSize = this.maxParticles;
         
-        // Instanced rendering support (Phase 3.2)
+        // Instanced rendering support
         this.instancedExt = this.deviceCapabilities.extensions.instancedArrays;
         this.useInstancing = !!this.instancedExt;
         
-        // LOD system (Phase 3.2)
+        // LOD system
         this.lodEnabled = true;
         this.lodLevels = {
             high: { minSize: 3, maxDistance: Infinity },
@@ -50,313 +44,17 @@ class Universe {
             low: { minSize: 1, maxDistance: 150 }
         };
         
-        // Batching (Phase 3.2)
+        // Batching
         this.batchGroups = {
             stars: [],
             planets: []
         };
         
-        // Memory management (Phase 3.3)
-        this.memoryMonitoring = {
-            enabled: true,
-            lastCheck: performance.now(),
-            checkInterval: 5000, // Check every 5 seconds
-            usedJSHeapSize: 0,
-            totalJSHeapSize: 0,
-            jsHeapSizeLimit: 0,
-            memoryPressure: 'normal', // 'normal', 'moderate', 'critical'
-            warnings: []
-        };
-        
-        // Caching system (Phase 3.4)
-        this.cache = {
-            enabled: true,
-            aiResponses: new Map(),
-            prayerAnalysis: new Map(),
-            maxCacheSize: 100,
-            ttl: 5 * 60 * 1000 // 5 minutes
-        };
-        
-        // Request optimization (Phase 3.5)
-        this.requestQueue = {
-            pending: [],
-            processing: false,
-            maxConcurrent: 3,
-            debounceTimers: new Map(),
-            cancelTokens: new Map()
-        };
-        
         this.initWebGL();
-        this.startMemoryMonitoring();
     }
 
     /**
-     * Phase 3.3: Memory Management
-     * Monitors memory usage and triggers cleanup when needed
-     */
-    startMemoryMonitoring() {
-        if (!this.memoryMonitoring.enabled) return;
-        
-        setInterval(() => {
-            this.checkMemoryUsage();
-        }, this.memoryMonitoring.checkInterval);
-    }
-
-    checkMemoryUsage() {
-        if (!performance.memory) {
-            console.warn('Memory API not available');
-            return;
-        }
-
-        const memory = performance.memory;
-        this.memoryMonitoring.usedJSHeapSize = memory.usedJSHeapSize;
-        this.memoryMonitoring.totalJSHeapSize = memory.totalJSHeapSize;
-        this.memoryMonitoring.jsHeapSizeLimit = memory.jsHeapSizeLimit;
-
-        const usagePercent = (memory.usedJSHeapSize / memory.jsHeapSizeLimit) * 100;
-
-        // Determine memory pressure
-        let previousPressure = this.memoryMonitoring.memoryPressure;
-        
-        if (usagePercent > 90) {
-            this.memoryMonitoring.memoryPressure = 'critical';
-        } else if (usagePercent > 75) {
-            this.memoryMonitoring.memoryPressure = 'moderate';
-        } else {
-            this.memoryMonitoring.memoryPressure = 'normal';
-        }
-
-        // Trigger cleanup if pressure increased
-        if (this.memoryMonitoring.memoryPressure !== previousPressure) {
-            console.log(`Memory pressure: ${this.memoryMonitoring.memoryPressure} (${usagePercent.toFixed(1)}%)`);
-            this.handleMemoryPressure();
-        }
-
-        // Add warning if critical
-        if (this.memoryMonitoring.memoryPressure === 'critical') {
-            const warning = {
-                timestamp: Date.now(),
-                usagePercent: usagePercent,
-                message: 'Critical memory usage detected'
-            };
-            this.memoryMonitoring.warnings.push(warning);
-            
-            // Keep only last 10 warnings
-            if (this.memoryMonitoring.warnings.length > 10) {
-                this.memoryMonitoring.warnings.shift();
-            }
-        }
-    }
-
-    handleMemoryPressure() {
-        const pressure = this.memoryMonitoring.memoryPressure;
-
-        if (pressure === 'critical') {
-            console.log('Applying aggressive memory cleanup...');
-            
-            // Reduce particles dramatically
-            const targetParticles = Math.floor(this.particles.length * 0.5);
-            while (this.particles.length > targetParticles) {
-                const particle = this.particles.pop();
-                this.returnParticleToPool(particle);
-            }
-            
-            // Clear caches
-            this.clearAllCaches();
-            
-            // Reduce max particles
-            this.maxParticles = Math.max(100, Math.floor(this.maxParticles * 0.7));
-            
-            // Suggest garbage collection (hint only)
-            if (window.gc) {
-                window.gc();
-            }
-            
-        } else if (pressure === 'moderate') {
-            console.log('Applying moderate memory cleanup...');
-            
-            // Reduce particles moderately
-            const targetParticles = Math.floor(this.particles.length * 0.8);
-            while (this.particles.length > targetParticles) {
-                const particle = this.particles.pop();
-                this.returnParticleToPool(particle);
-            }
-            
-            // Clear old cache entries
-            this.cleanupOldCacheEntries();
-        }
-    }
-
-    getMemoryStats() {
-        return {
-            ...this.memoryMonitoring,
-            usageMB: (this.memoryMonitoring.usedJSHeapSize / 1024 / 1024).toFixed(2),
-            limitMB: (this.memoryMonitoring.jsHeapSizeLimit / 1024 / 1024).toFixed(2),
-            usagePercent: ((this.memoryMonitoring.usedJSHeapSize / this.memoryMonitoring.jsHeapSizeLimit) * 100).toFixed(1)
-        };
-    }
-
-    /**
-     * Phase 3.4: Caching System
-     * Caches AI responses and prayer analysis with TTL
-     */
-    getCachedResponse(key, type = 'aiResponses') {
-        if (!this.cache.enabled) return null;
-
-        const cacheMap = this.cache[type];
-        const cached = cacheMap.get(key);
-
-        if (!cached) return null;
-
-        // Check if expired
-        if (Date.now() - cached.timestamp > this.cache.ttl) {
-            cacheMap.delete(key);
-            return null;
-        }
-
-        console.log(`Cache hit for ${type}:`, key);
-        return cached.data;
-    }
-
-    setCachedResponse(key, data, type = 'aiResponses') {
-        if (!this.cache.enabled) return;
-
-        const cacheMap = this.cache[type];
-        
-        // Enforce max cache size
-        if (cacheMap.size >= this.cache.maxCacheSize) {
-            // Remove oldest entry
-            const firstKey = cacheMap.keys().next().value;
-            cacheMap.delete(firstKey);
-        }
-
-        cacheMap.set(key, {
-            data: data,
-            timestamp: Date.now()
-        });
-
-        console.log(`Cached ${type}:`, key);
-    }
-
-    cleanupOldCacheEntries() {
-        const now = Date.now();
-        
-        ['aiResponses', 'prayerAnalysis'].forEach(type => {
-            const cacheMap = this.cache[type];
-            for (const [key, value] of cacheMap.entries()) {
-                if (now - value.timestamp > this.cache.ttl) {
-                    cacheMap.delete(key);
-                }
-            }
-        });
-
-        console.log('Cleaned up old cache entries');
-    }
-
-    clearAllCaches() {
-        this.cache.aiResponses.clear();
-        this.cache.prayerAnalysis.clear();
-        console.log('All caches cleared');
-    }
-
-    getCacheStats() {
-        return {
-            enabled: this.cache.enabled,
-            aiResponsesCount: this.cache.aiResponses.size,
-            prayerAnalysisCount: this.cache.prayerAnalysis.size,
-            maxSize: this.cache.maxCacheSize,
-            ttlMinutes: this.cache.ttl / 60000
-        };
-    }
-
-    /**
-     * Phase 3.5: Request Optimization
-     * Debounces, queues, and batches API requests
-     */
-    debounceRequest(key, fn, delay = 300) {
-        // Clear existing timer
-        if (this.requestQueue.debounceTimers.has(key)) {
-            clearTimeout(this.requestQueue.debounceTimers.get(key));
-        }
-
-        // Set new timer
-        const timer = setTimeout(() => {
-            this.requestQueue.debounceTimers.delete(key);
-            fn();
-        }, delay);
-
-        this.requestQueue.debounceTimers.set(key, timer);
-    }
-
-    async queueRequest(requestFn, priority = 'normal') {
-        return new Promise((resolve, reject) => {
-            const request = {
-                fn: requestFn,
-                priority: priority,
-                resolve: resolve,
-                reject: reject,
-                timestamp: Date.now(),
-                id: Math.random().toString(36).substr(2, 9)
-            };
-
-            // Add to queue based on priority
-            if (priority === 'high') {
-                this.requestQueue.pending.unshift(request);
-            } else {
-                this.requestQueue.pending.push(request);
-            }
-
-            this.processRequestQueue();
-        });
-    }
-
-    async processRequestQueue() {
-        if (this.requestQueue.processing) return;
-        if (this.requestQueue.pending.length === 0) return;
-
-        this.requestQueue.processing = true;
-
-        while (this.requestQueue.pending.length > 0) {
-            // Process up to maxConcurrent requests
-            const batch = this.requestQueue.pending.splice(0, this.requestQueue.maxConcurrent);
-            
-            await Promise.allSettled(
-                batch.map(async (request) => {
-                    try {
-                        const result = await request.fn();
-                        request.resolve(result);
-                    } catch (error) {
-                        request.reject(error);
-                    }
-                })
-            );
-        }
-
-        this.requestQueue.processing = false;
-    }
-
-    cancelRequest(requestId) {
-        const index = this.requestQueue.pending.findIndex(r => r.id === requestId);
-        if (index !== -1) {
-            const request = this.requestQueue.pending.splice(index, 1)[0];
-            request.reject(new Error('Request cancelled'));
-            console.log('Request cancelled:', requestId);
-            return true;
-        }
-        return false;
-    }
-
-    getRequestQueueStats() {
-        return {
-            pendingRequests: this.requestQueue.pending.length,
-            processing: this.requestQueue.processing,
-            maxConcurrent: this.requestQueue.maxConcurrent,
-            activeDebounces: this.requestQueue.debounceTimers.size
-        };
-    }
-
-    /**
-     * Phase 3.1 & 3.2: Core rendering methods (unchanged)
+     * Detects device GPU capabilities
      */
     detectDeviceCapabilities() {
         const gl = this.gl;
@@ -471,6 +169,7 @@ class Universe {
         gl.enable(gl.BLEND);
         gl.blendFunc(gl.SRC_ALPHA, gl.ONE);
 
+        // Optimized vertex shader with size attribute and LOD support
         const vertexShaderSource = `
             attribute vec2 a_position;
             attribute vec4 a_color;
@@ -486,6 +185,7 @@ class Universe {
             }
         `;
 
+        // Optimized fragment shader with better anti-aliasing
         const fragmentShaderSource = `
             precision mediump float;
             varying vec4 v_color;
@@ -493,10 +193,15 @@ class Universe {
             void main() {
                 vec2 coord = gl_PointCoord - vec2(0.5);
                 float dist = length(coord);
+                
+                // Smooth anti-aliasing
                 float alpha = 1.0 - smoothstep(0.4, 0.5, dist);
+                
+                // Add glow effect for larger particles
                 if (v_size > 4.0) {
                     alpha += (1.0 - smoothstep(0.3, 0.5, dist)) * 0.3;
                 }
+                
                 gl_FragColor = vec4(v_color.rgb, v_color.a * alpha);
             }
         `;
@@ -504,8 +209,11 @@ class Universe {
         const vertexShader = this.createShader(gl, gl.VERTEX_SHADER, vertexShaderSource);
         const fragmentShader = this.createShader(gl, gl.FRAGMENT_SHADER, fragmentShaderSource);
         this.program = this.createProgram(gl, vertexShader, fragmentShader);
+
+        // Create interleaved buffer (position, color, size)
         this.interleavedBuffer = gl.createBuffer();
 
+        // Add initial particles
         const initialParticles = Math.min(100, this.maxParticles);
         for (let i = 0; i < initialParticles; i++) {
             this.addParticle(
@@ -576,19 +284,25 @@ class Universe {
         this.particles.push(particle);
     }
 
+    /**
+     * Apply LOD (Level of Detail) to particle
+     */
     applyLOD(particle) {
         if (!this.lodEnabled) {
             particle.size = particle.baseSize;
             return;
         }
 
+        // Calculate distance from center
         const centerX = this.canvas.width / 2;
         const centerY = this.canvas.height / 2;
         const dx = particle.x - centerX;
         const dy = particle.y - centerY;
         const distance = Math.hypot(dx, dy);
 
+        // Apply LOD based on distance and FPS
         if (this.fps < 40) {
+            // Aggressive LOD when FPS is low
             if (distance > 200) {
                 particle.size = Math.max(1, particle.baseSize * 0.5);
             } else if (distance > 100) {
@@ -597,6 +311,7 @@ class Universe {
                 particle.size = particle.baseSize;
             }
         } else {
+            // Normal LOD
             if (distance > 300) {
                 particle.size = Math.max(1, particle.baseSize * 0.7);
             } else {
@@ -606,12 +321,14 @@ class Universe {
     }
 
     update() {
+        // Clear batch groups
         this.batchGroups.stars = [];
         this.batchGroups.planets = [];
 
         for (let i = this.particles.length - 1; i >= 0; i--) {
             const p = this.particles[i];
             
+            // Update particle physics
             if (p.type === 'planet') {
                 p.angle += p.orbitSpeed;
                 p.x += Math.cos(p.angle) * p.orbitRadius * 0.01;
@@ -624,6 +341,7 @@ class Universe {
             p.x += p.velocity[0];
             p.y += p.velocity[1];
             
+            // Wrap around edges
             if (p.x < 0) p.x = this.canvas.width;
             if (p.x > this.canvas.width) p.x = 0;
             if (p.y < 0) p.y = this.canvas.height;
@@ -636,8 +354,10 @@ class Universe {
                 continue;
             }
 
+            // Apply LOD
             this.applyLOD(p);
 
+            // Add to batch group
             if (p.type === 'star') {
                 this.batchGroups.stars.push(p);
             } else {
@@ -648,6 +368,9 @@ class Universe {
         this.updateEntanglementConnections();
     }
 
+    /**
+     * Draw particles using optimized batched rendering
+     */
     draw() {
         if (!this.useWebGL) {
             this.draw2D();
@@ -658,6 +381,7 @@ class Universe {
         gl.clear(gl.COLOR_BUFFER_BIT);
         gl.useProgram(this.program);
 
+        // Set up projection matrix
         const matrix = new Float32Array([
             2 / this.canvas.width, 0, 0, 0,
             0, -2 / this.canvas.height, 0, 0,
@@ -667,13 +391,21 @@ class Universe {
         const matrixLocation = gl.getUniformLocation(this.program, 'u_matrix');
         gl.uniformMatrix4fv(matrixLocation, false, matrix);
 
+        // Draw batched particles
         this.drawBatchedParticles();
+        
+        // Draw entanglement connections
         this.drawEntanglementConnections();
     }
 
+    /**
+     * Draw particles using interleaved buffer and batching
+     */
     drawBatchedParticles() {
         const gl = this.gl;
-        const stride = 7;
+        
+        // Prepare interleaved data: [x, y, r, g, b, a, size, ...]
+        const stride = 7; // 2 position + 4 color + 1 size
         const interleavedData = new Float32Array(this.particles.length * stride);
         
         for (let i = 0; i < this.particles.length; i++) {
@@ -688,24 +420,29 @@ class Universe {
             interleavedData[offset + 6] = p.size;
         }
 
+        // Bind interleaved buffer
         gl.bindBuffer(gl.ARRAY_BUFFER, this.interleavedBuffer);
         gl.bufferData(gl.ARRAY_BUFFER, interleavedData, gl.DYNAMIC_DRAW);
 
         const bytesPerFloat = 4;
         const strideBytes = stride * bytesPerFloat;
 
+        // Position attribute
         const positionLocation = gl.getAttribLocation(this.program, 'a_position');
         gl.enableVertexAttribArray(positionLocation);
         gl.vertexAttribPointer(positionLocation, 2, gl.FLOAT, false, strideBytes, 0);
 
+        // Color attribute
         const colorLocation = gl.getAttribLocation(this.program, 'a_color');
         gl.enableVertexAttribArray(colorLocation);
         gl.vertexAttribPointer(colorLocation, 4, gl.FLOAT, false, strideBytes, 2 * bytesPerFloat);
 
+        // Size attribute
         const sizeLocation = gl.getAttribLocation(this.program, 'a_size');
         gl.enableVertexAttribArray(sizeLocation);
         gl.vertexAttribPointer(sizeLocation, 1, gl.FLOAT, false, strideBytes, 6 * bytesPerFloat);
 
+        // Single draw call for all particles
         gl.drawArrays(gl.POINTS, 0, this.particles.length);
     }
 
@@ -739,17 +476,11 @@ class Universe {
                 cancelAnimationFrame(this.animationId);
                 this.animationId = null;
             }
-            
-            // Clear all caches and queues
-            this.clearAllCaches();
-            this.requestQueue.pending = [];
-            this.requestQueue.debounceTimers.clear();
-            
-            console.log('WebGL resources and caches disposed');
+            console.log('WebGL resources disposed');
         }
     }
 
-    // 2D fallback methods (unchanged)
+    // 2D fallback methods
     init2D() {
         this.canvas.addEventListener('click', (event) => {
             const rect = this.canvas.getBoundingClientRect();
@@ -979,12 +710,8 @@ class Universe {
         this.animationId = requestAnimationFrame(() => this.animate());
     }
 
-    /**
-     * Enhanced performance stats with all Phase 3 metrics
-     */
     getPerformanceStats() {
         return {
-            // Phase 3.1 & 3.2
             fps: this.fps,
             particleCount: this.particles.length,
             maxParticles: this.maxParticles,
@@ -996,32 +723,16 @@ class Universe {
             batchedGroups: {
                 stars: this.batchGroups.stars.length,
                 planets: this.batchGroups.planets.length
-            },
-            // Phase 3.3
-            memory: this.getMemoryStats(),
-            // Phase 3.4
-            cache: this.getCacheStats(),
-            // Phase 3.5
-            requestQueue: this.getRequestQueueStats()
+            }
         };
     }
 
+    /**
+     * Toggle LOD system
+     */
     toggleLOD(enabled) {
         this.lodEnabled = enabled;
         console.log(`LOD system ${enabled ? 'enabled' : 'disabled'}`);
-    }
-
-    toggleMemoryMonitoring(enabled) {
-        this.memoryMonitoring.enabled = enabled;
-        console.log(`Memory monitoring ${enabled ? 'enabled' : 'disabled'}`);
-    }
-
-    toggleCaching(enabled) {
-        this.cache.enabled = enabled;
-        if (!enabled) {
-            this.clearAllCaches();
-        }
-        console.log(`Caching ${enabled ? 'enabled' : 'disabled'}`);
     }
 }
 

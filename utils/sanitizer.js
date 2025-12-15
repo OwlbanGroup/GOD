@@ -60,6 +60,11 @@ class Sanitizer {
      * @returns {Object} - {valid: boolean, sanitized: string, error: string}
      */
     static validateName(name) {
+        // First check length before sanitization to catch too-long names
+        if (typeof name === 'string' && name.trim().length > 50) {
+            return { valid: false, sanitized: '', error: 'Name must be less than 50 characters' };
+        }
+
         const sanitized = this.sanitizeInput(name, 50);
 
         if (sanitized.length === 0) {
@@ -68,10 +73,6 @@ class Sanitizer {
 
         if (sanitized.length < 2) {
             return { valid: false, sanitized, error: 'Name must be at least 2 characters' };
-        }
-
-        if (sanitized.length > 50) {
-            return { valid: false, sanitized, error: 'Name must be less than 50 characters' };
         }
 
         // Allow letters, numbers, spaces, hyphens, and underscores
@@ -89,14 +90,15 @@ class Sanitizer {
      * @returns {Object} - {valid: boolean, sanitized: string, error: string}
      */
     static validateMessage(message) {
+        // First check length before sanitization to catch too-long messages
+        if (typeof message === 'string' && message.trim().length > 5000) {
+            return { valid: false, sanitized: '', error: 'Message is too long (max 5000 characters)' };
+        }
+
         const sanitized = this.sanitizeInput(message, 5000);
 
         if (sanitized.length === 0) {
             return { valid: false, sanitized: '', error: 'Message cannot be empty' };
-        }
-
-        if (sanitized.length > 5000) {
-            return { valid: false, sanitized, error: 'Message is too long (max 5000 characters)' };
         }
 
         return { valid: true, sanitized, error: null };
