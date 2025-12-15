@@ -81,6 +81,7 @@ describe('Script.js Core Functions', () => {
 
         handleCommand = function(message) {
             const sanitizedMessage = mockSanitizer.sanitizeInput(message);
+            if (!sanitizedMessage) return null;
             const lowerMessage = sanitizedMessage.toLowerCase();
             
             const commands = {
@@ -216,6 +217,9 @@ describe('Script.js Core Functions', () => {
         });
 
         test('should recognize "destroy planet" command', () => {
+            // Add a planet to the mock universe first
+            mockUniverse.celestialBodies.push({ type: 'planet', x: 100, y: 100 });
+            
             const result = handleCommand('destroy planet');
             expect(result).toBe("A planet has been destroyed in the universe.");
         });
@@ -459,8 +463,15 @@ describe('Script.js Core Functions', () => {
 
     describe('Command Processing Integration', () => {
         test('should process commands and add messages', () => {
+            // Ensure universe is available
+            expect(global.universe).toBeDefined();
+            
+            // Ensure sanitizer mock returns the input correctly
+            mockSanitizer.sanitizeInput.mockImplementation((input) => input);
+            
             const commandResult = handleCommand('create star');
             expect(commandResult).toBeTruthy();
+            expect(commandResult).toBe("A new star has been created in the universe.");
 
             addMessage('Divine Action: ' + commandResult, 'god');
             

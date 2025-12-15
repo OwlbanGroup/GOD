@@ -84,10 +84,16 @@
         .test-item.pending {
             border-left-color: #ff0;
         }
+        .centered-heading {
+            text-align: center;
+        }
+        .no-top-margin {
+            margin-top: 0;
+        }
     </style>
 </head>
 <body>
-    <h1 style="text-align: center;">GOD Universe - Performance Test</h1>
+    <h1 class="centered-heading">GOD Universe - Performance Test</h1>
     
     <canvas id="universeCanvas" width="800" height="600"></canvas>
     
@@ -106,7 +112,7 @@
     </div>
     
     <div id="stats">
-        <h3 style="margin-top: 0;">Performance Stats</h3>
+        <h3 class="no-top-margin">Performance Stats</h3>
         <div><span class="label">FPS:</span><span class="value" id="fps">--</span></div>
         <div><span class="label">Particles:</span><span class="value" id="particles">--</span></div>
         <div><span class="label">Max Particles:</span><span class="value" id="maxParticles">--</span></div>
