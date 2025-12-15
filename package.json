@@ -5,17 +5,35 @@
   "main": "script.js",
   "scripts": {
     "start": "node server.js",
+    "test": "jest",
+    "test:watch": "jest --watch",
+    "test:coverage": "jest --coverage",
+    "test:verbose": "jest --verbose",
     "build": "echo 'Building for production...' && cp index.html dist/ && cp styles.css dist/ && cp *.js dist/",
     "deploy": "npm run build && gh-pages -d dist"
   },
   "dependencies": {
-    "express": "^4.18.2",
-    "ethers": "^5.8.0"
+    "ethers": "^5.8.0",
+    "express": "^4.18.2"
   },
   "devDependencies": {
-    "gh-pages": "^6.0.0"
+    "@babel/preset-env": "^7.28.5",
+    "@testing-library/dom": "^10.4.1",
+    "@testing-library/jest-dom": "^6.9.1",
+    "babel-jest": "^30.2.0",
+    "gh-pages": "^6.0.0",
+    "jest": "^30.2.0",
+    "jest-environment-jsdom": "^30.2.0",
+    "jsdom": "^27.3.0"
   },
-  "keywords": ["god", "prayer", "universe", "divine", "spiritual", "AI"],
+  "keywords": [
+    "god",
+    "prayer",
+    "universe",
+    "divine",
+    "spiritual",
+    "AI"
+  ],
   "author": "Divine Creator",
   "license": "MIT"
 }
