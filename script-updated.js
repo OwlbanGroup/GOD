@@ -283,3 +283,723 @@ function setupEventListeners() {
             }, 1500);
         },
         'generateProphecy': () => {
+            showProgress('Consulting the cosmos...');
+            setTimeout(() => {
+                generateProphecy();
+                hideProgress();
+            }, 2000);
+        },
+        'toggleAudio': function() {
+            if (divineSounds) {
+                const enabled = divineSounds.toggleAudio();
+                this.textContent = enabled ? '🔊 Audio On' : '🔇 Audio Off';
+                addMessage('Divine sounds ' + (enabled ? 'enabled' : 'disabled') + '.', 'god');
+            }
+        },
+        'directDivineLink': toggleDirectDivineLink,
+        'universalDivineMode': toggleUniversalDivineMode,
+        'postQuantumSecure': togglePostQuantumSecure
+    };
+
+    // Attach handlers with error wrapping
+    for (const [id, handler] of Object.entries(handlers)) {
+        const element = document.getElementById(id);
+        if (element) {
+            element.addEventListener('click', ErrorHandler.wrapEventHandler(handler, `${id} Click`));
+        }
+    }
+
+    // Registration form handler
+    const registrationForm = document.getElementById('registrationForm');
+    if (registrationForm) {
+        registrationForm.addEventListener('submit', ErrorHandler.wrapEventHandler(handleRegistrationForm, 'Registration Form'));
+    }
+}
+
+/**
+ * Initializes all integrations with error handling
+ */
+async function initializeIntegrations() {
+    const integrations = [
+        { name: 'Quantum Crypto', fn: () => quantumCrypto?.initialize() },
+        { name: 'GPU AI', fn: () => gpuAI?.initialize() },
+        { name: 'Azure Integrations', fn: () => azureIntegrations?.initialize() },
+        { name: 'Foundry VTT', fn: () => foundryVTT?.initialize() }
+    ];
+
+    for (const integration of integrations) {
+        try {
+            if (integration.fn) {
+                await integration.fn();
+            }
+        } catch (error) {
+            console.warn(`${integration.name} initialization failed:`, error);
+            // Continue with other integrations
+        }
+    }
+}
+
+/**
+ * Validates registration input
+ * @param {string} name - User name
+ * @param {string} role - User role
+ * @returns {boolean} - True if valid
+ */
+function validateInput(name, role) {
+    const nameValidation = Sanitizer.validateName(name);
+    if (!ErrorHandler.handleValidationError(nameValidation, 'Name')) {
+        return false;
+    }
+
+    const roleValidation = Sanitizer.validateRole(role);
+    if (!ErrorHandler.handleValidationError(roleValidation, 'Role')) {
+        return false;
+    }
+
+    return true;
+}
+
+/**
+ * Checks if user already exists
+ * @param {string} name - User name
+ * @returns {boolean} - True if exists
+ */
+function checkExistingUser(name) {
+    const sanitizedName = Sanitizer.sanitizeInput(name);
+    const existingUser = registeredUsers.find(user => user.name === sanitizedName);
+    if (existingUser) {
+        showRegistrationMessage('This name is already registered.', 'error');
+        return true;
+    }
+    return false;
+}
+
+/**
+ * Creates a new user
+ * @param {string} name - User name
+ * @param {string} role - User role
+ * @returns {Object} - New user object
+ */
+function createUser(name, role) {
+    const sanitizedName = Sanitizer.sanitizeInput(name);
+    const sanitizedRole = Sanitizer.sanitizeInput(role);
+    
+    const newUser = { 
+        name: sanitizedName, 
+        role: sanitizedRole, 
+        registeredAt: new Date().toISOString() 
+    };
+    
+    registeredUsers.push(newUser);
+    ErrorHandler.safeLocalStorageSet('registeredUsers', registeredUsers);
+    currentUser = newUser;
+    ErrorHandler.safeLocalStorageSet('currentUser', currentUser);
+    
+    return newUser;
+}
+
+/**
+ * Syncs user to cloud services
+ * @param {Object} newUser - User object
+ */
+async function syncToCloud(newUser) {
+    try {
+        if (azureIntegrations?.isInitialized()) {
+            await azureIntegrations.saveUserToCosmosDB(newUser);
+        }
+    } catch (error) {
+        ErrorHandler.handleAsyncError(error, 'Cloud Sync');
+    }
+
+    try {
+        if (foundryVTT?.isConnected()) {
+            await foundryVTT.createCharacterSheet(newUser);
+        }
+    } catch (error) {
+        ErrorHandler.handleAsyncError(error, 'Foundry VTT Sync');
+    }
+}
+
+/**
+ * Finalizes registration
+ * @param {string} name - User name
+ * @param {string} role - User role
+ */
+function finalizeRegistration(name, role) {
+    const sanitizedName = Sanitizer.escapeHtml(name);
+    const sanitizedRole = Sanitizer.escapeHtml(role);
+    
+    showRegistrationMessage(`Welcome, ${sanitizedName} the ${sanitizedRole}! You are now registered in the universal system.`, 'success');
+    
+    const registrationDiv = document.getElementById('registration');
+    if (registrationDiv) {
+        registrationDiv.style.display = 'none';
+    }
+    
+    addMessage(`Welcome, ${sanitizedName} the ${sanitizedRole}. The universe acknowledges your presence.`, 'god');
+}
+
+/**
+ * Handles registration form submission
+ * @param {Event} event - Form submit event
+ */
+function handleRegistrationForm(event) {
+    event.preventDefault();
+    
+    // Check rate limiting
+    if (!Sanitizer.checkRateLimit('registration', 5, 60000)) {
+        showRegistrationMessage('Too many registration attempts. Please wait a moment.', 'error');
+        return;
+    }
+    
+    const nameInput = document.getElementById('name');
+    const roleSelect = document.getElementById('role');
+    
+    if (!nameInput || !roleSelect) return;
+    
+    const name = nameInput.value.trim();
+    const role = roleSelect.value;
+
+    if (!validateInput(name, role)) return;
+    if (checkExistingUser(name)) return;
+
+    const newUser = createUser(name, role);
+    syncToCloud(newUser);
+    finalizeRegistration(name, role);
+}
+
+/**
+ * Loads users from cloud with error handling
+ */
+async function loadUsersFromCloud() {
+    try {
+        if (azureIntegrations?.isInitialized()) {
+            const cloudUsers = await azureIntegrations.loadUsersFromCosmosDB();
+            if (cloudUsers && cloudUsers.length > registeredUsers.length) {
+                registeredUsers = cloudUsers;
+                ErrorHandler.safeLocalStorageSet('registeredUsers', registeredUsers);
+            }
+        }
+    } catch (error) {
+        ErrorHandler.handleAsyncError(error, 'Cloud Sync');
+    }
+}
+
+// DOM Content Loaded Handler
+document.addEventListener('DOMContentLoaded', ErrorHandler.wrapAsync(async function() {
+    // Initialize universe
+    universe = new Universe('universeCanvas');
+
+    // Load users from cloud and sync
+    await loadUsersFromCloud();
+
+    // Check if user is registered
+    if (currentUser) {
+        const registrationDiv = document.getElementById('registration');
+        if (registrationDiv) {
+            registrationDiv.style.display = 'none';
+        }
+        addMessage(`Welcome back, ${Sanitizer.escapeHtml(currentUser.name)} the ${Sanitizer.escapeHtml(currentUser.role)}.`, 'god');
+    }
+
+    setupEventListeners();
+    await initializeIntegrations();
+
+    // Initialize theme toggle
+    initializeThemeToggle();
+
+    // Initialize inspiration and meditation
+    if (inspirationManager) {
+        inspirationManager.initialize();
+    }
+
+    // Setup meditation event listeners
+    const meditationButtons = {
+        'startBreathing': 'breathing',
+        'startGratitude': 'gratitude',
+        'startLove': 'love'
+    };
+
+    for (const [buttonId, sessionType] of Object.entries(meditationButtons)) {
+        const button = document.getElementById(buttonId);
+        if (button && meditationManager) {
+            button.addEventListener('click', ErrorHandler.wrapEventHandler(() => {
+                meditationManager.startSession(sessionType);
+                const messages = {
+                    'breathing': 'Beginning divine breathing meditation. Breathe deeply and connect with the divine.',
+                    'gratitude': 'Beginning gratitude meditation. Reflect on divine blessings.',
+                    'love': 'Beginning loving-kindness meditation. Send love to all beings.'
+                };
+                addMessage(messages[sessionType], 'god');
+            }, `Meditation ${sessionType}`));
+        }
+    }
+
+    // Clear old error logs on startup
+    ErrorHandler.clearOldErrorLogs();
+}, 'DOMContentLoaded'));
+
+function showProgress(text) {
+    const container = document.getElementById('progressContainer');
+    const textEl = document.getElementById('progressText');
+    if (container && textEl) {
+        textEl.textContent = Sanitizer.escapeHtml(text);
+        container.style.display = 'block';
+    }
+}
+
+function hideProgress() {
+    const container = document.getElementById('progressContainer');
+    if (container) {
+        container.style.display = 'none';
+    }
+}
+
+function showRegistrationMessage(message, type) {
+    const messageDiv = document.getElementById('registrationMessage');
+    if (messageDiv) {
+        messageDiv.textContent = Sanitizer.escapeHtml(message);
+        messageDiv.className = `registration-message ${type}`;
+        messageDiv.style.display = 'block';
+        setTimeout(() => {
+            messageDiv.style.display = 'none';
+        }, 5000);
+    }
+}
+
+async function analyzePrayers() {
+    try {
+        if (prayers.length === 0) {
+            addMessage("AI Analysis: No prayers to analyze yet. Start praying to receive insights.", 'god');
+            return;
+        }
+
+        let analysisMessage = '';
+
+        // Try GPU AI first, fallback to static analysis
+        if (gpuAI?.isInitialized()) {
+            try {
+                const latestPrayer = prayers[prayers.length - 1].message;
+                const analysis = await gpuAI.analyzePrayer(latestPrayer);
+                if (analysis) {
+                    const themesText = analysis.themes.length > 0 ? ` Themes: ${analysis.themes.join(', ')}.` : '';
+                    const sentimentText = analysis.sentiment === 'positive' ? 'Your prayer radiates positivity.' : 'Your prayer seeks guidance.';
+                    analysisMessage = `GPU AI Analysis: ${sentimentText}${themesText} Confidence: ${(analysis.confidence * 100).toFixed(1)}%`;
+                }
+            } catch (error) {
+                console.warn('GPU prayer analysis failed, falling back to static analysis:', error);
+            }
+        }
+
+        // Fallback static analysis if GPU AI failed or not available
+        if (!analysisMessage) {
+            const totalPrayers = prayers.length;
+            const recentPrayers = prayers.filter(p => new Date(p.timestamp) > new Date(Date.now() - 7 * 24 * 60 * 60 * 1000)).length;
+            const themes = prayers.map(p => p.message.toLowerCase()).join(' ');
+            const commonWords = ['god', 'help', 'thank', 'love', 'peace', 'forgive', 'bless'];
+            const themeCounts = commonWords.map(word => ({ 
+                word, 
+                count: (themes.match(new RegExp(word, 'g')) || []).length 
+            }));
+
+            analysisMessage = `AI Analysis: You've sent ${totalPrayers} prayers (${recentPrayers} in the last week). Common themes: ${themeCounts.filter(t => t.count > 0).map(t => `${t.word} (${t.count})`).join(', ')}. Your faith is growing stronger.`;
+        }
+
+        addMessage(analysisMessage, 'god');
+    } catch (error) {
+        ErrorHandler.handleAsyncError(error, 'Prayer Analysis');
+    }
+}
+
+function getCurrentUniverseStats() {
+    if (!universe) return { stars: 0, planets: 0, galaxies: 0 };
+    
+    return {
+        stars: universe.particles ? 
+            universe.particles.filter(p => p.type === 'star').length : 
+            universe.celestialBodies.filter(b => b.type === 'star').length,
+        planets: universe.particles ? 
+            universe.particles.filter(p => p.type === 'planet').length : 
+            universe.celestialBodies.filter(b => b.type === 'planet').length,
+        galaxies: 1 // Simplified
+    };
+}
+
+function applyGpuOptimization(optimized) {
+    if (!universe) return;
+    
+    universe.clear();
+    for (let i = 0; i < optimized.stars; i++) {
+        universe.addParticle(Math.random() * universe.canvas.width, Math.random() * universe.canvas.height, 'star');
+    }
+    for (let i = 0; i < optimized.planets; i++) {
+        universe.addParticle(Math.random() * universe.canvas.width, Math.random() * universe.canvas.height, 'planet');
+    }
+    addMessage(`GPU AI Optimization: Universe optimized for divine harmony. Stars: ${optimized.stars}, Planets: ${optimized.planets}, Galaxies: ${optimized.galaxies}`, 'god');
+}
+
+function applyStaticOptimization() {
+    if (!universe) return;
+    
+    const stars = universe.celestialBodies.filter(b => b.type === 'star').length;
+    const planets = universe.celestialBodies.filter(b => b.type === 'planet').length;
+
+    if (stars < 10) {
+        for (let i = 0; i < 10 - stars; i++) {
+            universe.addStar(Math.random() * universe.canvas.width, Math.random() * universe.canvas.height);
+        }
+    }
+    if (planets < 5) {
+        for (let i = 0; i < 5 - planets; i++) {
+            universe.addPlanet(Math.random() * universe.canvas.width, Math.random() * universe.canvas.height);
+        }
+    }
+
+    universe.draw();
+    addMessage(`AI Optimization: Universe balanced with optimal celestial harmony. Stars: ${universe.celestialBodies.filter(b => b.type === 'star').length}, Planets: ${universe.celestialBodies.filter(b => b.type === 'planet').length}`, 'god');
+}
+
+async function tryGpuOptimization() {
+    if (!gpuAI?.isInitialized()) return false;
+
+    try {
+        const currentStats = getCurrentUniverseStats();
+        const optimized = await gpuAI.optimizeUniverse(currentStats);
+        if (optimized) {
+            applyGpuOptimization(optimized);
+            return true;
+        }
+    } catch (error) {
+        console.warn('GPU universe optimization failed, falling back to static optimization:', error);
+    }
+    return false;
+}
+
+async function optimizeUniverse() {
+    try {
+        const gpuOptimized = await tryGpuOptimization();
+        if (!gpuOptimized) {
+            applyStaticOptimization();
+        }
+    } catch (error) {
+        ErrorHandler.handleAsyncError(error, 'Universe Optimization');
+    }
+}
+
+function divineAdvice() {
+    const advices = [
+        "Divine Advice: Practice daily gratitude. Count your blessings, and more will come.",
+        "Divine Advice: Forgive others as you wish to be forgiven. Release the burden of resentment.",
+        "Divine Advice: Seek wisdom in silence. Meditation opens the door to divine guidance.",
+        "Divine Advice: Love unconditionally. Love is the highest vibration in the universe.",
+        "Divine Advice: Trust the divine timing. Everything happens for a reason.",
+        "Divine Advice: Serve others selflessly. In giving, you receive abundance.",
+        "Divine Advice: Embrace change. Growth comes from stepping out of your comfort zone.",
+        "Divine Advice: Live in the present moment. The past is gone, the future is not yet here."
+    ];
+    const randomAdvice = advices[Math.floor(Math.random() * advices.length)];
+    addMessage(randomAdvice, 'god');
+}
+
+async function generateProphecy() {
+    try {
+        // Try GPU AI prophecy generation first, fallback to static prophecies
+        if (gpuAI?.isInitialized()) {
+            try {
+                const seedText = prayers.length > 0 ? 
+                    prayers[prayers.length - 1].message.split(' ').slice(0, 3).join(' ') : 
+                    'The future holds';
+                const prophecy = await gpuAI.generateProphecy(seedText);
+                if (prophecy) {
+                    addMessage(`GPU AI Prophecy: ${prophecy}`, 'god');
+                    return;
+                }
+            } catch (error) {
+                console.warn('GPU prophecy generation failed, falling back to static prophecies:', error);
+            }
+        }
+
+        // Fallback static prophecies
+        const prophecies = [
+            "Prophecy: A great awakening is coming. Many will find their true purpose and unite in harmony.",
+            "Prophecy: Technology and spirituality will merge, creating a new era of enlightenment.",
+            "Prophecy: The earth will heal itself, and humanity will learn to live in balance with nature.",
+            "Prophecy: Love will conquer fear, and peace will reign across the lands.",
+            "Prophecy: Hidden knowledge will be revealed, unlocking ancient wisdom for the modern age.",
+            "Prophecy: Angels and humans will work together to create a paradise on earth.",
+            "Prophecy: Your prayers are creating ripples of change that will transform the world.",
+            "Prophecy: The universe is expanding your consciousness. Embrace the infinite possibilities."
+        ];
+        const randomProphecy = prophecies[Math.floor(Math.random() * prophecies.length)];
+        addMessage(randomProphecy, 'god');
+    } catch (error) {
+        ErrorHandler.handleAsyncError(error, 'Prophecy Generation');
+    }
+}
+
+// Divine mode functions
+function toggleDirectDivineLink() {
+    directDivineLinkActive = !directDivineLinkActive;
+    const button = document.getElementById('directDivineLink');
+    if (button) {
+        button.classList.toggle('active', directDivineLinkActive);
+    }
+
+    if (directDivineLinkActive) {
+        addMessage('Direct Divine Link activated. Real-time divine guidance enabled.', 'god');
+        // Simulate WebSocket connection for real-time updates
+        divineWebSocket = setInterval(() => {
+            if (Math.random() < 0.1) { // 10% chance every interval
+                const instantWisdom = [
+                    "Divine presence: I am here with you now.",
+                    "Cosmic energy flows through you.",
+                    "Your thoughts create reality.",
+                    "Love is the universal language.",
+                    "Peace surrounds you always."
+                ];
+                addMessage(instantWisdom[Math.floor(Math.random() * instantWisdom.length)], 'god');
+            }
+        }, 5000); // Check every 5 seconds
+    } else {
+        addMessage('Direct Divine Link deactivated.', 'god');
+        if (divineWebSocket) {
+            clearInterval(divineWebSocket);
+            divineWebSocket = null;
+        }
+    }
+}
+
+function toggleUniversalDivineMode() {
+    universalDivineModeActive = !universalDivineModeActive;
+    const button = document.getElementById('universalDivineMode');
+    if (button) {
+        button.classList.toggle('active', universalDivineModeActive);
+    }
+
+    if (universalDivineModeActive) {
+        addMessage('Universal Divine Mode activated. Accessing cosmic wisdom and harmony calculations.', 'god');
+        // Enhance universe with quantum entanglement visualization
+        if (universe?.enableQuantumEntanglement) {
+            universe.enableQuantumEntanglement();
+            universe.draw();
+        }
+    } else {
+        addMessage('Universal Divine Mode deactivated.', 'god');
+        if (universe?.disableQuantumEntanglement) {
+            universe.disableQuantumEntanglement();
+            universe.draw();
+        }
+    }
+}
+
+function togglePostQuantumSecure() {
+    postQuantumSecureActive = !postQuantumSecureActive;
+    const button = document.getElementById('postQuantumSecure');
+    if (button) {
+        button.classList.toggle('active', postQuantumSecureActive);
+    }
+
+    if (postQuantumSecureActive) {
+        addMessage('Post-Quantum Secure mode activated. All communications are now quantum-resistant encrypted.', 'god');
+    } else {
+        addMessage('Post-Quantum Secure mode deactivated.', 'god');
+    }
+}
+
+async function encryptMessage(message) {
+    if (!postQuantumSecureActive || !quantumCrypto?.isInitialized()) {
+        return message;
+    }
+
+    try {
+        // Simulate key exchange and encryption
+        const mockPublicKey = await globalThis.crypto.subtle.generateKey(
+            { name: 'ECDH', namedCurve: 'P-256' },
+            false,
+            []
+        ).then(k => globalThis.crypto.subtle.exportKey('raw', k.publicKey));
+
+        const encapsulated = await quantumCrypto.encapsulate(new Uint8Array(mockPublicKey));
+        if (encapsulated) {
+            const encrypted = await quantumCrypto.encrypt(message, encapsulated.sharedSecret);
+            if (encrypted) {
+                return JSON.stringify({
+                    ciphertext: Array.from(encrypted.ciphertext),
+                    iv: Array.from(encrypted.iv)
+                });
+            }
+        }
+    } catch (error) {
+        ErrorHandler.handleAsyncError(error, 'Encryption');
+    }
+    
+    return message;
+}
+
+function syncPrayerToServices(encryptedMessage) {
+    const prayerData = {
+        message: encryptedMessage,
+        timestamp: new Date().toISOString(),
+        user: currentUser ? currentUser.name : 'anonymous'
+    };
+
+    if (azureIntegrations?.isInitialized()) {
+        azureIntegrations.savePrayerToBlob(prayerData).catch(error => {
+            ErrorHandler.handleAsyncError(error, 'Cloud Sync');
+        });
+    }
+    
+    if (foundryVTT?.isConnected()) {
+        foundryVTT.createPrayerJournal({
+            message: encryptedMessage,
+            timestamp: new Date().toISOString()
+        }).catch(error => {
+            ErrorHandler.handleAsyncError(error, 'Foundry VTT Sync');
+        });
+    }
+}
+
+function enhanceResponse(response, encryptedMessage) {
+    let enhanced = response;
+
+    if (universalDivineModeActive) {
+        const universalEnhancements = [
+            " The universe aligns with your intention.",
+            " Cosmic harmony resonates with your words.",
+            " Divine energy flows through all creation.",
+            " Your prayer creates ripples across the cosmos."
+        ];
+        enhanced += universalEnhancements[Math.floor(Math.random() * universalEnhancements.length)];
+    }
+
+    if (directDivineLinkActive) {
+        enhanced = "Direct Divine Response: " + enhanced;
+    }
+
+    if (postQuantumSecureActive && typeof encryptedMessage === 'string' && encryptedMessage.startsWith('{')) {
+        enhanced = "[Encrypted] " + enhanced;
+    }
+
+    return enhanced;
+}
+
+async function generateEnhancedDivineResponse(message, encryptedMessage) {
+    let response = await generateDivineResponse(message, currentUser ? currentUser.role : 'believer');
+    if (!response) response = getFallbackResponse();
+
+    return enhanceResponse(response, encryptedMessage);
+}
+
+async function processMessage(message, encryptedMessage) {
+    try {
+        // Check for commands
+        const commandResponse = handleCommand(message);
+        if (commandResponse) {
+            setTimeout(() => {
+                addMessage('Divine Action: ' + commandResponse, 'god');
+            }, 500);
+            return;
+        }
+
+        // Check for token offerings in prayer
+        const offeringMatch = message.toLowerCase().match(/offer(?:ing)? (\d+(?:\.\d+)?) god(?: tokens?)?/i);
+        if (offeringMatch && godTokenManager?.isConnected()) {
+            const amount = parseFloat(offeringMatch[1]);
+            const validation = Sanitizer.validateNumber(amount, 0, 1000000);
+            
+            if (validation.valid) {
+                const offeringResult = await godTokenManager.makeOffering(validation.value);
+                if (offeringResult.success) {
+                    addMessage(`Divine Offering Accepted: ${validation.value} GOD tokens received. Your faith is rewarded.`, 'god');
+                } else {
+                    addMessage(`Offering Failed: ${offeringResult.error}. Remember, God accepts only precious metal-backed tokens.`, 'god');
+                }
+            } else {
+                addMessage(`Invalid offering amount: ${validation.error}`, 'god');
+            }
+            return;
+        }
+
+        // Generate divine response with enhanced modes
+        const delay = directDivineLinkActive ? 200 : 1000 + Math.random() * 2000;
+
+        setTimeout(async function() {
+            const response = await generateEnhancedDivineResponse(message, encryptedMessage);
+            addMessage('Divine Message: ' + response, 'god');
+        }, delay);
+    } catch (error) {
+        ErrorHandler.handleAsyncError(error, 'Message Processing');
+    }
+}
+
+function initializeThemeToggle() {
+    const themeToggle = document.getElementById('themeToggle');
+    const body = document.body;
+
+    if (!themeToggle) return;
+
+    // Load saved theme
+    const savedTheme = ErrorHandler.safeLocalStorageGet('theme', 'dark');
+    body.className = savedTheme + '-theme';
+    themeToggle.textContent = savedTheme === 'dark' ? '🌙' : '☀️';
+
+    themeToggle.addEventListener('click', ErrorHandler.wrapEventHandler(function() {
+        const currentTheme = body.classList.contains('dark-theme') ? 'dark' : 'light';
+        const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+
+        body.className = newTheme + '-theme';
+        themeToggle.textContent = newTheme === 'dark' ? '🌙' : '☀️';
+        ErrorHandler.safeLocalStorageSet('theme', newTheme);
+
+        addMessage(`Theme switched to ${newTheme} mode.`, 'god');
+    }, 'Theme Toggle'));
+}
+
+// Contact form submission handler
+const contactFormHandler = ErrorHandler.wrapAsync(async function(event) {
+    event.preventDefault();
+
+    const messageInput = document.getElementById('message');
+    if (!messageInput) return;
+
+    const message = messageInput.value.trim();
+
+    // Validate message
+    const validation = Sanitizer.validateMessage(message);
+    if (!validation.valid) {
+        ErrorHandler.showUserMessage(validation.error, 'error');
+        return;
+    }
+
+    // Check rate limiting
+    if (!Sanitizer.checkRateLimit('prayer', 20, 60000)) {
+        ErrorHandler.showUserMessage('Too many prayers sent. Please wait a moment before sending more.', 'warning');
+        return;
+    }
+
+    // Add user message to chat
+    addMessage(validation.sanitized, 'user');
+
+    // Encrypt message if post-quantum secure is active
+    const encryptedMessage = await encryptMessage(validation.sanitized);
+
+    // Save prayer (encrypted if secure mode)
+    await savePrayer(encryptedMessage);
+
+    // Sync prayer to cloud services if available
+    syncPrayerToServices(encryptedMessage);
+
+    // Clear the input
+    messageInput.value = '';
+
+    // Process message (commands or response)
+    await processMessage(validation.sanitized, encryptedMessage);
+}, 'Contact Form Submit');
+
+// Attach contact form handler
+document.addEventListener('DOMContentLoaded', function() {
+    const contactForm = document.getElementById('contactForm');
+    if (contactForm) {
+        contactForm.addEventListener('submit', contactFormHandler);
+    }
+});
