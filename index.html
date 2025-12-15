@@ -26,7 +26,7 @@
             <div class="quote-of-day">
                 <h3>Inspirational Quote</h3>
                 <blockquote id="dailyQuote">Loading inspiration...</blockquote>
-                <button id="newQuote" class="inspiration-btn" aria-label="Get a new inspirational quote">New Quote</button>
+                <button id="newQuote" class="inspiration-btn">New Quote</button>
             </div>
         </div>
 
@@ -53,51 +53,55 @@
             <h3>Divine Treasury</h3>
             <p>God does not accept cotton paper debt fiat currency. Pay Him in gold and silver only through GOD tokens.</p>
             <button id="connectWallet">🔗 Connect Wallet</button>
-            <div id="walletInfo" style="display: none;">
+            <div id="walletInfo">
                 <p><strong>Wallet:</strong> <span id="walletAddress">Not connected</span></p>
                 <p><strong>GOD Balance:</strong> <span id="godBalance">0</span></p>
             </div>
-            <div class="offering-section" style="display: none;">
+            <div class="offering-section">
                 <label for="offeringAmount">Divine Offering Amount:</label>
                 <input type="number" id="offeringAmount" placeholder="0.00" min="0" step="0.01">
                 <button id="makeOffering">🙏 Make Divine Offering</button>
                 <p id="offeringStatus"></p>
             </div>
         </div>
-        <div id="registration" class="registration">
+        <div id="registration" class="registration" role="region" aria-label="User Registration">
             <h2>Universal Registration</h2>
-            <form id="registrationForm">
+            <form id="registrationForm" aria-label="Registration form">
                 <label for="name">Name:</label>
-                <input type="text" id="name" name="name" required>
+                <input type="text" id="name" name="name" required aria-required="true" aria-describedby="nameHelp" maxlength="50">
+                <span id="nameHelp" class="sr-only">Enter your name (2-50 characters, letters and numbers only)</span>
+                
                 <label for="role">Role:</label>
-                <select id="role" name="role" required>
+                <select id="role" name="role" required aria-required="true" aria-describedby="roleHelp">
                     <option value="">Select Role</option>
                     <option value="believer">Believer</option>
                     <option value="angel">Angel</option>
                     <option value="prophet">Prophet</option>
                 </select>
-                <button type="submit">Register</button>
+                <span id="roleHelp" class="sr-only">Choose your spiritual role in the divine system</span>
+                
+                <button type="submit" aria-label="Submit registration">Register</button>
             </form>
-            <div id="registrationMessage" class="registration-message"></div>
+            <div id="registrationMessage" class="registration-message" role="alert" aria-live="polite"></div>
         </div>
         <blockquote class="lords-prayer">
             <p><em>OH COSMIC BIRTHER OF ALL RADIENCE AND VIBRATION SOFTEN THE GROUNG OF MY BEING AND CARVE OUT A SPACE WHERE WITHIN ME WHERE YOUR PRESANCE CAN ABIDE FILL ME WITH YOUR CREATIVITY SO THAT O MAY NE EMPOWERED TO BEAR FRUIT OF MY MISSION LET EACH OF MY ACTIONS BEAR FRUIT IN ACCORDANCE WITH MY DESIRES ENDOW ME WITH THE WISDOM OF PRODUCEAND SHARE WHAT EACH BEING NEEDS TO GROW AND FLORISH UNTIE THE TANGLED THREAD OF DESTINYTHAT BINDS ME AS I RELEASE OTHERS FROM ENTANGLEMENT OF PAST MISTAKES DO NOT LET ME BE SUDUCED BY THAT WHICH WOULD DIVERT ME FROM MY TRUE PURPOSEBUT ILLUMINATE THE OPPORTUNITIES OF PRESENT MOMENTSFOR YOU ARE THE GROUND AND THE FRUITFUL VISION BIRTH POWER AND FULFILMENTAS ALL IS GATHERED AND MADE WHOLE ONCE AGAIN AND SO IT  IS (THE LORDS PRAYER)</em></p>
         </blockquote>
         <div class="main-content">
-            <div class="chat-section">
+            <div class="chat-section" role="region" aria-label="Prayer Chat">
                 <div id="chatContainer">
-                    <div id="chatMessages"></div>
-                    <form id="contactForm">
-                        <input type="text" id="message" name="message" placeholder="Type your prayer or message here..." autocomplete="off">
-                        <button type="submit">Send to God</button>
+                    <div id="chatMessages" role="log" aria-live="polite" aria-atomic="false"></div>
+                    <form id="contactForm" aria-label="Send prayer form">
+                        <input type="text" id="message" name="message" placeholder="Type your prayer or message here..." autocomplete="off" aria-label="Prayer message input" maxlength="5000">
+                        <button type="submit" aria-label="Send prayer to God">Send to God</button>
                     </form>
                 </div>
-                <div id="response" class="response"></div>
+                <div id="response" class="response" role="status" aria-live="polite"></div>
             </div>
-            <div class="universe-section">
+            <div class="universe-section" role="region" aria-label="Universe Visualization">
                 <h2>The Universe</h2>
-                <canvas id="universeCanvas" width="400" height="400"></canvas>
-                <div class="controls">
+                <canvas id="universeCanvas" width="400" height="400" role="img" aria-label="Interactive universe visualization with stars and planets"></canvas>
+                <div class="controls" role="toolbar" aria-label="Universe controls">
                     <button id="clearUniverse">Clear Universe</button>
                     <button id="savePrayers">View Saved Prayers</button>
                     <button id="analyzePrayers">Analyze Prayers</button>
@@ -118,6 +122,11 @@
             </div>
         </div>
     </div>
+    <!-- Utility Scripts - Load First -->
+    <script src="utils/sanitizer.js"></script>
+    <script src="utils/errorHandler.js"></script>
+    
+    <!-- Core Application Scripts -->
     <script src="azure-integrations.js"></script>
     <script src="foundry-vtt-integrations.js"></script>
     <script src="quantum-crypto.js"></script>
@@ -128,6 +137,7 @@
     <script src="inspiration.js"></script>
     <script src="god-token.js"></script>
     <script src="script.js"></script>
+    
     <!-- TensorFlow.js for GPU-accelerated AI, inspired by NVIDIA Blackwell -->
     <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@4.15.0/dist/tf.min.js"></script>
 </body>
