@@ -1,0 +1,372 @@
+{
+  "saints": [
+    {
+      "id": "saint_001",
+      "name": "Saint Peter",
+      "category": "BONES",
+      "classification": "MARTYR",
+      "location": "VATICAN",
+      "ancestorLineage": "House of David > Tribe of Judah > Simon Peter",
+      "historicalPeriod": "1st Century AD",
+      "deathDate": "64 AD",
+      "spiritualPower": 1000,
+      "relicDescription": "Bones of the first Pope, keeper of the keys to heaven",
+      "miracles": [
+        "Walking on water",
+        "Healing the lame",
+        "Raising the dead"
+      ],
+      "attributes": {
+        "faith": 100,
+        "wisdom": 95,
+        "courage": 98,
+        "compassion": 90
+      }
+    },
+    {
+      "id": "saint_002",
+      "name": "Saint Paul",
+      "category": "MANUSCRIPTS",
+      "classification": "TEACHER",
+      "location": "VATICAN",
+      "ancestorLineage": "House of David > Tribe of Benjamin > Saul of Tarsus",
+      "historicalPeriod": "1st Century AD",
+      "deathDate": "67 AD",
+      "spiritualPower": 950,
+      "relicDescription": "Sacred writings and epistles of the Apostle to the Gentiles",
+      "miracles": [
+        "Conversion on Damascus Road",
+        "Healing through handkerchiefs",
+        "Surviving shipwreck"
+      ],
+      "attributes": {
+        "faith": 98,
+        "wisdom": 100,
+        "courage": 95,
+        "compassion": 92
+      }
+    },
+    {
+      "id": "saint_003",
+      "name": "Saint Mary Magdalene",
+      "category": "HOLY_ITEMS",
+      "classification": "MYSTIC",
+      "location": "CATHOLIC_CHURCH",
+      "ancestorLineage": "House of David > Tribe of Judah > Mary of Magdala",
+      "historicalPeriod": "1st Century AD",
+      "deathDate": "63 AD",
+      "spiritualPower": 980,
+      "relicDescription": "Sacred vessels and anointing oils used by the first witness",
+      "miracles": [
+        "First witness to resurrection",
+        "Healing through faith",
+        "Prophetic visions"
+      ],
+      "attributes": {
+        "faith": 100,
+        "wisdom": 96,
+        "courage": 94,
+        "compassion": 100
+      }
+    },
+    {
+      "id": "saint_004",
+      "name": "Saint Francis of Assisi",
+      "category": "ARTIFACTS",
+      "classification": "HEALER",
+      "location": "CATHOLIC_CHURCH",
+      "ancestorLineage": "House of David > Italian Nobility > Giovanni di Pietro di Bernardone",
+      "historicalPeriod": "12th-13th Century",
+      "deathDate": "1226 AD",
+      "spiritualPower": 920,
+      "relicDescription": "Stigmata cloth and prayer beads of the patron saint of animals",
+      "miracles": [
+        "Receiving stigmata",
+        "Communicating with animals",
+        "Healing the sick"
+      ],
+      "attributes": {
+        "faith": 97,
+        "wisdom": 93,
+        "courage": 90,
+        "compassion": 100
+      }
+    },
+    {
+      "id": "saint_005",
+      "name": "Saint Joan of Arc",
+      "category": "BONES",
+      "classification": "WARRIOR",
+      "location": "CATHOLIC_CHURCH",
+      "ancestorLineage": "House of David > French Peasantry > Jeanne d'Arc",
+      "historicalPeriod": "15th Century",
+      "deathDate": "1431 AD",
+      "spiritualPower": 960,
+      "relicDescription": "Remains of the Maid of Orleans, warrior saint and visionary",
+      "miracles": [
+        "Divine visions",
+        "Military victories",
+        "Prophecies fulfilled"
+      ],
+      "attributes": {
+        "faith": 100,
+        "wisdom": 88,
+        "courage": 100,
+        "compassion": 85
+      }
+    },
+    {
+      "id": "saint_006",
+      "name": "Saint Thomas Aquinas",
+      "category": "MANUSCRIPTS",
+      "classification": "TEACHER",
+      "location": "VATICAN",
+      "ancestorLineage": "House of David > Italian Nobility > Thomas of Aquino",
+      "historicalPeriod": "13th Century",
+      "deathDate": "1274 AD",
+      "spiritualPower": 940,
+      "relicDescription": "Original manuscripts of Summa Theologica and philosophical works",
+      "miracles": [
+        "Levitation during prayer",
+        "Divine illumination",
+        "Prophetic knowledge"
+      ],
+      "attributes": {
+        "faith": 95,
+        "wisdom": 100,
+        "courage": 88,
+        "compassion": 90
+      }
+    },
+    {
+      "id": "saint_007",
+      "name": "Saint Catherine of Siena",
+      "category": "HOLY_ITEMS",
+      "classification": "MYSTIC",
+      "location": "VATICAN",
+      "ancestorLineage": "House of David > Italian Nobility > Caterina di Giacomo",
+      "historicalPeriod": "14th Century",
+      "deathDate": "1380 AD",
+      "spiritualPower": 970,
+      "relicDescription": "Sacred ring and mystical writings of the Doctor of the Church",
+      "miracles": [
+        "Mystical marriage to Christ",
+        "Stigmata",
+        "Prophetic visions"
+      ],
+      "attributes": {
+        "faith": 100,
+        "wisdom": 97,
+        "courage": 93,
+        "compassion": 98
+      }
+    },
+    {
+      "id": "saint_008",
+      "name": "Saint Patrick",
+      "category": "ARTIFACTS",
+      "classification": "PROPHET",
+      "location": "CATHOLIC_CHURCH",
+      "ancestorLineage": "House of David > Romano-British > Maewyn Succat",
+      "historicalPeriod": "5th Century",
+      "deathDate": "461 AD",
+      "spiritualPower": 930,
+      "relicDescription": "Staff and shamrock of the Apostle of Ireland",
+      "miracles": [
+        "Driving snakes from Ireland",
+        "Converting thousands",
+        "Raising the dead"
+      ],
+      "attributes": {
+        "faith": 98,
+        "wisdom": 94,
+        "courage": 96,
+        "compassion": 95
+      }
+    },
+    {
+      "id": "saint_009",
+      "name": "Saint Teresa of Avila",
+      "category": "MANUSCRIPTS",
+      "classification": "MYSTIC",
+      "location": "CATHOLIC_CHURCH",
+      "ancestorLineage": "House of David > Spanish Nobility > Teresa Sánchez de Cepeda",
+      "historicalPeriod": "16th Century",
+      "deathDate": "1582 AD",
+      "spiritualPower": 965,
+      "relicDescription": "Mystical writings and incorrupt heart of the reformer",
+      "miracles": [
+        "Levitation",
+        "Mystical visions",
+        "Bilocation"
+      ],
+      "attributes": {
+        "faith": 100,
+        "wisdom": 98,
+        "courage": 92,
+        "compassion": 96
+      }
+    },
+    {
+      "id": "saint_010",
+      "name": "Saint Augustine of Hippo",
+      "category": "MANUSCRIPTS",
+      "classification": "TEACHER",
+      "location": "VATICAN",
+      "ancestorLineage": "House of David > North African > Aurelius Augustinus",
+      "historicalPeriod": "4th-5th Century",
+      "deathDate": "430 AD",
+      "spiritualPower": 955,
+      "relicDescription": "Confessions and theological works of the Doctor of Grace",
+      "miracles": [
+        "Conversion experience",
+        "Divine illumination",
+        "Prophetic writings"
+      ],
+      "attributes": {
+        "faith": 97,
+        "wisdom": 100,
+        "courage": 89,
+        "compassion": 93
+      }
+    },
+    {
+      "id": "saint_011",
+      "name": "Saint Toussaint Louverture",
+      "category": "BONES",
+      "classification": "WARRIOR",
+      "location": "HAITI",
+      "ancestorLineage": "House of David > African Diaspora > François-Dominique Toussaint",
+      "historicalPeriod": "18th-19th Century",
+      "deathDate": "1803 AD",
+      "spiritualPower": 990,
+      "relicDescription": "Remains of Haiti's liberator and revolutionary leader",
+      "miracles": [
+        "Leading slave rebellion",
+        "Establishing free nation",
+        "Divine protection in battle"
+      ],
+      "attributes": {
+        "faith": 95,
+        "wisdom": 96,
+        "courage": 100,
+        "compassion": 94
+      }
+    },
+    {
+      "id": "saint_012",
+      "name": "Saint Jean-Jacques Dessalines",
+      "category": "ARTIFACTS",
+      "classification": "WARRIOR",
+      "location": "HAITI",
+      "ancestorLineage": "House of David > African Diaspora > Jacques I of Haiti",
+      "historicalPeriod": "18th-19th Century",
+      "deathDate": "1806 AD",
+      "spiritualPower": 975,
+      "relicDescription": "Sword and crown of Haiti's first emperor",
+      "miracles": [
+        "Victory at Vertières",
+        "Declaration of independence",
+        "Divine courage"
+      ],
+      "attributes": {
+        "faith": 93,
+        "wisdom": 90,
+        "courage": 100,
+        "compassion": 88
+      }
+    },
+    {
+      "id": "saint_013",
+      "name": "Saint Marie-Jeanne",
+      "category": "HOLY_ITEMS",
+      "classification": "HEALER",
+      "location": "HAITI",
+      "ancestorLineage": "House of David > African Diaspora > Vodou Priestess",
+      "historicalPeriod": "18th Century",
+      "deathDate": "1802 AD",
+      "spiritualPower": 985,
+      "relicDescription": "Sacred healing herbs and ritual items of the warrior priestess",
+      "miracles": [
+        "Healing wounded soldiers",
+        "Prophetic visions",
+        "Divine protection"
+      ],
+      "attributes": {
+        "faith": 98,
+        "wisdom": 95,
+        "courage": 97,
+        "compassion": 100
+      }
+    },
+    {
+      "id": "saint_014",
+      "name": "Saint Benedict of Nursia",
+      "category": "SACRED_GROUNDS",
+      "classification": "BUILDER",
+      "location": "VATICAN",
+      "ancestorLineage": "House of David > Italian Nobility > Benedictus de Nursia",
+      "historicalPeriod": "5th-6th Century",
+      "deathDate": "547 AD",
+      "spiritualPower": 945,
+      "relicDescription": "Foundation stones of Monte Cassino and the Benedictine Rule",
+      "miracles": [
+        "Founding monasticism",
+        "Raising the dead",
+        "Prophetic visions"
+      ],
+      "attributes": {
+        "faith": 96,
+        "wisdom": 97,
+        "courage": 91,
+        "compassion": 94
+      }
+    },
+    {
+      "id": "saint_015",
+      "name": "Saint Hildegard of Bingen",
+      "category": "MANUSCRIPTS",
+      "classification": "PROPHET",
+      "location": "CATHOLIC_CHURCH",
+      "ancestorLineage": "House of David > German Nobility > Hildegard von Bingen",
+      "historicalPeriod": "11th-12th Century",
+      "deathDate": "1179 AD",
+      "spiritualPower": 980,
+      "relicDescription": "Prophetic writings, musical compositions, and medical texts",
+      "miracles": [
+        "Prophetic visions",
+        "Healing through herbs",
+        "Divine music"
+      ],
+      "attributes": {
+        "faith": 99,
+        "wisdom": 100,
+        "courage": 93,
+        "compassion": 97
+      }
+    }
+  ],
+  "houseOfDavidFlags": [
+    {
+      "flag": "0x486f757365206f662044617669642053656e696f72204c696e65616765",
+      "description": "House of David Senior Lineage",
+      "verified": true
+    },
+    {
+      "flag": "0x486f757365206f662044617669642041706f73746f6c6963204c696e65",
+      "description": "House of David Apostolic Line",
+      "verified": true
+    },
+    {
+      "flag": "0x486f757365206f662044617669642048616974692052657075626c6963",
+      "description": "House of David Haiti Republic",
+      "verified": true
+    }
+  ],
+  "metadata": {
+    "version": "1.0.0",
+    "lastUpdated": "2024",
+    "totalSaints": 15,
+    "institutions": ["VATICAN", "CATHOLIC_CHURCH", "HAITI"]
+  }
+}

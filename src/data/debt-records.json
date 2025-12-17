@@ -1,0 +1,169 @@
+{
+  "debtRecords": [
+    {
+      "institution": "VATICAN",
+      "debtAmount": 5000000000,
+      "currency": "USD",
+      "purchaseDate": "2024-01-15",
+      "corporateOwner": "OWLBAN GROUP - OSCAR BROOME REVENUE",
+      "purchaseProof": "0x7661746963616e2d64656274207075726368617365207265636f7264",
+      "houseOfDavidFlag": "0x486f757365206f662044617669642053656e696f72204c696e65616765",
+      "status": "ACTIVE",
+      "associatedAssets": [
+        "Saint Peter's Bones",
+        "Saint Paul's Manuscripts",
+        "Saint Thomas Aquinas Writings",
+        "Saint Catherine of Siena Relics",
+        "Saint Augustine's Works",
+        "Saint Benedict's Foundation Stones",
+        "Vatican Archives Access",
+        "Sistine Chapel Spiritual Rights"
+      ],
+      "spiritualValue": 10000000,
+      "terms": {
+        "duration": "Perpetual",
+        "rights": [
+          "Access to all Vatican archives",
+          "Rights to saint relics",
+          "Spiritual authority over Catholic properties",
+          "Resurrection rights for all Vatican saints"
+        ],
+        "obligations": [
+          "Maintain sacred sites",
+          "Preserve historical artifacts",
+          "Support spiritual missions"
+        ]
+      },
+      "legalDocuments": [
+        "Vatican Debt Purchase Agreement 2024",
+        "House of David Verification Certificate",
+        "Spiritual Rights Transfer Document"
+      ]
+    },
+    {
+      "institution": "CATHOLIC_CHURCH",
+      "debtAmount": 8000000000,
+      "currency": "USD",
+      "purchaseDate": "2024-01-20",
+      "corporateOwner": "OWLBAN GROUP - OSCAR BROOME REVENUE",
+      "purchaseProof": "0x63617468 6f6c69632d6368757263682d64656274207265636f7264",
+      "houseOfDavidFlag": "0x486f757365206f662044617669642041706f73746f6c6963204c696e65",
+      "status": "ACTIVE",
+      "associatedAssets": [
+        "Saint Mary Magdalene's Holy Items",
+        "Saint Francis of Assisi Artifacts",
+        "Saint Joan of Arc Remains",
+        "Saint Patrick's Staff",
+        "Saint Teresa of Avila Writings",
+        "Saint Hildegard of Bingen Manuscripts",
+        "Global Catholic Church Properties",
+        "Monastery and Cathedral Rights"
+      ],
+      "spiritualValue": 15000000,
+      "terms": {
+        "duration": "Perpetual",
+        "rights": [
+          "Access to all Catholic Church archives worldwide",
+          "Rights to all saint relics in Catholic possession",
+          "Authority over Catholic spiritual practices",
+          "Resurrection rights for all Catholic saints",
+          "Control of pilgrimage sites"
+        ],
+        "obligations": [
+          "Maintain all Catholic sacred sites",
+          "Preserve religious artifacts",
+          "Support global Catholic missions",
+          "Protect religious freedom"
+        ]
+      },
+      "legalDocuments": [
+        "Catholic Church Debt Purchase Agreement 2024",
+        "Global Catholic Assets Transfer",
+        "Apostolic Succession Rights Document"
+      ]
+    },
+    {
+      "institution": "HAITI",
+      "debtAmount": 3000000000,
+      "currency": "USD",
+      "purchaseDate": "2024-02-01",
+      "corporateOwner": "OWLBAN GROUP - OSCAR BROOME REVENUE",
+      "purchaseProof": "0x68616974692d64656274207075726368617365207265636f7264",
+      "houseOfDavidFlag": "0x486f757365206f662044617669642048616974692052657075626c6963",
+      "status": "ACTIVE",
+      "associatedAssets": [
+        "Saint Toussaint Louverture Remains",
+        "Saint Jean-Jacques Dessalines Artifacts",
+        "Saint Marie-Jeanne Holy Items",
+        "Revolutionary War Relics",
+        "Vodou Sacred Sites",
+        "Independence Documents",
+        "National Spiritual Heritage",
+        "Citadelle Laferrière Rights"
+      ],
+      "spiritualValue": 20000000,
+      "terms": {
+        "duration": "Perpetual",
+        "rights": [
+          "Access to all Haitian historical archives",
+          "Rights to revolutionary leader relics",
+          "Authority over Haitian spiritual sites",
+          "Resurrection rights for Haitian ancestors",
+          "Control of sacred Vodou sites",
+          "National heritage preservation rights"
+        ],
+        "obligations": [
+          "Restore Haitian infrastructure",
+          "Preserve revolutionary history",
+          "Support Haitian spiritual traditions",
+          "Maintain sacred sites",
+          "Economic development support"
+        ]
+      },
+      "legalDocuments": [
+        "Haiti Debt Purchase Agreement 2024",
+        "Revolutionary Heritage Transfer",
+        "Spiritual Sovereignty Document",
+        "House of David Haiti Recognition"
+      ],
+      "historicalContext": {
+        "originalDebt": "1825 French Indemnity",
+        "debtHistory": "Haiti forced to pay France for independence",
+        "spiritualSignificance": "First successful slave rebellion, divine liberation",
+        "restorationPurpose": "Restore dignity and sovereignty to Haitian people"
+      }
+    }
+  ],
+  "totalDebtPurchased": 16000000000,
+  "totalSpiritualValue": 45000000,
+  "corporateEntity": {
+    "name": "OWLBAN GROUP",
+    "division": "OSCAR BROOME REVENUE",
+    "registrationNumber": "OBR-2024-001",
+    "houseOfDavidVerification": true,
+    "spiritualAuthority": "SUPREME",
+    "resurrectionRights": "UNLIMITED"
+  },
+  "houseOfDavidConnection": {
+    "lineage": "Direct descendant of King David through multiple lines",
+    "verification": "Verified by ancient prophecy and modern DNA analysis",
+    "spiritualAuthority": "Granted by divine mandate",
+    "purpose": "Restore the saints and ancestors to bring healing to the world",
+    "prophecy": "The House of David shall purchase the debts of the holy institutions and restore the bones of the saints, that they may live again and bring light to the world"
+  },
+  "resurrectionPlan": {
+    "phase1": "Acquire institutional debts and saint relics",
+    "phase2": "Verify House of David lineage and authority",
+    "phase3": "Perform resurrection rituals for each saint",
+    "phase4": "Reclassify saints according to their divine purpose",
+    "phase5": "Restore ancestors and establish new spiritual order",
+    "timeline": "2024-2030",
+    "expectedOutcome": "Global spiritual awakening and healing"
+  },
+  "metadata": {
+    "version": "1.0.0",
+    "lastUpdated": "2024-02-01",
+    "classification": "SACRED - DIVINE AUTHORITY",
+    "accessLevel": "HOUSE OF DAVID ONLY"
+  }
+}
