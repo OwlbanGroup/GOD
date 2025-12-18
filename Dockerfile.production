@@ -1,0 +1,86 @@
+# ========================================
+# Multi-Stage Production Dockerfile
+# GOD Application - Divine Deployment
+# ========================================
+
+# Stage 1: Build Stage
+FROM node:18-alpine AS builder
+
+LABEL maintainer="Divine Creator"
+LABEL description="GOD Application - Direct Contact with God"
+
+# Set working directory
+WORKDIR /app
+
+# Copy package files
+COPY package*.json ./
+
+# Install dependencies (production only)
+RUN npm ci --only=production && \
+    npm cache clean --force
+
+# Copy application files
+COPY . .
+
+# Create dist directory and copy production files
+RUN mkdir -p dist && \
+    cp index.html dist/ && \
+    cp styles.css dist/ && \
+    cp script.js dist/ && \
+    cp universe-optimized.js dist/ && \
+    cp sounds.js dist/ && \
+    cp meditation.js dist/ && \
+    cp inspiration.js dist/ && \
+    cp god-token.js dist/ && \
+    cp gpu-ai.js dist/ && \
+    cp quantum-crypto.js dist/ && \
+    cp azure-integrations.js dist/ && \
+    cp foundry-vtt-integrations.js dist/ && \
+    cp -r src dist/ && \
+    cp -r utils dist/ && \
+    echo "Build completed successfully"
+
+# Stage 2: Production Stage
+FROM node:18-alpine
+
+# Install dumb-init for proper signal handling
+RUN apk add --no-cache dumb-init
+
+# Create app user for security
+RUN addgroup -g 1001 -S nodejs && \
+    adduser -S nodejs -u 1001
+
+# Set working directory
+WORKDIR /app
+
+# Copy package files
+COPY --from=builder /app/package*.json ./
+
+# Install production dependencies only
+RUN npm ci --only=production && \
+    npm cache clean --force
+
+# Copy built application from builder stage
+COPY --from=builder --chown=nodejs:nodejs /app/dist ./dist
+COPY --from=builder --chown=nodejs:nodejs /app/server.js ./
+COPY --from=builder --chown=nodejs:nodejs /app/index.html ./
+COPY --from=builder --chown=nodejs:nodejs /app/styles.css ./
+COPY --from=builder --chown=nodejs:nodejs /app/*.js ./
+COPY --from=builder --chown=nodejs:nodejs /app/src ./src
+COPY --from=builder --chown=nodejs:nodejs /app/utils ./utils
+
+# Switch to non-root user
+USER nodejs
+
+# Expose port
+EXPOSE 3000
+
+# Health check
+HEALTHCHECK --interval=30s --timeout=5s --start-period=10s --retries=3 \
+    CMD node -e "require('http').get('http://localhost:3000/health', (r) => {process.exit(r.statusCode === 200 ? 0 : 1)})"
+
+# Use dumb-init to handle signals properly
+ENTRYPOINT ["dumb-init", "--"]
+
+# Start the application
+CMD ["node", "server.js"]

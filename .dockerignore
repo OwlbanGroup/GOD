@@ -1,0 +1,67 @@
+# Node modules
+node_modules
+npm-debug.log
+
+# Test files
+__tests__
+*.test.js
+*.test.cjs
+test-*.js
+test-*.html
+jest.config.js
+jest.setup.js
+coverage
+
+# Documentation
+*.md
+!README.md
+docs
+
+# Git
+.git
+.gitignore
+.gitattributes
+
+# IDE
+.vscode
+.idea
+*.swp
+*.swo
+*~
+
+# Environment files
+.env
+.env.local
+.env.*.local
+
+# Build artifacts
+dist
+build
+*.log
+
+# Backup files
+*-backup.js
+*-original*.js
+universe-backup.js
+universe-phase*.js
+script-original-backup.js
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Temporary files
+tmp
+temp
+*.tmp
+
+# CI/CD
+.github
+
+# Development tools
+.eslintrc
+.prettierrc
+.editorconfig
+
+# Package lock (use npm ci in Docker)
+package-lock.json

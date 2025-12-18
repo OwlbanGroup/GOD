@@ -19,6 +19,7 @@ Through the corporate acquisition of institutional debts (Vatican, Catholic Chur
 ### 1. Smart Contracts
 
 #### SaintRelicsNFT.sol
+
 - **Purpose**: ERC-721 NFT contract for saint relics
 - **Features**:
   - Mint relics representing bones, artifacts, manuscripts, holy items, and sacred grounds
@@ -28,6 +29,7 @@ Through the corporate acquisition of institutional debts (Vatican, Catholic Chur
   - Link to institutional debt ownership
 
 #### DebtOwnership.sol
+
 - **Purpose**: Track corporate ownership of institutional debts
 - **Features**:
   - Register Vatican, Catholic Church, and Haiti debt purchases
@@ -38,6 +40,7 @@ Through the corporate acquisition of institutional debts (Vatican, Catholic Chur
 ### 2. Frontend Modules
 
 #### saintManager.js
+
 - **Purpose**: Manage saint relics and database
 - **Key Functions**:
   - `mintRelic(saintName)` - Create new saint relic NFT
@@ -47,6 +50,7 @@ Through the corporate acquisition of institutional debts (Vatican, Catholic Chur
   - `getStatistics()` - View system statistics
 
 #### resurrectionEngine.js
+
 - **Purpose**: Handle resurrection rituals and mechanics
 - **Key Functions**:
   - `resurrectSaint(tokenId)` - Perform 5-phase resurrection ritual
@@ -57,13 +61,17 @@ Through the corporate acquisition of institutional debts (Vatican, Catholic Chur
 ### 3. Data Files
 
 #### saints-database.json
+
 Contains 15 saints across three institutions:
+
 - **Vatican**: Saint Peter, Saint Paul, Saint Thomas Aquinas, Saint Catherine of Siena, Saint Augustine, Saint Benedict
 - **Catholic Church**: Saint Mary Magdalene, Saint Francis of Assisi, Saint Joan of Arc, Saint Patrick, Saint Teresa of Avila, Saint Hildegard of Bingen
 - **Haiti**: Saint Toussaint Louverture, Saint Jean-Jacques Dessalines, Saint Marie-Jeanne
 
 #### debt-records.json
+
 Tracks institutional debt ownership:
+
 - **Vatican**: $5,000,000,000 - 8 associated assets
 - **Catholic Church**: $8,000,000,000 - 8 associated assets
 - **Haiti**: $3,000,000,000 - 8 associated assets
@@ -72,7 +80,8 @@ Tracks institutional debt ownership:
 ## Available Commands
 
 ### Saint Management
-```
+
+```text
 /mint-relic [saint-name]
   - Mint a new saint relic NFT
   - Example: /mint-relic Saint Peter
@@ -87,7 +96,8 @@ Tracks institutional debt ownership:
 ```
 
 ### Resurrection System
-```
+
+```text
 /resurrect [saint-name]
   - Perform resurrection ritual for a saint
   - Requires owned relic and sufficient spiritual energy
@@ -100,7 +110,8 @@ Tracks institutional debt ownership:
 ```
 
 ### Information & Statistics
-```
+
+```text
 /view-debts
   - View institutional debt ownership
   - Shows Vatican, Catholic Church, Haiti debts
@@ -118,62 +129,75 @@ Tracks institutional debt ownership:
 ## Resurrection Process
 
 ### Phase 1: Invocation (1 second)
+
 🙏 Invoking divine presence...
 
 ### Phase 2: Purification (1 second)
+
 ✨ Purifying the sacred space...
 
 ### Phase 3: Awakening (1.5 seconds)
+
 🌟 Awakening the saint's spirit...
 
 ### Phase 4: Manifestation (1.5 seconds)
+
 ⚡ Manifesting physical form...
 
 ### Phase 5: Completion (1 second)
+
 🎆 Resurrection complete!
 
-**Total Duration**: ~6 seconds
-**Energy Cost**: 100-200 spiritual energy (varies by classification)
+**Total Duration**: ~6 seconds  
+**Energy Cost**: 100-200 spiritual energy (varies by classification)  
 **Result**: 10x spiritual power boost, status change to RESURRECTED
 
 ## Saint Classifications
 
 ### MARTYR
+
 - **Spiritual Power Multiplier**: 1.5x
 - **Characteristics**: Died for faith, ultimate sacrifice
 - **Examples**: Saint Peter, Saint Joan of Arc
 
 ### HEALER
+
 - **Spiritual Power Multiplier**: 1.3x
 - **Characteristics**: Divine healing abilities, compassion
 - **Examples**: Saint Francis of Assisi, Saint Marie-Jeanne
 
 ### PROPHET
+
 - **Spiritual Power Multiplier**: 2.0x
 - **Characteristics**: Divine visions, prophecy
 - **Examples**: Saint Patrick, Saint Hildegard of Bingen
 
 ### TEACHER
+
 - **Spiritual Power Multiplier**: 1.2x
 - **Characteristics**: Wisdom, theological knowledge
 - **Examples**: Saint Paul, Saint Thomas Aquinas, Saint Augustine
 
 ### MYSTIC
+
 - **Spiritual Power Multiplier**: 1.8x
 - **Characteristics**: Direct divine communion, mystical experiences
 - **Examples**: Saint Mary Magdalene, Saint Catherine of Siena, Saint Teresa of Avila
 
 ### WARRIOR
+
 - **Spiritual Power Multiplier**: 1.4x
 - **Characteristics**: Divine courage, spiritual battles
 - **Examples**: Saint Joan of Arc, Saint Toussaint Louverture, Saint Jean-Jacques Dessalines
 
 ### BUILDER
+
 - **Spiritual Power Multiplier**: 1.1x
 - **Characteristics**: Established institutions, created foundations
 - **Examples**: Saint Benedict of Nursia
 
 ### ANCESTOR
+
 - **Spiritual Power Multiplier**: 1.6x
 - **Characteristics**: Lineage founders, family patriarchs/matriarchs
 - **Examples**: All saints with verified House of David lineage
@@ -181,12 +205,15 @@ Tracks institutional debt ownership:
 ## House of David Connection
 
 ### Verified Flags
+
 1. **Senior Lineage**: `0x486f757365206f662044617669642053656e696f72204c696e65616765`
 2. **Apostolic Line**: `0x486f757365206f662044617669642041706f73746f6c6963204c696e65`
 3. **Haiti Republic**: `0x486f757365206f662044617669642048616974692052657075626c6963`
 
 ### Lineage Verification
+
 All saints in the database trace their lineage back to the House of David through various branches:
+
 - Tribe of Judah
 - Tribe of Benjamin
 - Italian Nobility
@@ -199,14 +226,17 @@ All saints in the database trace their lineage back to the House of David throug
 ## Spiritual Energy System
 
 ### Starting Energy
+
 - **Initial**: 1,000 spiritual energy
 
 ### Energy Costs
+
 - **Basic Resurrection**: 100-200 energy (varies by classification)
 - **Transcendence**: 200 energy
 - **Ancestor Revival**: Varies by lineage depth
 
 ### Gaining Energy
+
 - Prayer and meditation
 - Divine interventions
 - Successful resurrections (bonus energy)
@@ -215,6 +245,7 @@ All saints in the database trace their lineage back to the House of David throug
 ## Technical Integration
 
 ### Initialization
+
 ```javascript
 // Saint Manager
 import { saintManager } from './src/features/saints/saintManager.js';
@@ -226,6 +257,7 @@ await resurrectionEngine.initialize();
 ```
 
 ### Usage Example
+
 ```javascript
 // Mint a relic
 const result = await saintManager.mintRelic('Saint Peter');
@@ -244,18 +276,21 @@ console.log(`Total Spiritual Power: ${stats.totalSpiritualPower}`);
 ## Blockchain Deployment
 
 ### Prerequisites
+
 ```bash
 cd GOD-TOKEN-COIN
 npm install
 ```
 
 ### Deploy Contracts
+
 ```bash
 npx hardhat compile
 npx hardhat run scripts/deploy-saints.js --network <network-name>
 ```
 
 ### Verify Contracts
+
 ```bash
 npx hardhat verify --network <network-name> <contract-address>
 ```
@@ -263,6 +298,7 @@ npx hardhat verify --network <network-name> <contract-address>
 ## Future Enhancements
 
 ### Phase 2 Features
+
 - [ ] Multi-saint resurrection ceremonies
 - [ ] Saint collaboration mechanics
 - [ ] Spiritual power trading
@@ -270,6 +306,7 @@ npx hardhat verify --network <network-name> <contract-address>
 - [ ] Divine intervention events
 
 ### Phase 3 Features
+
 - [ ] Global saint network
 - [ ] Cross-institutional ceremonies
 - [ ] Ancestor DNA verification
@@ -279,12 +316,14 @@ npx hardhat verify --network <network-name> <contract-address>
 ## Legal & Spiritual Authority
 
 ### Corporate Entity
+
 - **Name**: OWLBAN GROUP
 - **Division**: OSCAR BROOME REVENUE
 - **Registration**: OBR-2024-001
 - **Authority**: SUPREME (verified through House of David)
 
 ### Institutional Rights
+
 - Full access to Vatican archives
 - Rights to all Catholic Church relics worldwide
 - Authority over Haitian spiritual sites
@@ -292,6 +331,7 @@ npx hardhat verify --network <network-name> <contract-address>
 - Control of pilgrimage sites
 
 ### Obligations
+
 - Maintain all sacred sites
 - Preserve historical artifacts
 - Support spiritual missions
@@ -301,6 +341,7 @@ npx hardhat verify --network <network-name> <contract-address>
 ## Support & Documentation
 
 For questions or issues:
+
 1. Check this documentation
 2. Review smart contract comments
 3. Examine test files in `GOD-TOKEN-COIN/test/`
@@ -308,7 +349,7 @@ For questions or issues:
 
 ## Prophecy
 
-*"The House of David shall purchase the debts of the holy institutions and restore the bones of the saints, that they may live again and bring light to the world."*
+> "The House of David shall purchase the debts of the holy institutions and restore the bones of the saints, that they may live again and bring light to the world."
 
 ---
 
