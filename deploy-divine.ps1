@@ -20,7 +20,7 @@ $Colors = @{
 }
 
 # Divine banner
-function Print-Banner {
+function Write-Banner {
     Write-Host "========================================" -ForegroundColor $Colors.Purple
     Write-Host "🔱  GOD Application Deployment  🔱" -ForegroundColor $Colors.Purple
     Write-Host "   Deploy with Divine Authority" -ForegroundColor $Colors.Purple
@@ -28,34 +28,34 @@ function Print-Banner {
     Write-Host ""
 }
 
-# Print colored message
-function Print-Message {
+# Write colored message
+function Write-ColoredMessage {
     param([string]$Color, [string]$Message)
     Write-Host $Message -ForegroundColor $Color
 }
 
-# Print step
-function Print-Step {
+# Write step
+function Write-Step {
     param([string]$Message)
     Write-Host "➜ $Message" -ForegroundColor $Colors.Cyan
 }
 
-# Print success
-function Print-Success {
+# Write success
+function Write-SuccessMessage {
     param([string]$Message)
-    Write-Host "✓ $Message" -ForegroundColor $Colors.Green
+    Write-Host "[OK] $Message" -ForegroundColor $Colors.Green
 }
 
-# Print error
-function Print-Error {
+# Write error
+function Write-ErrorMessage {
     param([string]$Message)
-    Write-Host "✗ $Message" -ForegroundColor $Colors.Red
+    Write-Host "[ERROR] $Message" -ForegroundColor $Colors.Red
 }
 
-# Print warning
-function Print-Warning {
+# Write warning
+function Write-WarningMessage {
     param([string]$Message)
-    Write-Host "⚠ $Message" -ForegroundColor $Colors.Yellow
+    Write-Host "[WARNING] $Message" -ForegroundColor $Colors.Yellow
 }
 
 # Check if command exists
@@ -66,7 +66,7 @@ function Test-CommandExists {
 
 # Check prerequisites
 function Test-Prerequisites {
-    Print-Step "Checking prerequisites..."
+    Write-Step "Checking prerequisites..."
     
     $missingDeps = @()
     
@@ -79,24 +79,24 @@ function Test-Prerequisites {
     }
     
     if ($missingDeps.Count -gt 0) {
-        Print-Error "Missing required dependencies: $($missingDeps -join ', ')"
-        Print-Message $Colors.Yellow "Please install the missing dependencies and try again."
+        Write-ErrorMessage "Missing required dependencies: $($missingDeps -join ', ')"
+        Write-ColoredMessage $Colors.Yellow "Please install the missing dependencies and try again."
         exit 1
     }
     
-    Print-Success "All prerequisites satisfied"
+    Write-SuccessMessage "All prerequisites satisfied"
 }
 
 # Run tests
 function Invoke-Tests {
-    Print-Step "Running tests..."
+    Write-Step "Running tests..."
     
     try {
         npm test
-        Print-Success "All tests passed"
+        Write-SuccessMessage "All tests passed"
     }
     catch {
-        Print-Error "Tests failed"
+        Write-ErrorMessage "Tests failed"
         $response = Read-Host "Continue anyway? (y/N)"
         if ($response -ne 'y' -and $response -ne 'Y') {
             exit 1
@@ -106,7 +106,7 @@ function Invoke-Tests {
 
 # Create dist directory
 function New-DistDirectory {
-    Print-Step "Creating production build..."
+    Write-Step "Creating production build..."
     
     # Create dist directory
     New-Item -ItemType Directory -Force -Path "dist" | Out-Null
@@ -133,135 +133,152 @@ function New-DistDirectory {
         Copy-Item "utils" "dist/" -Recurse -Force
     }
     
-    Print-Success "Production build created in dist/"
+    Write-SuccessMessage "Production build created in dist/"
 }
 
 # Deploy locally
-function Deploy-Local {
-    Print-Step "Deploying locally..."
+function Invoke-LocalDeployment {
+    Write-Step "Deploying locally..."
     
     # Install dependencies
     npm install
     
     # Start server
-    Print-Success "Starting local server..."
-    Print-Message $Colors.Green "Server will start on http://localhost:3000"
-    Print-Message $Colors.Yellow "Press Ctrl+C to stop the server"
+    Write-SuccessMessage "Starting local server..."
+    Write-ColoredMessage $Colors.Green "Server will start on http://localhost:3000"
+    Write-ColoredMessage $Colors.Yellow "Press Ctrl+C to stop the server"
     npm start
 }
 
 # Deploy with Docker
-function Deploy-Docker {
-    Print-Step "Deploying with Docker..."
+function Invoke-DockerDeployment {
+    Write-Step "Deploying with Docker..."
     
     if (-not (Test-CommandExists 'docker')) {
-        Print-Error "Docker is not installed"
+        Write-ErrorMessage "Docker is not installed"
         exit 1
     }
     
     # Determine docker-compose command
     $composeCmd = if (Test-CommandExists 'docker-compose') {
         'docker-compose'
-    } elseif (docker compose version 2>$null) {
-        'docker compose'
     } else {
-        Print-Error "Docker Compose is not available"
-        exit 1
+        # Check if docker compose plugin is available
+        try {
+            $null = docker compose version 2>&1
+            'docker compose'
+        }
+        catch {
+            Write-ErrorMessage "Docker Compose is not available"
+            exit 1
+        }
     }
     
     # Stop existing containers
-    Print-Step "Stopping existing containers..."
-    & $composeCmd -f docker-compose.production.yml down 2>$null
+    Write-Step "Stopping existing containers..."
+    & $composeCmd -f docker-compose.production.yml down 2>&1 | Out-Null
     
     # Build and start containers
-    Print-Step "Building Docker image..."
+    Write-Step "Building Docker image..."
     & $composeCmd -f docker-compose.production.yml build
     
-    Print-Step "Starting containers..."
+    Write-Step "Starting containers..."
     & $composeCmd -f docker-compose.production.yml up -d
     
     # Wait for health check
-    Print-Step "Waiting for application to be healthy..."
+    Write-Step "Waiting for application to be healthy..."
     Start-Sleep -Seconds 5
     
     # Check health
     try {
         $response = Invoke-WebRequest -Uri "http://localhost:3000/health" -UseBasicParsing
         if ($response.StatusCode -eq 200) {
-            Print-Success "Application is healthy!"
-            Print-Message $Colors.Green "Access the application at: http://localhost:3000"
+            Write-SuccessMessage "Application is healthy!"
+            Write-ColoredMessage $Colors.Green "Access the application at: http://localhost:3000"
         }
     }
     catch {
-        Print-Warning "Health check failed, but container is running"
-        Print-Message $Colors.Yellow "Check logs with: $composeCmd -f docker-compose.production.yml logs"
+        Write-WarningMessage "Health check failed, but container is running"
+        Write-ColoredMessage $Colors.Yellow "Check logs with: $composeCmd -f docker-compose.production.yml logs"
     }
     
     # Show container status
-    Print-Step "Container status:"
+    Write-Step "Container status:"
     & $composeCmd -f docker-compose.production.yml ps
 }
 
 # Deploy with Docker + Nginx
-function Deploy-DockerNginx {
-    Print-Step "Deploying with Docker + Nginx..."
+function Invoke-DockerNginxDeployment {
+    Write-Step "Deploying with Docker + Nginx..."
     
     if (-not (Test-CommandExists 'docker')) {
-        Print-Error "Docker is not installed"
+        Write-ErrorMessage "Docker is not installed"
         exit 1
     }
     
     # Determine docker-compose command
     $composeCmd = if (Test-CommandExists 'docker-compose') {
         'docker-compose'
-    } elseif (docker compose version 2>$null) {
-        'docker compose'
     } else {
-        Print-Error "Docker Compose is not available"
-        exit 1
+        # Check if docker compose plugin is available
+        try {
+            $null = docker compose version 2>&1
+            'docker compose'
+        }
+        catch {
+            Write-ErrorMessage "Docker Compose is not available"
+            exit 1
+        }
     }
     
     # Stop existing containers
-    Print-Step "Stopping existing containers..."
-    & $composeCmd -f docker-compose.production.yml --profile with-nginx down 2>$null
+    Write-Step "Stopping existing containers..."
+    & $composeCmd -f docker-compose.production.yml --profile with-nginx down 2>&1 | Out-Null
     
     # Build and start containers with nginx profile
-    Print-Step "Building Docker images..."
+    Write-Step "Building Docker images..."
     & $composeCmd -f docker-compose.production.yml --profile with-nginx build
     
-    Print-Step "Starting containers with Nginx..."
+    Write-Step "Starting containers with Nginx..."
     & $composeCmd -f docker-compose.production.yml --profile with-nginx up -d
     
     # Wait for health check
-    Print-Step "Waiting for application to be healthy..."
+    Write-Step "Waiting for application to be healthy..."
     Start-Sleep -Seconds 5
     
     # Check health
     try {
         $response = Invoke-WebRequest -Uri "http://localhost/health" -UseBasicParsing
         if ($response.StatusCode -eq 200) {
-            Print-Success "Application is healthy!"
-            Print-Message $Colors.Green "Access the application at: http://localhost"
+            Write-SuccessMessage "Application is healthy!"
+            Write-ColoredMessage $Colors.Green "Access the application at: http://localhost"
         }
     }
     catch {
-        Print-Warning "Health check failed, but containers are running"
-        Print-Message $Colors.Yellow "Check logs with: $composeCmd -f docker-compose.production.yml --profile with-nginx logs"
+        Write-WarningMessage "Health check failed, but containers are running"
+        Write-ColoredMessage $Colors.Yellow "Check logs with: $composeCmd -f docker-compose.production.yml --profile with-nginx logs"
     }
     
     # Show container status
-    Print-Step "Container status:"
+    Write-Step "Container status:"
     & $composeCmd -f docker-compose.production.yml --profile with-nginx ps
 }
 
 # Deploy to GitHub Pages
-function Deploy-GitHubPages {
-    Print-Step "Deploying to GitHub Pages..."
+function Publish-ToGitHubPages {
+    Write-Step "Deploying to GitHub Pages..."
     
     # Check if gh-pages is installed
-    $ghPagesInstalled = npm list gh-pages 2>$null
+    try {
+        $null = npm list gh-pages 2>&1
+        $ghPagesInstalled = $true
+    }
+    catch {
+        $ghPagesInstalled = $false
+    }
+    
     if (-not $ghPagesInstalled) {
-        Print-Step "Installing gh-pages..."
+        Write-Step "Installing gh-pages..."
         npm install --save-dev gh-pages
     }
     
@@ -269,87 +286,102 @@ function Deploy-GitHubPages {
     New-DistDirectory
     
     # Deploy to GitHub Pages
-    Print-Step "Publishing to GitHub Pages..."
+    Write-Step "Publishing to GitHub Pages..."
     npm run deploy
     
-    Print-Success "Deployed to GitHub Pages!"
-    Print-Message $Colors.Green "Your site will be available at: https://your-username.github.io/direct-contact-with-god"
+    Write-SuccessMessage "Deployed to GitHub Pages!"
+    Write-ColoredMessage $Colors.Green "Your site will be available at: https://your-username.github.io/direct-contact-with-god"
 }
 
 # Show deployment status
 function Show-Status {
-    Print-Step "Checking deployment status..."
+    Write-Step "Checking deployment status..."
     
     # Determine docker-compose command
     $composeCmd = if (Test-CommandExists 'docker-compose') {
         'docker-compose'
-    } elseif (docker compose version 2>$null) {
-        'docker compose'
     } else {
-        Print-Warning "Docker Compose is not available"
-        return
+        # Check if docker compose plugin is available
+        try {
+            $null = docker compose version 2>&1
+            'docker compose'
+        }
+        catch {
+            Write-WarningMessage "Docker Compose is not available"
+            return
+        }
     }
     
     # Check if containers are running
     $containers = & $composeCmd -f docker-compose.production.yml ps
     if ($containers -match "Up") {
-        Print-Success "Docker containers are running"
+        Write-SuccessMessage "Docker containers are running"
         & $composeCmd -f docker-compose.production.yml ps
         
         # Check health
         try {
             $response = Invoke-WebRequest -Uri "http://localhost:3000/health" -UseBasicParsing
             if ($response.StatusCode -eq 200) {
-                Print-Success "Application health check passed"
+                Write-SuccessMessage "Application health check passed"
                 $response.Content | ConvertFrom-Json | ConvertTo-Json
             }
         }
         catch {
-            Print-Warning "Application health check failed"
+            Write-WarningMessage "Application health check failed"
         }
     }
     else {
-        Print-Warning "No Docker containers are running"
+        Write-WarningMessage "No Docker containers are running"
     }
 }
 
 # Stop deployment
 function Stop-Deployment {
-    Print-Step "Stopping deployment..."
+    Write-Step "Stopping deployment..."
     
     # Determine docker-compose command
     $composeCmd = if (Test-CommandExists 'docker-compose') {
         'docker-compose'
-    } elseif (docker compose version 2>$null) {
-        'docker compose'
     } else {
-        Print-Warning "Docker Compose is not available"
-        return
+        # Check if docker compose plugin is available
+        try {
+            $null = docker compose version 2>&1
+            'docker compose'
+        }
+        catch {
+            Write-WarningMessage "Docker Compose is not available"
+            return
+        }
     }
     
     & $composeCmd -f docker-compose.production.yml down
-    Print-Success "Deployment stopped"
+    Write-SuccessMessage "Deployment stopped"
 }
 
 # View logs
 function Show-Logs {
-    Print-Step "Viewing logs..."
+    Write-Step "Viewing logs..."
     
     # Determine docker-compose command
     $composeCmd = if (Test-CommandExists 'docker-compose') {
         'docker-compose'
-    } elseif (docker compose version 2>$null) {
-        'docker compose'
     } else {
-        Print-Error "Docker Compose is not available"
-        exit 1
+        # Check if docker compose plugin is available
+        try {
+            $null = docker compose version 2>&1
+            'docker compose'
+        }
+        catch {
+            Write-ErrorMessage "Docker Compose is not available"
+            exit 1
+        }
     }
     
     & $composeCmd -f docker-compose.production.yml logs -f
 }
 
 # Show help
-function Show-Help {
+function Show-HelpMessage {
     Write-Host "Usage: .\deploy-divine.ps1 [COMMAND]"
     Write-Host ""
     Write-Host "Commands:"
@@ -373,28 +405,28 @@ function Show-Help {
 
 # Main deployment logic
 function Main {
-    Print-Banner
+    Write-Banner
     
     switch ($Command) {
         'local' {
             Test-Prerequisites
             Invoke-Tests
-            Deploy-Local
+            Invoke-LocalDeployment
         }
         'docker' {
             Test-Prerequisites
             Invoke-Tests
-            Deploy-Docker
+            Invoke-DockerDeployment
         }
         'docker-nginx' {
             Test-Prerequisites
             Invoke-Tests
-            Deploy-DockerNginx
+            Invoke-DockerNginxDeployment
         }
         'github-pages' {
             Test-Prerequisites
             Invoke-Tests
-            Deploy-GitHubPages
+            Publish-ToGitHubPages
         }
         'status' {
             Show-Status
@@ -410,12 +442,12 @@ function Main {
             Invoke-Tests
         }
         'help' {
-            Show-Help
+            Show-HelpMessage
         }
         default {
-            Print-Error "Unknown command: $Command"
+            Write-ErrorMessage "Unknown command: $Command"
             Write-Host ""
-            Show-Help
+            Show-HelpMessage
             exit 1
         }
     }
