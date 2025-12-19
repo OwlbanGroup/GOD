@@ -1,3 +1,5 @@
+import { info, error, warn, debug } from '../utils/loggerWrapper.js';
+
 /**
  * Universe Class - Complete Phase 3 Implementation
  * Includes: Phase 3.1 (Dynamic Scaling) + 3.2 (Shader Optimization) + 
@@ -9,7 +11,7 @@ class Universe {
         this.canvas = document.getElementById(canvasId);
         this.gl = this.canvas.getContext('webgl') || this.canvas.getContext('experimental-webgl');
         if (!this.gl) {
-            console.error('WebGL not supported, falling back to 2D canvas');
+            logger.error('WebGL not supported, falling back to 2D canvas');
             this.ctx = this.canvas.getContext('2d');
             this.useWebGL = false;
             this.celestialBodies = [];
@@ -104,7 +106,7 @@ class Universe {
 
     checkMemoryUsage() {
         if (!performance.memory) {
-            console.warn('Memory API not available');
+            logger.warn('Memory API not available');
             return;
         }
 
@@ -128,7 +130,7 @@ class Universe {
 
         // Trigger cleanup if pressure increased
         if (this.memoryMonitoring.memoryPressure !== previousPressure) {
-            console.log(`Memory pressure: ${this.memoryMonitoring.memoryPressure} (${usagePercent.toFixed(1)}%)`);
+            logger.info(`Memory pressure: ${this.memoryMonitoring.memoryPressure} (${usagePercent.toFixed(1)}%)`);
             this.handleMemoryPressure();
         }
 
@@ -152,7 +154,7 @@ class Universe {
         const pressure = this.memoryMonitoring.memoryPressure;
 
         if (pressure === 'critical') {
-            console.log('Applying aggressive memory cleanup...');
+            logger.info('Applying aggressive memory cleanup...');
             
             // Reduce particles dramatically
             const targetParticles = Math.floor(this.particles.length * 0.5);
@@ -173,7 +175,7 @@ class Universe {
             }
             
         } else if (pressure === 'moderate') {
-            console.log('Applying moderate memory cleanup...');
+            logger.info('Applying moderate memory cleanup...');
             
             // Reduce particles moderately
             const targetParticles = Math.floor(this.particles.length * 0.8);
@@ -214,7 +216,7 @@ class Universe {
             return null;
         }
 
-        console.log(`Cache hit for ${type}:`, key);
+        logger.info(`Cache hit for ${type}:`, key);
         return cached.data;
     }
 
@@ -235,7 +237,7 @@ class Universe {
             timestamp: Date.now()
         });
 
-        console.log(`Cached ${type}:`, key);
+        logger.info(`Cached ${type}:`, key);
     }
 
     cleanupOldCacheEntries() {
@@ -250,13 +252,13 @@ class Universe {
             }
         });
 
-        console.log('Cleaned up old cache entries');
+        logger.info('Cleaned up old cache entries');
     }
 
     clearAllCaches() {
         this.cache.aiResponses.clear();
         this.cache.prayerAnalysis.clear();
-        console.log('All caches cleared');
+        logger.info('All caches cleared');
     }
 
     getCacheStats() {
@@ -340,7 +342,7 @@ class Universe {
         if (index !== -1) {
             const request = this.requestQueue.pending.splice(index, 1)[0];
             request.reject(new Error('Request cancelled'));
-            console.log('Request cancelled:', requestId);
+            logger.info('Request cancelled:', requestId);
             return true;
         }
         return false;
@@ -380,8 +382,8 @@ class Universe {
         else if (score >= 40) capabilities.tier = 'medium';
         else capabilities.tier = 'low';
 
-        console.log('Device Capabilities:', capabilities);
-        console.log('Instanced Rendering:', capabilities.extensions.instancedArrays ? 'Supported' : 'Not Supported');
+        logger.info('Device Capabilities:', capabilities);
+        logger.info('Instanced Rendering:', capabilities.extensions.instancedArrays ? 'Supported' : 'Not Supported');
         return capabilities;
     }
 
@@ -423,7 +425,7 @@ class Universe {
         if (this.particles.length > this.maxParticles) {
             this.particles.length = this.maxParticles;
         }
-        console.log(`Performance mode: ${mode}, max particles: ${this.maxParticles}`);
+        logger.info(`Performance mode: ${mode}, max particles: ${this.maxParticles}`);
     }
 
     updateFpsMonitoring() {
@@ -445,11 +447,11 @@ class Universe {
     autoAdjustPerformance() {
         if (this.fps < this.minFps && this.maxParticles > 100) {
             this.maxParticles = Math.max(100, Math.floor(this.maxParticles * 0.8));
-            console.log(`FPS low (${this.fps}), reducing to ${this.maxParticles} particles`);
+            logger.info(`FPS low (${this.fps}), reducing to ${this.maxParticles} particles`);
         } else if (this.fps > this.targetFps && this.maxParticles < this.calculateMaxParticles()) {
             const deviceMax = this.calculateMaxParticles();
             this.maxParticles = Math.min(deviceMax, Math.floor(this.maxParticles * 1.1));
-            console.log(`FPS good (${this.fps}), increasing to ${this.maxParticles} particles`);
+            logger.info(`FPS good (${this.fps}), increasing to ${this.maxParticles} particles`);
         }
     }
 
@@ -530,7 +532,7 @@ class Universe {
         gl.shaderSource(shader, source);
         gl.compileShader(shader);
         if (!gl.getShaderParameter(shader, gl.COMPILE_STATUS)) {
-            console.error('Shader compile error:', gl.getShaderInfoLog(shader));
+            logger.error('Shader compile error:', gl.getShaderInfoLog(shader));
             gl.deleteShader(shader);
             return null;
         }
@@ -543,7 +545,7 @@ class Universe {
         gl.attachShader(program, fragmentShader);
         gl.linkProgram(program);
         if (!gl.getProgramParameter(program, gl.LINK_STATUS)) {
-            console.error('Program link error:', gl.getProgramInfoLog(program));
+            logger.error('Program link error:', gl.getProgramInfoLog(program));
             gl.deleteProgram(program);
             return null;
         }
@@ -745,7 +747,7 @@ class Universe {
             this.requestQueue.pending = [];
             this.requestQueue.debounceTimers.clear();
             
-            console.log('WebGL resources and caches disposed');
+            logger.info('WebGL resources and caches disposed');
         }
     }
 
@@ -1008,12 +1010,12 @@ class Universe {
 
     toggleLOD(enabled) {
         this.lodEnabled = enabled;
-        console.log(`LOD system ${enabled ? 'enabled' : 'disabled'}`);
+        logger.info(`LOD system ${enabled ? 'enabled' : 'disabled'}`);
     }
 
     toggleMemoryMonitoring(enabled) {
         this.memoryMonitoring.enabled = enabled;
-        console.log(`Memory monitoring ${enabled ? 'enabled' : 'disabled'}`);
+        logger.info(`Memory monitoring ${enabled ? 'enabled' : 'disabled'}`);
     }
 
     toggleCaching(enabled) {
@@ -1021,7 +1023,7 @@ class Universe {
         if (!enabled) {
             this.clearAllCaches();
         }
-        console.log(`Caching ${enabled ? 'enabled' : 'disabled'}`);
+        logger.info(`Caching ${enabled ? 'enabled' : 'disabled'}`);
     }
 }
 

@@ -1,3 +1,5 @@
+import { info, error, warn, debug } from '../utils/loggerWrapper.js';
+
 // sounds.js - Audio management for divine sounds and effects
 
 class DivineSounds {
@@ -14,7 +16,7 @@ class DivineSounds {
             this.audioContext = new (globalThis.AudioContext || globalThis.webkitAudioContext)();
             this.loadSounds();
         } catch (error) {
-            console.warn('Audio not supported:', error);
+            logger.warn('Audio not supported:', error);
             this.enabled = false;
         }
     }
@@ -136,7 +138,7 @@ class DivineSounds {
                 }
             }
         } catch (error) {
-            console.warn('Error playing sound:', error);
+            logger.warn('Error playing sound:', error);
         }
     }
 

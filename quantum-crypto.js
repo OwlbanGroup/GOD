@@ -26,9 +26,9 @@ class QuantumCrypto {
             );
 
             this.initialized = true;
-            console.log('Post-quantum crypto initialized with quantum-resistant key exchange');
+            logger.info('Post-quantum crypto initialized with quantum-resistant key exchange');
         } catch (error) {
-            console.warn('Quantum crypto initialization failed, using fallback:', error);
+            logger.warn('Quantum crypto initialization failed, using fallback:', error);
             this.initialized = false;
         }
     }
@@ -66,7 +66,7 @@ class QuantumCrypto {
                 sharedSecret: new Uint8Array(sharedSecret)
             };
         } catch (error) {
-            console.warn('Encapsulation failed:', error);
+            logger.warn('Encapsulation failed:', error);
             return null;
         }
     }
@@ -99,7 +99,7 @@ class QuantumCrypto {
 
             return new Uint8Array(sharedSecret);
         } catch (error) {
-            console.warn('Decapsulation failed:', error);
+            logger.warn('Decapsulation failed:', error);
             return null;
         }
     }
@@ -131,7 +131,7 @@ class QuantumCrypto {
                 iv: iv
             };
         } catch (error) {
-            console.warn('Encryption failed:', error);
+            logger.warn('Encryption failed:', error);
             return { ciphertext: new TextEncoder().encode(message), iv: null };
         }
     }
@@ -159,7 +159,7 @@ class QuantumCrypto {
 
             return new TextDecoder().decode(decrypted);
         } catch (error) {
-            console.warn('Decryption failed:', error);
+            logger.warn('Decryption failed:', error);
             return new TextDecoder().decode(encryptedData.ciphertext);
         }
     }

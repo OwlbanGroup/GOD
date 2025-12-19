@@ -1,3 +1,5 @@
+import { info, error, warn, debug } from '../utils/loggerWrapper.js';
+
 /**
  * Input Sanitization Utilities for GOD Project
  * Prevents XSS attacks and ensures data integrity
@@ -131,7 +133,7 @@ class Sanitizer {
             const cleaned = JSON.parse(JSON.stringify(data));
             return JSON.stringify(cleaned);
         } catch (error) {
-            console.error('Error sanitizing data for storage:', error);
+            logger.error('Error sanitizing data for storage:', error);
             return '{}';
         }
     }
@@ -164,7 +166,7 @@ class Sanitizer {
 
             return true;
         } catch (error) {
-            console.error('Rate limit check error:', error);
+            logger.error('Rate limit check error:', error);
             return true; // Allow on error to not block legitimate users
         }
     }

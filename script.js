@@ -1,3 +1,5 @@
+import { info, error, warn, debug } from '../utils/loggerWrapper.js';
+
 // ============================================================================
 // GOD Project - Enhanced Main Script with Security & Error Handling
 // ============================================================================
@@ -333,7 +335,7 @@ async function initializeIntegrations() {
                 await integration.fn();
             }
         } catch (error) {
-            console.warn(`${integration.name} initialization failed:`, error);
+            logger.warn(`${integration.name} initialization failed:`, error);
             // Continue with other integrations
         }
     }
@@ -587,7 +589,7 @@ async function analyzePrayers() {
                     analysisMessage = `GPU AI Analysis: ${sentimentText}${themesText} Confidence: ${(analysis.confidence * 100).toFixed(1)}%`;
                 }
             } catch (error) {
-                console.warn('GPU prayer analysis failed, falling back to static analysis:', error);
+                logger.warn('GPU prayer analysis failed, falling back to static analysis:', error);
             }
         }
 
@@ -670,7 +672,7 @@ async function tryGpuOptimization() {
             return true;
         }
     } catch (error) {
-        console.warn('GPU universe optimization failed, falling back to static optimization:', error);
+        logger.warn('GPU universe optimization failed, falling back to static optimization:', error);
     }
     return false;
 }
@@ -715,7 +717,7 @@ async function generateProphecy() {
                     return;
                 }
             } catch (error) {
-                console.warn('GPU prophecy generation failed, falling back to static prophecies:', error);
+                logger.warn('GPU prophecy generation failed, falling back to static prophecies:', error);
             }
         }
 

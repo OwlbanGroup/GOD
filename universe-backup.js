@@ -1,9 +1,11 @@
+import { info, error, warn, debug } from '../utils/loggerWrapper.js';
+
 class Universe {
     constructor(canvasId) {
         this.canvas = document.getElementById(canvasId);
         this.gl = this.canvas.getContext('webgl') || this.canvas.getContext('experimental-webgl');
         if (!this.gl) {
-            console.error('WebGL not supported, falling back to 2D canvas');
+            logger.error('WebGL not supported, falling back to 2D canvas');
             // Fallback to 2D if WebGL fails
             this.ctx = this.canvas.getContext('2d');
             this.useWebGL = false;
@@ -79,7 +81,7 @@ class Universe {
         gl.shaderSource(shader, source);
         gl.compileShader(shader);
         if (!gl.getShaderParameter(shader, gl.COMPILE_STATUS)) {
-            console.error('Shader compile error:', gl.getShaderInfoLog(shader));
+            logger.error('Shader compile error:', gl.getShaderInfoLog(shader));
             gl.deleteShader(shader);
             return null;
         }
@@ -92,7 +94,7 @@ class Universe {
         gl.attachShader(program, fragmentShader);
         gl.linkProgram(program);
         if (!gl.getProgramParameter(program, gl.LINK_STATUS)) {
-            console.error('Program link error:', gl.getProgramInfoLog(program));
+            logger.error('Program link error:', gl.getProgramInfoLog(program));
             gl.deleteProgram(program);
             return null;
         }

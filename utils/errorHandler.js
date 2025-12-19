@@ -1,3 +1,5 @@
+import { info, error, warn, debug } from '../utils/loggerWrapper.js';
+
 /**
  * Centralized Error Handling for GOD Project
  * Provides consistent error handling and user feedback
@@ -12,7 +14,7 @@ class ErrorHandler {
      * @returns {any} - Result of fallback function or null
      */
     static async handleAsyncError(error, context, fallbackFn = null) {
-        console.error(`Error in ${context}:`, error);
+        logger.error(`Error in ${context}:`, error);
 
         // Log to external service if available (Azure Application Insights, etc.)
         this.logError(error, context);
@@ -25,7 +27,7 @@ class ErrorHandler {
             try {
                 return await fallbackFn();
             } catch (fallbackError) {
-                console.error(`Fallback error in ${context}:`, fallbackError);
+                logger.error(`Fallback error in ${context}:`, fallbackError);
                 return null;
             }
         }
@@ -84,7 +86,7 @@ class ErrorHandler {
         if (typeof addMessage === 'function') {
             addMessage(`[${type.toUpperCase()}] ${message}`, 'god');
         } else {
-            console.log(`[${type.toUpperCase()}] ${message}`);
+            logger.info(`[${type.toUpperCase()}] ${message}`);
         }
     }
 
@@ -113,7 +115,7 @@ class ErrorHandler {
             }
             localStorage.setItem('errorLog', JSON.stringify(errors));
         } catch (storageError) {
-            console.error('Failed to log error to localStorage:', storageError);
+            logger.error('Failed to log error to localStorage:', storageError);
         }
 
         // TODO: Send to Azure Application Insights or other monitoring service
@@ -128,7 +130,7 @@ class ErrorHandler {
      * @returns {boolean} - True if fallback should be used
      */
     static handleWebGLError(error) {
-        console.error('WebGL Error:', error);
+        logger.error('WebGL Error:', error);
         this.showUserMessage('Advanced graphics unavailable. Using standard 2D rendering.', 'warning');
         return true; // Signal to use fallback
     }
@@ -140,7 +142,7 @@ class ErrorHandler {
      * @returns {Object} - Error response object
      */
     static handleNetworkError(error, apiName) {
-        console.error(`Network error with ${apiName}:`, error);
+        logger.error(`Network error with ${apiName}:`, error);
         
         let message = `Connection to ${apiName} failed.`;
         
@@ -276,7 +278,7 @@ class ErrorHandler {
 
             localStorage.setItem('errorLog', JSON.stringify(recentErrors));
         } catch (error) {
-            console.error('Failed to clear old error logs:', error);
+            logger.error('Failed to clear old error logs:', error);
         }
     }
 }

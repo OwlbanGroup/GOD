@@ -1,3 +1,5 @@
+import { info, error, warn, debug } from '../utils/loggerWrapper.js';
+
 // gpu-ai.js - GPU-Accelerated AI using TensorFlow.js, inspired by NVIDIA Blackwell architecture
 // Leverages WebGL backend for high-performance client-side AI processing
 
@@ -20,14 +22,14 @@ class GPUAI {
             await this.tf.setBackend('webgl');
             await this.tf.ready();
 
-            console.log('GPU AI initialized with WebGL backend. NVIDIA Blackwell power unleashed!');
+            logger.info('GPU AI initialized with WebGL backend. NVIDIA Blackwell power unleashed!');
 
             // Load pre-trained models or create simple ones for demonstration
             await this.loadModels();
 
             this.initialized = true;
         } catch (error) {
-            console.warn('GPU AI initialization failed:', error);
+            logger.warn('GPU AI initialization failed:', error);
             this.initialized = false;
         }
     }
@@ -106,7 +108,7 @@ class GPUAI {
                 confidence: sentiment[0]
             };
         } catch (error) {
-            console.warn('GPU prayer analysis failed:', error);
+            logger.warn('GPU prayer analysis failed:', error);
             return null;
         }
     }
@@ -130,7 +132,7 @@ class GPUAI {
 
             return prophecy;
         } catch (error) {
-            console.warn('GPU prophecy generation failed:', error);
+            logger.warn('GPU prophecy generation failed:', error);
             return null;
         }
     }
@@ -152,7 +154,7 @@ class GPUAI {
                 galaxies: Math.max(1, Math.round(optimized[2]))
             };
         } catch (error) {
-            console.warn('GPU universe optimization failed:', error);
+            logger.warn('GPU universe optimization failed:', error);
             return null;
         }
     }

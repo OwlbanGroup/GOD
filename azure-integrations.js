@@ -1,3 +1,5 @@
+import { info, error, warn, debug } from '../utils/loggerWrapper.js';
+
 // azure-integrations.js - Azure Cloud Integrations for GOD Project
 // Integrates Azure OpenAI, Blob Storage, Functions, and other services
 
@@ -31,11 +33,11 @@ class AzureIntegrations {
     async initialize() {
         try {
             // Initialize Azure services
-            console.log('Initializing Azure integrations...');
+            logger.info('Initializing Azure integrations...');
             this.initialized = true;
             return true;
         } catch (error) {
-            console.warn('Azure integrations initialization failed:', error);
+            logger.warn('Azure integrations initialization failed:', error);
             return false;
         }
     }
@@ -70,7 +72,7 @@ class AzureIntegrations {
             const data = await response.json();
             return data.choices[0].message.content.trim();
         } catch (error) {
-            console.error('Azure OpenAI error:', error);
+            logger.error('Azure OpenAI error:', error);
             return null;
         }
     }
@@ -94,7 +96,7 @@ class AzureIntegrations {
 
             return response.ok;
         } catch (error) {
-            console.warn('Azure Blob Storage save failed:', error);
+            logger.warn('Azure Blob Storage save failed:', error);
             return false;
         }
     }
@@ -108,7 +110,7 @@ class AzureIntegrations {
             const listResponse = await fetch(listUrl);
 
             if (!listResponse.ok) {
-                console.warn('Failed to list blobs:', listResponse.status);
+                logger.warn('Failed to list blobs:', listResponse.status);
                 return [];
             }
 
@@ -132,7 +134,7 @@ class AzureIntegrations {
 
             return prayers;
         } catch (error) {
-            console.warn('Azure Blob Storage load failed:', error);
+            logger.warn('Azure Blob Storage load failed:', error);
             return [];
         }
     }
@@ -155,7 +157,7 @@ class AzureIntegrations {
             }
             return null;
         } catch (error) {
-            console.warn('Azure Functions call failed:', error);
+            logger.warn('Azure Functions call failed:', error);
             return null;
         }
     }
@@ -176,7 +178,7 @@ class AzureIntegrations {
 
             return response.ok;
         } catch (error) {
-            console.warn('Azure Cosmos DB save failed:', error);
+            logger.warn('Azure Cosmos DB save failed:', error);
             return false;
         }
     }
@@ -198,7 +200,7 @@ class AzureIntegrations {
             }
             return [];
         } catch (error) {
-            console.warn('Azure Cosmos DB load failed:', error);
+            logger.warn('Azure Cosmos DB load failed:', error);
             return [];
         }
     }
@@ -209,7 +211,7 @@ class AzureIntegrations {
 
         // Placeholder for Azure Speech Service integration
         // In production, use Azure Speech SDK
-        console.log('Azure Speech: Converting text to speech');
+        logger.info('Azure Speech: Converting text to speech');
         throw new Error('Azure Speech Service not yet implemented');
     }
 
@@ -218,7 +220,7 @@ class AzureIntegrations {
         if (!this.initialized) return null;
 
         // Placeholder for Azure Computer Vision
-        console.log('Azure Vision: Analyzing universe image');
+        logger.info('Azure Vision: Analyzing universe image');
         return { description: "A cosmic visualization of stars and planets" };
     }
 
@@ -227,7 +229,7 @@ class AzureIntegrations {
         if (!this.initialized) return;
 
         // Send logs to Azure Monitor/Application Insights
-        console.log('Azure Monitor: Logging event', eventData);
+        logger.info('Azure Monitor: Logging event', eventData);
     }
 
     // Azure Event Grid for Events
@@ -235,7 +237,7 @@ class AzureIntegrations {
         if (!this.initialized) return;
 
         // Send events to Azure Event Grid
-        console.log('Azure Event Grid: Sending event', eventType, eventData);
+        logger.info('Azure Event Grid: Sending event', eventType, eventData);
     }
 
     // Azure Logic Apps Trigger
@@ -243,7 +245,7 @@ class AzureIntegrations {
         if (!this.initialized) return;
 
         // Trigger Azure Logic App workflow
-        console.log('Azure Logic Apps: Triggering workflow', workflowData);
+        logger.info('Azure Logic Apps: Triggering workflow', workflowData);
     }
 
     // Azure Machine Learning for Custom AI
@@ -251,7 +253,7 @@ class AzureIntegrations {
         if (!this.initialized) return null;
 
         // Call Azure ML endpoint for personalized divine responses
-        console.log('Azure ML: Generating personalized response');
+        logger.info('Azure ML: Generating personalized response');
         throw new Error('Azure Machine Learning not yet implemented');
     }
 

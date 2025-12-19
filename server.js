@@ -1,3 +1,5 @@
+import { info, error, warn, debug } from '../utils/loggerWrapper.js';
+
 const express = require('express');
 const path = require('node:path');
 const app = express();
@@ -11,7 +13,7 @@ const startTime = Date.now();
 // Middleware for logging in development
 if (NODE_ENV === 'development') {
   app.use((req, res, next) => {
-    console.log(`[${new Date().toISOString()}] ${req.method} ${req.url}`);
+    logger.info(`[${new Date().toISOString()}] ${req.method} ${req.url}`);
     next();
   });
 }
@@ -73,7 +75,7 @@ app.use((req, res) => {
 
 // Error handler
 app.use((err, req, res, next) => {
-  console.error('Server error:', err);
+  logger.error('Server error:', err);
   res.status(500).json({
     error: 'Internal Server Error',
     message: NODE_ENV === 'development' ? err.message : 'An error occurred'
@@ -82,29 +84,29 @@ app.use((err, req, res, next) => {
 
 // Graceful shutdown handler
 const gracefulShutdown = (signal) => {
-  console.log(`\n${signal} received. Starting graceful shutdown...`);
+  logger.info(`\n${signal} received. Starting graceful shutdown...`);
   server.close(() => {
-    console.log('Server closed. Exiting process.');
+    logger.info('Server closed. Exiting process.');
     process.exit(0);
   });
 
   // Force shutdown after 10 seconds
   setTimeout(() => {
-    console.error('Forced shutdown after timeout');
+    logger.error('Forced shutdown after timeout');
     process.exit(1);
   }, 10000);
 };
 
 // Start the server
 const server = app.listen(PORT, HOST, () => {
-  console.log('========================================');
-  console.log('🔱 GOD Application - Divine Server 🔱');
-  console.log('========================================');
-  console.log(`Environment: ${NODE_ENV}`);
-  console.log(`Server running on: http://${HOST}:${PORT}`);
-  console.log(`Health check: http://${HOST}:${PORT}/health`);
-  console.log(`Started at: ${new Date().toISOString()}`);
-  console.log('========================================');
+  logger.info('========================================');
+  logger.info('🔱 GOD Application - Divine Server 🔱');
+  logger.info('========================================');
+  logger.info(`Environment: ${NODE_ENV}`);
+  logger.info(`Server running on: http://${HOST}:${PORT}`);
+  logger.info(`Health check: http://${HOST}:${PORT}/health`);
+  logger.info(`Started at: ${new Date().toISOString()}`);
+  logger.info('========================================');
 });
 
 // Handle shutdown signals
@@ -113,11 +115,11 @@ process.on('SIGINT', () => gracefulShutdown('SIGINT'));
 
 // Handle uncaught exceptions
 process.on('uncaughtException', (err) => {
-  console.error('Uncaught Exception:', err);
+  logger.error('Uncaught Exception:', err);
   gracefulShutdown('UNCAUGHT_EXCEPTION');
 });
 
 // Handle unhandled promise rejections
 process.on('unhandledRejection', (reason, promise) => {
-  console.error('Unhandled Rejection at:', promise, 'reason:', reason);
+  logger.error('Unhandled Rejection at:', promise, 'reason:', reason);
 });

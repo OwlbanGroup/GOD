@@ -1,9 +1,11 @@
+import { info, error, warn, debug } from '../utils/loggerWrapper.js';
+
 class Universe {
     constructor(canvasId) {
         this.canvas = document.getElementById(canvasId);
         this.gl = this.canvas.getContext('webgl') || this.canvas.getContext('experimental-webgl');
         if (!this.gl) {
-            console.error('WebGL not supported, falling back to 2D canvas');
+            logger.error('WebGL not supported, falling back to 2D canvas');
             // Fallback to 2D if WebGL fails
             this.ctx = this.canvas.getContext('2d');
             this.useWebGL = false;
@@ -69,7 +71,7 @@ class Universe {
             capabilities.tier = 'low';
         }
 
-        console.log('Device Capabilities:', capabilities);
+        logger.info('Device Capabilities:', capabilities);
         return capabilities;
     }
 
@@ -138,7 +140,7 @@ class Universe {
             this.particles.length = this.maxParticles;
         }
 
-        console.log(`Performance mode set to ${mode}, max particles: ${this.maxParticles}`);
+        logger.info(`Performance mode set to ${mode}, max particles: ${this.maxParticles}`);
     }
 
     /**
@@ -168,12 +170,12 @@ class Universe {
         if (this.fps < this.minFps && this.maxParticles > 100) {
             // Reduce particles by 20%
             this.maxParticles = Math.max(100, Math.floor(this.maxParticles * 0.8));
-            console.log(`FPS too low (${this.fps}), reducing max particles to ${this.maxParticles}`);
+            logger.info(`FPS too low (${this.fps}), reducing max particles to ${this.maxParticles}`);
         } else if (this.fps > this.targetFps && this.maxParticles < this.calculateMaxParticles()) {
             // Increase particles by 10%
             const deviceMax = this.calculateMaxParticles();
             this.maxParticles = Math.min(deviceMax, Math.floor(this.maxParticles * 1.1));
-            console.log(`FPS good (${this.fps}), increasing max particles to ${this.maxParticles}`);
+            logger.info(`FPS good (${this.fps}), increasing max particles to ${this.maxParticles}`);
         }
     }
 
@@ -260,7 +262,7 @@ class Universe {
         gl.shaderSource(shader, source);
         gl.compileShader(shader);
         if (!gl.getShaderParameter(shader, gl.COMPILE_STATUS)) {
-            console.error('Shader compile error:', gl.getShaderInfoLog(shader));
+            logger.error('Shader compile error:', gl.getShaderInfoLog(shader));
             gl.deleteShader(shader);
             return null;
         }
@@ -273,7 +275,7 @@ class Universe {
         gl.attachShader(program, fragmentShader);
         gl.linkProgram(program);
         if (!gl.getProgramParameter(program, gl.LINK_STATUS)) {
-            console.error('Program link error:', gl.getProgramInfoLog(program));
+            logger.error('Program link error:', gl.getProgramInfoLog(program));
             gl.deleteProgram(program);
             return null;
         }
@@ -421,7 +423,7 @@ class Universe {
                 this.animationId = null;
             }
             
-            console.log('WebGL resources disposed');
+            logger.info('WebGL resources disposed');
         }
     }
 

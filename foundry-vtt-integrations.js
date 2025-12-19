@@ -1,3 +1,5 @@
+import { info, error, warn, debug } from '../utils/loggerWrapper.js';
+
 // foundry-vtt-integrations.js - Foundry VTT Integrations for GOD Project
 // Connects the web app to Foundry Virtual Tabletop for divine RPG sessions
 
@@ -15,11 +17,11 @@ class FoundryVTTIntegrations {
 
     async initialize() {
         try {
-            console.log('Initializing Foundry VTT integrations...');
+            logger.info('Initializing Foundry VTT integrations...');
             this.connect();
             return true;
         } catch (error) {
-            console.warn('Foundry VTT initialization failed:', error);
+            logger.warn('Foundry VTT initialization failed:', error);
             return false;
         }
     }
@@ -30,7 +32,7 @@ class FoundryVTTIntegrations {
             this.socket = new WebSocket(`${this.config.foundryUrl.replace('http', 'ws')}/socket`);
 
             this.socket.onopen = () => {
-                console.log('Connected to Foundry VTT');
+                logger.info('Connected to Foundry VTT');
                 this.connected = true;
                 this.authenticate();
             };
@@ -40,15 +42,15 @@ class FoundryVTTIntegrations {
             };
 
             this.socket.onclose = () => {
-                console.log('Disconnected from Foundry VTT');
+                logger.info('Disconnected from Foundry VTT');
                 this.connected = false;
             };
 
             this.socket.onerror = (error) => {
-                console.warn('Foundry VTT WebSocket error:', error);
+                logger.warn('Foundry VTT WebSocket error:', error);
             };
         } catch (error) {
-            console.warn('Foundry VTT connection failed:', error);
+            logger.warn('Foundry VTT connection failed:', error);
         }
     }
 
@@ -72,7 +74,7 @@ class FoundryVTTIntegrations {
     handleMessage(message) {
         switch (message.type) {
             case 'authenticated':
-                console.log('Authenticated with Foundry VTT');
+                logger.info('Authenticated with Foundry VTT');
                 this.requestGameState();
                 break;
             case 'gameState':
@@ -87,19 +89,19 @@ class FoundryVTTIntegrations {
                 break;
             case 'rollResult':
                 // Handle dice roll results
-                console.log('Dice roll result:', message.result);
+                logger.info('Dice roll result:', message.result);
                 break;
             case 'actorCreated':
-                console.log('Character sheet created in Foundry VTT');
+                logger.info('Character sheet created in Foundry VTT');
                 break;
             case 'journalCreated':
-                console.log('Journal entry created in Foundry VTT');
+                logger.info('Journal entry created in Foundry VTT');
                 break;
             case 'sceneCreated':
-                console.log('Universe map created in Foundry VTT');
+                logger.info('Universe map created in Foundry VTT');
                 break;
             case 'combatStarted':
-                console.log('Divine combat initiated in Foundry VTT');
+                logger.info('Divine combat initiated in Foundry VTT');
                 break;
         }
     }

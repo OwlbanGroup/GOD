@@ -34,10 +34,10 @@ export class ResurrectionEngine {
                 this.spiritualEnergy = parseInt(energy);
             }
 
-            console.log('Resurrection Engine initialized');
+            logger.info('Resurrection Engine initialized');
             return true;
         } catch (error) {
-            console.error('Failed to initialize Resurrection Engine:', error);
+            logger.error('Failed to initialize Resurrection Engine:', error);
             return false;
         }
     }
@@ -211,7 +211,7 @@ export class ResurrectionEngine {
             }, 2000);
 
         } catch (error) {
-            console.error('Error triggering resurrection effects:', error);
+            logger.error('Error triggering resurrection effects:', error);
         }
     }
 
@@ -373,7 +373,7 @@ export class ResurrectionEngine {
         try {
             localStorage.setItem('spiritualEnergy', this.spiritualEnergy.toString());
         } catch (error) {
-            console.error('Failed to save spiritual energy:', error);
+            logger.error('Failed to save spiritual energy:', error);
         }
     }
 
@@ -384,7 +384,7 @@ export class ResurrectionEngine {
         try {
             localStorage.setItem('resurrectionHistory', JSON.stringify(this.resurrectionHistory));
         } catch (error) {
-            console.error('Failed to save resurrection history:', error);
+            logger.error('Failed to save resurrection history:', error);
         }
     }
 

@@ -1,3 +1,5 @@
+import { info, error, warn, debug } from '../utils/loggerWrapper.js';
+
 // GOD Token Integration for Direct Contact with God
 // Handles wallet connection, balance retrieval, and token offerings
 
@@ -47,7 +49,7 @@ class GodTokenManager {
 
             return { success: true, address: this.userAddress };
         } catch (error) {
-            console.error('Wallet connection failed:', error);
+            logger.error('Wallet connection failed:', error);
             return { success: false, error: error.message };
         }
     }
@@ -64,7 +66,7 @@ class GodTokenManager {
 
             return formattedBalance;
         } catch (error) {
-            console.error('Failed to get balance:', error);
+            logger.error('Failed to get balance:', error);
             return '0';
         }
     }
@@ -96,7 +98,7 @@ class GodTokenManager {
 
             return { success: true, txHash: tx.hash };
         } catch (error) {
-            console.error('Offering failed:', error);
+            logger.error('Offering failed:', error);
             return { success: false, error: error.message };
         }
     }

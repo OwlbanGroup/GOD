@@ -18,7 +18,7 @@ async function loadData() {
         
         return true;
     } catch (error) {
-        console.error('Failed to load data:', error);
+        logger.error('Failed to load data:', error);
         return false;
     }
 }
@@ -64,10 +64,10 @@ export class SaintManager {
                 this.resurrectedSaints = JSON.parse(resurrected);
             }
 
-            console.log('Saint Manager initialized');
+            logger.info('Saint Manager initialized');
             return true;
         } catch (error) {
-            console.error('Failed to initialize Saint Manager:', error);
+            logger.error('Failed to initialize Saint Manager:', error);
             return false;
         }
     }
@@ -332,7 +332,7 @@ export class SaintManager {
         try {
             localStorage.setItem('ownedRelics', JSON.stringify(this.ownedRelics));
         } catch (error) {
-            console.error('Failed to save owned relics:', error);
+            logger.error('Failed to save owned relics:', error);
         }
     }
 
@@ -343,7 +343,7 @@ export class SaintManager {
         try {
             localStorage.setItem('resurrectedSaints', JSON.stringify(this.resurrectedSaints));
         } catch (error) {
-            console.error('Failed to save resurrected saints:', error);
+            logger.error('Failed to save resurrected saints:', error);
         }
     }
 

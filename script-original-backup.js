@@ -1,3 +1,5 @@
+import { info, error, warn, debug } from '../utils/loggerWrapper.js';
+
 // Function to generate divine responses using Azure OpenAI or fallback
 async function generateDivineResponse(userMessage, userRole) {
     // Try Azure OpenAI first
@@ -71,7 +73,7 @@ async function savePrayer(message) {
                 localStorage.setItem('prayers', JSON.stringify(prayers));
             }
         } catch (error) {
-            console.warn('Failed to sync prayers from Azure Blob Storage:', error);
+            logger.warn('Failed to sync prayers from Azure Blob Storage:', error);
         }
     }
 }
@@ -323,7 +325,7 @@ async function loadUsersFromCloud() {
                 localStorage.setItem('registeredUsers', JSON.stringify(registeredUsers));
             }
         } catch (error) {
-            console.warn('Failed to sync users from Azure Cosmos DB:', error);
+            logger.warn('Failed to sync users from Azure Cosmos DB:', error);
         }
     }
 }
@@ -406,7 +408,7 @@ async function analyzePrayers() {
                 analysisMessage = `GPU AI Analysis: ${sentimentText}${themesText} Confidence: ${(analysis.confidence * 100).toFixed(1)}%`;
             }
         } catch (error) {
-            console.warn('GPU prayer analysis failed, falling back to static analysis:', error);
+            logger.warn('GPU prayer analysis failed, falling back to static analysis:', error);
         }
     }
 
@@ -473,7 +475,7 @@ async function tryGpuOptimization() {
             return true;
         }
     } catch (error) {
-        console.warn('GPU universe optimization failed, falling back to static optimization:', error);
+        logger.warn('GPU universe optimization failed, falling back to static optimization:', error);
     }
     return false;
 }
@@ -511,7 +513,7 @@ async function generateProphecy() {
                 return;
             }
         } catch (error) {
-            console.warn('GPU prophecy generation failed, falling back to static prophecies:', error);
+            logger.warn('GPU prophecy generation failed, falling back to static prophecies:', error);
         }
     }
 
