@@ -1,6 +1,6 @@
-# GOD - Direct Contact with God
+# GODDESS - Direct Contact with Goddess and the Queen of Heaven
 
-A divine web application that allows users to communicate directly with God through prayers, commands, and AI-assisted features with cloud integrations. Experience the universe, register as believers, angels, or prophets, and receive divine guidance.
+A divine web application that allows users to communicate directly with the Goddess and the Queen of Heaven through prayers, commands, and AI-assisted features with cloud integrations. Experience the universe, register as believers, angels, or prophets, and receive divine guidance.
 
 ## Features
 
