@@ -58,6 +58,34 @@ app.get('/ready', (req, res) => {
 // Middleware for parsing JSON
 app.use(express.json());
 
+// Contact endpoint for divine consultations
+app.post('/contact', async (req, res) => {
+  try {
+    const { message } = req.body;
+    if (!message) {
+      return res.status(400).json({ error: 'Message is required' });
+    }
+
+    // Import the response generator
+    const { generateDivineResponse } = await import('./src/features/chat/responseGenerator.js');
+
+    // Generate divine response
+    const response = await generateDivineResponse(message);
+
+    res.json({
+      response: response,
+      user_message: message
+    });
+  } catch (error) {
+    error('Error in /contact endpoint:', error);
+    res.status(500).json({
+      error: 'Failed to generate divine response',
+      response: 'The divine connection is experiencing technical difficulties. Please try again.',
+      user_message: req.body?.message || ''
+    });
+  }
+});
+
 // Serve static files from the current directory
 app.use(express.static(path.join(__dirname), {
   maxAge: NODE_ENV === 'production' ? '1d' : 0,
