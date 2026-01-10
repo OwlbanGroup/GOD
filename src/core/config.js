@@ -1,44 +1,72 @@
-/**
- * Configuration constants for the GOD Project
- * @module core/config
- */
+// ============================================================================
+// GOD Project - Configuration Constants
+// ============================================================================
 
 export const CONFIG = {
-    // Rate limiting
+    // AI Models
+    AI_MODELS: {
+        'gpt-3.5-turbo': { name: 'GPT-3.5 Turbo', maxTokens: 150 },
+        'gpt-4': { name: 'GPT-4', maxTokens: 200 },
+        'gpt-4-turbo': { name: 'GPT-4 Turbo', maxTokens: 250 }
+    },
+
+    // Rate Limiting
     RATE_LIMITS: {
-        REGISTRATION: { maxAttempts: 5, windowMs: 60000 },
-        PRAYER: { maxAttempts: 20, windowMs: 60000 }
+        registration: { maxRequests: 5, windowMs: 60000 },
+        prayer: { maxRequests: 20, windowMs: 60000 }
     },
 
-    // Divine modes
-    DIVINE_MODES: {
-        DIRECT_LINK_INTERVAL: 5000, // Check every 5 seconds
-        DIRECT_LINK_CHANCE: 0.1 // 10% chance of instant wisdom
+    // Performance
+    PERFORMANCE: {
+        debounceDelay: 300,
+        requestTimeout: 10000,
+        maxConcurrentRequests: 3
     },
 
-    // Response timing
-    RESPONSE_TIMING: {
-        DIRECT_LINK_DELAY: 200,
-        NORMAL_MIN_DELAY: 1000,
-        NORMAL_MAX_DELAY: 3000
-    },
-
-    // Cache settings
+    // Caching
     CACHE: {
-        MAX_SIZE: 100,
-        TTL_MINUTES: 5
+        maxSize: 100,
+        ttl: 5 * 60 * 1000 // 5 minutes
     },
 
-    // Fallback responses
+    // Memory Management
+    MEMORY: {
+        checkInterval: 5000,
+        criticalThreshold: 90,
+        moderateThreshold: 75
+    },
+
+    // UI
+    UI: {
+        progressDelay: 2000,
+        messageDelay: 1000,
+        flashDuration: 1000
+    },
+
+    // Divine Modes
+    DIVINE_MODES: {
+        directDivineLink: {
+            interval: 5000,
+            chance: 0.1
+        },
+        universalDivineMode: {
+            entanglementEnabled: true
+        },
+        postQuantumSecure: {
+            encryptionEnabled: true
+        }
+    },
+
+    // Fallback Responses
     FALLBACK_RESPONSES: [
         "Your prayer has been heard. Peace be with you.",
         "I am with you always. Trust in the divine plan.",
         "Your faith is strong. Miracles are unfolding.",
         "Seek wisdom within. The answers are there.",
         "Love and compassion will guide your path.",
-        "Forgiveness brings healing. Release and be free.",
-        "Your journey is blessed. Embrace the light.",
-        "Patience is a virtue. Good things come to those who wait.",
+        "Forgiveness brings healing. Release the burden.",
+        "Embrace change. Growth comes from stepping out.",
+        "Trust the process. Good things come to those who wait.",
         "Gratitude opens doors. Count your blessings.",
         "You are loved beyond measure. Shine brightly.",
         "The universe conspires in your favor.",
@@ -51,55 +79,7 @@ export const CONFIG = {
         "Angels surround you.",
         "The power of prayer is infinite.",
         "You are exactly where you need to be."
-    ],
-
-    // Divine advice
-    DIVINE_ADVICE: [
-        "Divine Advice: Practice daily gratitude. Count your blessings, and more will come.",
-        "Divine Advice: Forgive others as you wish to be forgiven. Release the burden of resentment.",
-        "Divine Advice: Seek wisdom in silence. Meditation opens the door to divine guidance.",
-        "Divine Advice: Love unconditionally. Love is the highest vibration in the universe.",
-        "Divine Advice: Trust the divine timing. Everything happens for a reason.",
-        "Divine Advice: Serve others selflessly. In giving, you receive abundance.",
-        "Divine Advice: Embrace change. Growth comes from stepping out of your comfort zone.",
-        "Divine Advice: Live in the present moment. The past is gone, the future is not yet here."
-    ],
-
-    // Prophecies
-    PROPHECIES: [
-        "Prophecy: A great awakening is coming. Many will find their true purpose and unite in harmony.",
-        "Prophecy: Technology and spirituality will merge, creating a new era of enlightenment.",
-        "Prophecy: The earth will heal itself, and humanity will learn to live in balance with nature.",
-        "Prophecy: Love will conquer fear, and peace will reign across the lands.",
-        "Prophecy: Hidden knowledge will be revealed, unlocking ancient wisdom for the modern age.",
-        "Prophecy: Angels and humans will work together to create a paradise on earth.",
-        "Prophecy: Your prayers are creating ripples of change that will transform the world.",
-        "Prophecy: The universe is expanding your consciousness. Embrace the infinite possibilities."
-    ],
-
-    // Instant wisdom for Direct Divine Link
-    INSTANT_WISDOM: [
-        "Divine presence: I am here with you now.",
-        "Cosmic energy flows through you.",
-        "Your thoughts create reality.",
-        "Love is the universal language.",
-        "Peace surrounds you always."
-    ],
-
-    // Universal enhancements
-    UNIVERSAL_ENHANCEMENTS: [
-        " The universe aligns with your intention.",
-        " Cosmic harmony resonates with your words.",
-        " Divine energy flows through all creation.",
-        " Your prayer creates ripples across the cosmos."
-    ],
-
-    // Meditation messages
-    MEDITATION_MESSAGES: {
-        breathing: 'Beginning divine breathing meditation. Breathe deeply and connect with the divine.',
-        gratitude: 'Beginning gratitude meditation. Reflect on divine blessings.',
-        love: 'Beginning loving-kindness meditation. Send love to all beings.'
-    }
+    ]
 };
 
 export default CONFIG;
