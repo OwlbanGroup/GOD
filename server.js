@@ -55,12 +55,70 @@ app.get('/ready', (req, res) => {
   });
 });
 
+// Middleware for parsing JSON
+app.use(express.json());
+
 // Serve static files from the current directory
 app.use(express.static(path.join(__dirname), {
   maxAge: NODE_ENV === 'production' ? '1d' : 0,
   etag: true,
   lastModified: true
 }));
+
+// API Routes for OSCAR-BROOME-REVENUE integration
+
+// Earnings API
+app.get('/api/earnings', (req, res) => {
+  const earningsData = {
+    totalAnnualRevenue: 2500000.50,
+    period: 'annual',
+    streams: [
+      { name: 'Consulting Services', amount: 1500000.00, percentage: 60.0 },
+      { name: 'Software Licensing', amount: 750000.00, percentage: 30.0 },
+      { name: 'Investment Returns', amount: 250000.50, percentage: 10.0 }
+    ],
+    projections: {
+      nextYear: 2750000.00,
+      confidence: 85.5
+    },
+    purchases: {
+      autoFleetDetails: [
+        { model: 'Tesla Model S', vin: 'VIN123456', cost: 79999.00, purchaseDate: '2024-01-15' }
+      ]
+    }
+  };
+  res.json(earningsData);
+});
+
+// Banking API
+app.get('/api/banking/accounts', (req, res) => {
+  const accountsData = {
+    accounts: [
+      {
+        id: 'acc_001',
+        account_number: '****1234',
+        type: 'checking',
+        balance: 125000.50,
+        currency: 'USD',
+        status: 'active'
+      }
+    ]
+  };
+  res.json(accountsData);
+});
+
+// Purchase API
+app.post('/api/purchase/auto', (req, res) => {
+  const { cost, model, vin, dealership } = req.body;
+  // Mock purchase logic
+  const remainingRevenue = 2500000.50 - cost;
+  res.json({
+    success: true,
+    message: `Successfully purchased ${model}`,
+    remainingRevenue: remainingRevenue,
+    transactionId: `txn_${Date.now()}`
+  });
+});
 
 // Route for the main page
 app.get('/', (req, res) => {
