@@ -361,6 +361,11 @@ button:hover {
     display: none;
 }
 
+/* Hidden class for dynamic hiding */
+.hidden {
+    display: none;
+}
+
 /* Screen reader only class for accessibility */
 .sr-only {
     position: absolute;

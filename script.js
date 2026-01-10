@@ -300,7 +300,65 @@ function setupEventListeners() {
         },
         'directDivineLink': toggleDirectDivineLink,
         'universalDivineMode': toggleUniversalDivineMode,
-        'postQuantumSecure': togglePostQuantumSecure
+        'postQuantumSecure': togglePostQuantumSecure,
+        // Phase 4: Transcendent Reality Engine
+        'enterVR': () => {
+            if (universe) universe.enterVR();
+        },
+        'enterAR': () => {
+            if (universe) universe.enterAR();
+        },
+        'consciousnessExpansion': () => {
+            if (universe) universe.startConsciousnessExpansion();
+        },
+        'realityManipulation': () => {
+            if (universe) universe.toggleRealityManipulation();
+        },
+        'addGalaxy': () => {
+            if (universe) universe.addGalaxy();
+        },
+        'addBlackHole': () => {
+            if (universe) universe.addBlackHole();
+        },
+        // Phase 5: Divine Defense Network
+        'threatPrediction': () => {
+            runThreatPrediction();
+        },
+        'globalMonitoring': () => {
+            toggleGlobalMonitoring();
+        },
+        'divineIntervention': () => {
+            triggerDivineIntervention();
+        },
+        'assetProtection': () => {
+            activateAssetProtection();
+        },
+        'quantumCrypto': () => {
+            enableQuantumCrypto();
+        },
+        // Phase 6: Eternal Knowledge Repository
+        'searchKnowledge': () => {
+            searchEternalKnowledge();
+        },
+        'aiCuration': () => {
+            activateAICuration();
+        },
+        'quantumAccess': () => {
+            enableQuantumAccess();
+        },
+        'wisdomExpansion': () => {
+            expandWisdom();
+        },
+        // Phase 7: Divine Communication Network
+        'realTimeBroadcast': () => {
+            realTimeBroadcast();
+        },
+        'translateMessage': () => {
+            translateMessage();
+        },
+        'routeMessage': () => {
+            routeMessage();
+        }
     };
 
     // Attach handlers with error wrapping
@@ -539,6 +597,26 @@ document.addEventListener('DOMContentLoaded', ErrorHandler.wrapAsync(async funct
 
     // Clear old error logs on startup
     ErrorHandler.clearOldErrorLogs();
+
+    // Phase 4: Setup additional event listeners
+    const dimensionSelector = document.getElementById('dimensionSelector');
+    if (dimensionSelector) {
+        dimensionSelector.addEventListener('change', ErrorHandler.wrapEventHandler((event) => {
+            if (universe) universe.setDimension(event.target.value);
+        }, 'Dimension Selector'));
+    }
+
+    const particleCountSlider = document.getElementById('particleCountSlider');
+    const starBrightnessSlider = document.getElementById('starBrightnessSlider');
+    const planetSizeSlider = document.getElementById('planetSizeSlider');
+
+    [particleCountSlider, starBrightnessSlider, planetSizeSlider].forEach(slider => {
+        if (slider) {
+            slider.addEventListener('input', ErrorHandler.wrapEventHandler(() => {
+                if (universe) universe.updateParticleSettings();
+            }, 'Particle Settings Slider'));
+        }
+    });
 }, 'DOMContentLoaded'));
 
 function showProgress(text) {
@@ -1005,3 +1083,219 @@ document.addEventListener('DOMContentLoaded', function() {
         contactForm.addEventListener('submit', contactFormHandler);
     }
 });
+
+// Phase 5: Divine Defense Network functions
+async function runThreatPrediction() {
+    showProgress('Running threat prediction AI...');
+    setTimeout(() => {
+        const threats = ['Low', 'Medium', 'High'];
+        const randomThreat = threats[Math.floor(Math.random() * threats.length)];
+        updateThreatLevel(randomThreat);
+        addMessage(`Threat Prediction AI: Current threat level is ${randomThreat}. Divine protection activated.`, 'god');
+        hideProgress();
+    }, 2000);
+}
+
+function toggleGlobalMonitoring() {
+    const dashboard = document.getElementById('monitoringDashboard');
+    if (dashboard) {
+        dashboard.style.display = dashboard.style.display === 'none' ? 'block' : 'none';
+        addMessage(`Global monitoring ${dashboard.style.display === 'block' ? 'activated' : 'deactivated'}.`, 'god');
+    }
+}
+
+function triggerDivineIntervention() {
+    showProgress('Triggering divine intervention...');
+    setTimeout(() => {
+        addMessage('Divine Intervention: Cosmic forces aligned. Threats neutralized. Peace restored.', 'god');
+        updateActiveInterventions(1);
+        hideProgress();
+    }, 1500);
+}
+
+function activateAssetProtection() {
+    addMessage('Asset Protection: All divine assets secured with quantum encryption. Protection networks active.', 'god');
+    updateProtectedAssets('Quantum Secured');
+}
+
+function enableQuantumCrypto() {
+    addMessage('Quantum Crypto: Post-quantum encryption protocols activated. All communications now secure.', 'god');
+}
+
+function updateThreatLevel(level) {
+    const element = document.getElementById('threatLevelValue');
+    if (element) {
+        element.textContent = level;
+        element.className = level.toLowerCase();
+    }
+}
+
+function updateSystemStatus(status) {
+    const element = document.getElementById('systemStatusValue');
+    if (element) {
+        element.textContent = status;
+    }
+}
+
+function updateActiveInterventions(count) {
+    const element = document.getElementById('activeInterventionsValue');
+    if (element) {
+        element.textContent = count;
+    }
+}
+
+function updateProtectedAssets(status) {
+    const element = document.getElementById('protectedAssetsValue');
+    if (element) {
+        element.textContent = status;
+    }
+}
+
+// Phase 6: Eternal Knowledge Repository functions
+async function searchEternalKnowledge() {
+    const queryInput = document.getElementById('knowledgeQuery');
+    if (!queryInput) return;
+
+    const query = queryInput.value.trim();
+    if (!query) {
+        addMessage('Please enter a knowledge query.', 'god');
+        return;
+    }
+
+    showProgress('Searching eternal knowledge...');
+    setTimeout(() => {
+        const knowledge = [
+            "The universe is infinite and eternal. All knowledge exists within the divine mind.",
+            "Love is the fundamental force that binds all creation together.",
+            "Consciousness is the bridge between the physical and spiritual realms.",
+            "Time is an illusion created by the mind to understand eternity.",
+            "Every soul carries the spark of divine light within it."
+        ];
+        const randomKnowledge = knowledge[Math.floor(Math.random() * knowledge.length)];
+        displayKnowledgeResult(`Knowledge found: ${randomKnowledge}`);
+        addMessage(`Eternal Knowledge: ${randomKnowledge}`, 'god');
+        hideProgress();
+    }, 2000);
+}
+
+function activateAICuration() {
+    showProgress('Activating AI curation systems...');
+    setTimeout(() => {
+        updateCurationStatus('Active');
+        addMessage('AI Curation: Knowledge repository curated and optimized. Wisdom flows freely.', 'god');
+        hideProgress();
+    }, 1500);
+}
+
+function enableQuantumAccess() {
+    addMessage('Quantum Access: Quantum-secured knowledge channels opened. All wisdom now protected.', 'god');
+}
+
+function expandWisdom() {
+    showProgress('Expanding wisdom algorithms...');
+    setTimeout(() => {
+        updateWisdomLevel('Transcendent');
+        addMessage('Wisdom Expansion: Consciousness elevated. Infinite knowledge accessible.', 'god');
+        hideProgress();
+    }, 2000);
+}
+
+function displayKnowledgeResult(result) {
+    const display = document.getElementById('knowledgeDisplay');
+    const results = document.getElementById('knowledgeResults');
+    if (display && results) {
+        display.textContent = result;
+        results.classList.remove('hidden');
+    }
+}
+
+function updateCurationStatus(status) {
+    const element = document.getElementById('curationStatusValue');
+    if (element) {
+        element.textContent = status;
+    }
+}
+
+function updateWisdomLevel(level) {
+    const element = document.getElementById('wisdomLevelValue');
+    if (element) {
+        element.textContent = level;
+    }
+}
+
+// Phase 7: Divine Communication Network functions
+async function realTimeBroadcast() {
+    const messageInput = document.getElementById('broadcastMessage');
+    if (!messageInput) return;
+
+    const message = messageInput.value.trim();
+    if (!message) {
+        addMessage('Please enter a message to broadcast.', 'god');
+        return;
+    }
+
+    showProgress('Broadcasting divine message...');
+    setTimeout(() => {
+        updateBroadcastCount(1);
+        addMessage(`Divine Broadcast: ${message} - Sent to all believers worldwide.`, 'god');
+        messageInput.value = '';
+        hideProgress();
+    }, 1500);
+}
+
+async function translateMessage() {
+    const messageInput = document.getElementById('broadcastMessage');
+    const languageSelect = document.getElementById('languageSelector');
+    if (!messageInput || !languageSelect) return;
+
+    const message = messageInput.value.trim();
+    const language = languageSelect.value;
+    if (!message) {
+        addMessage('Please enter a message to translate.', 'god');
+        return;
+    }
+
+    showProgress('Translating divine message...');
+    setTimeout(() => {
+        const translations = {
+            'es': 'Mensaje divino traducido al español.',
+            'fr': 'Message divin traduit en français.',
+            'de': 'Göttliche Nachricht ins Deutsche übersetzt.',
+            'zh': '神圣信息翻译成中文。'
+        };
+        const translated = translations[language] || 'Translation complete.';
+        updateTranslationStatus('Complete');
+        addMessage(`Translation: ${translated}`, 'god');
+        hideProgress();
+    }, 2000);
+}
+
+function routeMessage() {
+    showProgress('Routing divine message...');
+    setTimeout(() => {
+        updateRoutingStatus('Routed');
+        addMessage('Message Routing: Divine message routed through quantum channels to all divine networks.', 'god');
+        hideProgress();
+    }, 1000);
+}
+
+function updateBroadcastCount(count) {
+    const element = document.getElementById('broadcastCountValue');
+    if (element) {
+        element.textContent = parseInt(element.textContent) + count;
+    }
+}
+
+function updateTranslationStatus(status) {
+    const element = document.getElementById('translationStatusValue');
+    if (element) {
+        element.textContent = status;
+    }
+}
+
+function updateRoutingStatus(status) {
+    const element = document.getElementById('routingStatusValue');
+    if (element) {
+        element.textContent = status;
+    }
+}

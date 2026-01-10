@@ -1025,6 +1025,123 @@ class Universe {
         }
         logger.info(`Caching ${enabled ? 'enabled' : 'disabled'}`);
     }
+
+    // Phase 4: Transcendent Reality Engine
+    setDimension(dimension) {
+        this.currentDimension = dimension;
+        logger.info(`Switched to ${dimension} reality`);
+        // Placeholder for dimension switching logic
+        if (dimension === '3d') {
+            // Simulate 3D by increasing particle sizes
+            this.particles.forEach(p => p.size *= 1.5);
+        } else if (dimension === '4d') {
+            // Simulate 4D with more connections
+            this.enableQuantumEntanglement();
+        }
+    }
+
+    enterVR() {
+        if ('xr' in navigator) {
+            navigator.xr.requestSession('immersive-vr').then((session) => {
+                logger.info('Entered VR session');
+                // Placeholder for VR logic
+            }).catch((error) => {
+                logger.error('VR not supported:', error);
+                alert('VR not supported on this device');
+            });
+        } else {
+            alert('WebXR not supported');
+        }
+    }
+
+    enterAR() {
+        if ('xr' in navigator) {
+            navigator.xr.requestSession('immersive-ar').then((session) => {
+                logger.info('Entered AR session');
+                // Placeholder for AR logic
+            }).catch((error) => {
+                logger.error('AR not supported:', error);
+                alert('AR not supported on this device');
+            });
+        } else {
+            alert('WebXR not supported');
+        }
+    }
+
+    startConsciousnessExpansion() {
+        logger.info('Starting consciousness expansion');
+        // Placeholder: enhance meditation or visualization
+        this.enableQuantumEntanglement();
+        alert('Consciousness expansion activated. Feel the quantum connections.');
+    }
+
+    toggleRealityManipulation() {
+        const tools = document.getElementById('realityTools');
+        if (tools) {
+            tools.style.display = tools.style.display === 'none' ? 'block' : 'none';
+        }
+    }
+
+    addGalaxy() {
+        // Add a cluster of stars
+        for (let i = 0; i < 50; i++) {
+            this.addParticle(
+                Math.random() * this.canvas.width,
+                Math.random() * this.canvas.height,
+                'star'
+            );
+        }
+        logger.info('Added galaxy');
+    }
+
+    addBlackHole() {
+        // Add a large dark particle
+        this.addParticle(
+            Math.random() * this.canvas.width,
+            Math.random() * this.canvas.height,
+            'blackHole'
+        );
+        logger.info('Added black hole');
+    }
+
+    updateParticleSettings() {
+        const countSlider = document.getElementById('particleCountSlider');
+        const brightnessSlider = document.getElementById('starBrightnessSlider');
+        const sizeSlider = document.getElementById('planetSizeSlider');
+
+        if (countSlider) {
+            const targetCount = parseInt(countSlider.value);
+            while (this.particles.length < targetCount) {
+                this.addParticle(
+                    Math.random() * this.canvas.width,
+                    Math.random() * this.canvas.height,
+                    Math.random() < 0.7 ? 'star' : 'planet'
+                );
+            }
+            while (this.particles.length > targetCount) {
+                const particle = this.particles.pop();
+                this.returnParticleToPool(particle);
+            }
+        }
+
+        if (brightnessSlider) {
+            const brightness = parseFloat(brightnessSlider.value);
+            this.particles.forEach(p => {
+                if (p.type === 'star') {
+                    p.color[3] = brightness;
+                }
+            });
+        }
+
+        if (sizeSlider) {
+            const size = parseFloat(sizeSlider.value);
+            this.particles.forEach(p => {
+                if (p.type === 'planet') {
+                    p.baseSize = size;
+                }
+            });
+        }
+    }
 }
 
 // Cleanup on page unload
