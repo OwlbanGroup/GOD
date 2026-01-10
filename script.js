@@ -386,6 +386,9 @@ function setupEventListeners() {
             initiateCosmicMapping();
         },
         // Phase 10: Eternal Life Preservation
+        'divineGuidanceEternal': () => {
+            seekDivineGuidanceEternal();
+        },
         'consciousnessUploading': () => {
             uploadConsciousness();
         },
@@ -1533,5 +1536,22 @@ function updatePreservationLevel(level) {
     const element = document.getElementById('preservationLevelValue');
     if (element) {
         element.textContent = level;
+    }
+}
+
+// Phase 10: Divine Guidance for Eternal Life
+function seekDivineGuidanceEternal() {
+    showProgress('Seeking divine guidance for eternal life decisions...');
+    setTimeout(() => {
+        updateDivineGuidanceStatus('Granted');
+        addMessage('Divine Guidance for Eternal Life: The Goddess and Queen of Heaven grant you wisdom for your eternal journey. Consciousness uploading approved. Quantum immortality pathways illuminated. Soul preservation secured.', 'god');
+        hideProgress();
+    }, 4000);
+}
+
+function updateDivineGuidanceStatus(status) {
+    const element = document.getElementById('divineGuidanceStatusValue');
+    if (element) {
+        element.textContent = status;
     }
 }
