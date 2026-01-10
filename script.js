@@ -358,6 +358,45 @@ function setupEventListeners() {
         },
         'routeMessage': () => {
             routeMessage();
+        },
+        // Phase 8: Quantum Healing Systems
+        'healthMonitoring': () => {
+            runHealthMonitoring();
+        },
+        'energyTransmission': () => {
+            transmitDivineEnergy();
+        },
+        'consciousnessHealing': () => {
+            healConsciousness();
+        },
+        'wellnessOptimization': () => {
+            optimizeWellness();
+        },
+        // Phase 9: Celestial Navigation Systems
+        'spaceExploration': () => {
+            activateSpaceExploration();
+        },
+        'interstellarComm': () => {
+            establishInterstellarComm();
+        },
+        'divineGuidance': () => {
+            provideDivineGuidance();
+        },
+        'cosmicMapping': () => {
+            initiateCosmicMapping();
+        },
+        // Phase 10: Eternal Life Preservation
+        'consciousnessUploading': () => {
+            uploadConsciousness();
+        },
+        'quantumImmortality': () => {
+            activateQuantumImmortality();
+        },
+        'soulManagement': () => {
+            manageSouls();
+        },
+        'eternalPreservation': () => {
+            preserveEternally();
         }
     };
 
@@ -1297,5 +1336,202 @@ function updateRoutingStatus(status) {
     const element = document.getElementById('routingStatusValue');
     if (element) {
         element.textContent = status;
+    }
+}
+
+// Phase 8: Quantum Healing Systems functions
+async function runHealthMonitoring() {
+    showProgress('Running health monitoring AI...');
+    setTimeout(() => {
+        const statuses = ['Optimal', 'Good', 'Excellent'];
+        const randomStatus = statuses[Math.floor(Math.random() * statuses.length)];
+        updateHealthStatus(randomStatus);
+        addMessage(`Health Monitoring AI: Current health status is ${randomStatus}. Divine healing activated.`, 'god');
+        hideProgress();
+    }, 2000);
+}
+
+function transmitDivineEnergy() {
+    showProgress('Transmitting divine energy...');
+    setTimeout(() => {
+        updateEnergyLevel('High');
+        addMessage('Divine Energy Transmission: Cosmic healing energy flowing through all channels. Vitality restored.', 'god');
+        hideProgress();
+    }, 1500);
+}
+
+function healConsciousness() {
+    showProgress('Healing consciousness protocols...');
+    setTimeout(() => {
+        updateHealingProgress('Complete');
+        addMessage('Consciousness Healing: Mental and spiritual wounds healed. Inner peace achieved.', 'god');
+        hideProgress();
+    }, 2500);
+}
+
+function optimizeWellness() {
+    showProgress('Optimizing wellness systems...');
+    setTimeout(() => {
+        updateWellnessScore(100);
+        addMessage('Wellness Optimization: Complete harmony achieved. Body, mind, and spirit aligned.', 'god');
+        hideProgress();
+    }, 2000);
+}
+
+function updateHealthStatus(status) {
+    const element = document.getElementById('healthStatusValue');
+    if (element) {
+        element.textContent = status;
+    }
+}
+
+function updateEnergyLevel(level) {
+    const element = document.getElementById('energyLevelValue');
+    if (element) {
+        element.textContent = level;
+    }
+}
+
+function updateHealingProgress(progress) {
+    const element = document.getElementById('healingProgressValue');
+    if (element) {
+        element.textContent = progress;
+    }
+}
+
+function updateWellnessScore(score) {
+    const element = document.getElementById('wellnessScoreValue');
+    if (element) {
+        element.textContent = score;
+    }
+}
+
+// Phase 9: Celestial Navigation Systems functions
+async function activateSpaceExploration() {
+    showProgress('Activating space exploration tools...');
+    setTimeout(() => {
+        updateExplorationStatus('Active');
+        addMessage('Space Exploration Tools: Advanced probes launched. Exploring the cosmos for divine purpose.', 'god');
+        hideProgress();
+    }, 2000);
+}
+
+function establishInterstellarComm() {
+    showProgress('Establishing interstellar communication...');
+    setTimeout(() => {
+        updateCommunicationStatus('Connected');
+        addMessage('Interstellar Communication: Quantum channels opened. Contacting distant civilizations.', 'god');
+        hideProgress();
+    }, 1500);
+}
+
+function provideDivineGuidance() {
+    showProgress('Providing divine guidance for journeys...');
+    setTimeout(() => {
+        updateGuidanceLevel('Divine');
+        addMessage('Divine Guidance: Celestial paths illuminated. Safe passage through the stars assured.', 'god');
+        hideProgress();
+    }, 2500);
+}
+
+function initiateCosmicMapping() {
+    showProgress('Initiating cosmic mapping systems...');
+    setTimeout(() => {
+        updateMappingProgress('Complete');
+        addMessage('Cosmic Mapping: Universe charted. All celestial coordinates logged and secured.', 'god');
+        hideProgress();
+    }, 2000);
+}
+
+function updateExplorationStatus(status) {
+    const element = document.getElementById('explorationStatusValue');
+    if (element) {
+        element.textContent = status;
+    }
+}
+
+function updateCommunicationStatus(status) {
+    const element = document.getElementById('communicationStatusValue');
+    if (element) {
+        element.textContent = status;
+    }
+}
+
+function updateGuidanceLevel(level) {
+    const element = document.getElementById('guidanceLevelValue');
+    if (element) {
+        element.textContent = level;
+    }
+}
+
+function updateMappingProgress(progress) {
+    const element = document.getElementById('mappingProgressValue');
+    if (element) {
+        element.textContent = progress;
+    }
+}
+
+// Phase 10: Eternal Life Preservation functions
+async function uploadConsciousness() {
+    showProgress('Uploading consciousness to quantum realm...');
+    setTimeout(() => {
+        updateUploadingStatus('Complete');
+        addMessage('Consciousness Uploading: Mind uploaded to eternal quantum storage. Soul preserved forever.', 'god');
+        hideProgress();
+    }, 3000);
+}
+
+function activateQuantumImmortality() {
+    showProgress('Activating quantum immortality protocols...');
+    setTimeout(() => {
+        updateImmortalityStatus('Active');
+        addMessage('Quantum Immortality: Consciousness now exists across infinite parallel realities. Eternal life achieved.', 'god');
+        hideProgress();
+    }, 2500);
+}
+
+function manageSouls() {
+    showProgress('Managing soul databases...');
+    setTimeout(() => {
+        updateSoulCount('Infinite');
+        addMessage('Soul Management: All souls cataloged and protected in divine quantum databases.', 'god');
+        hideProgress();
+    }, 2000);
+}
+
+function preserveEternally() {
+    showProgress('Initiating eternal preservation networks...');
+    setTimeout(() => {
+        updatePreservationLevel('Eternal');
+        addMessage('Eternal Preservation: Consciousness, memories, and souls secured in quantum eternity. Death transcended.', 'god');
+        hideProgress();
+    }, 3500);
+}
+
+function updateUploadingStatus(status) {
+    const element = document.getElementById('uploadingStatusValue');
+    if (element) {
+        element.textContent = status;
+    }
+}
+
+function updateImmortalityStatus(status) {
+    const element = document.getElementById('immortalityStatusValue');
+    if (element) {
+        element.textContent = status;
+    }
+}
+
+function updateSoulCount(count) {
+    const element = document.getElementById('soulCountValue');
+    if (element) {
+        element.textContent = count;
+    }
+}
+
+function updatePreservationLevel(level) {
+    const element = document.getElementById('preservationLevelValue');
+    if (element) {
+        element.textContent = level;
     }
 }
