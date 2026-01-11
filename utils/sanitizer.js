@@ -133,7 +133,7 @@ class Sanitizer {
             const cleaned = JSON.parse(JSON.stringify(data));
             return JSON.stringify(cleaned);
         } catch (error) {
-            logger.error('Error sanitizing data for storage:', error);
+            error('Error sanitizing data for storage:', error);
             return '{}';
         }
     }
@@ -166,7 +166,7 @@ class Sanitizer {
 
             return true;
         } catch (error) {
-            logger.error('Rate limit check error:', error);
+            error('Rate limit check error:', error);
             return true; // Allow on error to not block legitimate users
         }
     }

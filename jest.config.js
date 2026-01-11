@@ -30,5 +30,8 @@ module.exports = {
     '/node_modules/',
     '/GOD-TOKEN-COIN/',
     '/dist/'
+  ],
+  transformIgnorePatterns: [
+    'node_modules/(?!(supertest)/)'
   ]
 };
