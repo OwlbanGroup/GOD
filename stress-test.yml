@@ -1,0 +1,59 @@
+config:
+  target: 'http://localhost:3000'
+  phases:
+    - duration: 60
+      arrivalRate: 10
+      name: "Warm up phase"
+    - duration: 120
+      arrivalRate: 50
+      name: "Stress phase"
+    - duration: 60
+      arrivalRate: 100
+      name: "Peak load phase"
+  defaults:
+    headers:
+      Content-Type: 'application/json'
+
+scenarios:
+  - name: "Health check"
+    weight: 30
+    flow:
+      - get:
+          url: "/health"
+
+  - name: "Readiness check"
+    weight: 20
+    flow:
+      - get:
+          url: "/ready"
+
+  - name: "Divine contact"
+    weight: 25
+    flow:
+      - post:
+          url: "/contact"
+          json:
+            message: "Please guide me in my spiritual journey"
+
+  - name: "Earnings API"
+    weight: 10
+    flow:
+      - get:
+          url: "/api/earnings"
+
+  - name: "Banking API"
+    weight: 10
+    flow:
+      - get:
+          url: "/api/banking/accounts"
+
+  - name: "Auto purchase"
+    weight: 5
+    flow:
+      - post:
+          url: "/api/purchase/auto"
+          json:
+            cost: 50000
+            model: "Tesla Model 3"
+            vin: "VIN123456789"
+            dealership: "Divine Motors"

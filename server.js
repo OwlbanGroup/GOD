@@ -1,5 +1,7 @@
 import { info, error, warn, debug } from './utils/loggerWrapper.js';
 import express from 'express';
+import { createServer } from 'http';
+import { Server } from 'socket.io';
 import path from 'node:path';
 import { fileURLToPath } from 'url';
 
@@ -174,7 +176,7 @@ app.use((err, req, res, next) => {
 // Graceful shutdown handler
 const gracefulShutdown = (signal) => {
   info(`\n${signal} received. Starting graceful shutdown...`);
-  server.close(() => {
+  httpServer.close(() => {
     info('Server closed. Exiting process.');
     process.exit(0);
   });
@@ -186,14 +188,65 @@ const gracefulShutdown = (signal) => {
   }, 10000);
 };
 
+// Create HTTP server
+const httpServer = createServer(app);
+
+// Initialize Socket.IO
+const io = new Server(httpServer, {
+  cors: {
+    origin: NODE_ENV === 'development' ? "*" : false,
+    methods: ["GET", "POST"]
+  }
+});
+
+// Socket.IO connection handling
+io.on('connection', (socket) => {
+  info(`Client connected: ${socket.id}`);
+
+  // Handle prayer sharing
+  socket.on('share-prayer', (data) => {
+    const prayerData = {
+      id: `prayer_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
+      user: data.user || 'Anonymous',
+      message: data.message,
+      timestamp: new Date().toISOString(),
+      isPublic: data.isPublic !== false,
+      reactions: { blessings: 0, amens: 0 }
+    };
+
+    // Broadcast to all connected clients if public
+    if (prayerData.isPublic) {
+      io.emit('new-prayer', prayerData);
+      info(`Public prayer shared by ${prayerData.user}: ${prayerData.message.substring(0, 50)}...`);
+    } else {
+      // For private prayers, only send back to sender for now
+      socket.emit('prayer-submitted', prayerData);
+    }
+  });
+
+  // Handle prayer reactions
+  socket.on('react-prayer', (data) => {
+    const { prayerId, reactionType } = data;
+    if (reactionType === 'blessing' || reactionType === 'amen') {
+      io.emit('prayer-reaction', { prayerId, reactionType, socketId: socket.id });
+    }
+  });
+
+  // Handle disconnection
+  socket.on('disconnect', () => {
+    info(`Client disconnected: ${socket.id}`);
+  });
+});
+
 // Start the server
-const server = app.listen(PORT, HOST, () => {
+httpServer.listen(PORT, HOST, () => {
   info('========================================');
   info('🔱 GODDESS Application - Divine Server 🔱');
   info('========================================');
   info(`Environment: ${NODE_ENV}`);
   info(`Server running on: http://${HOST}:${PORT}`);
   info(`Health check: http://${HOST}:${PORT}/health`);
+  info(`Real-time features: ENABLED (Socket.IO)`);
   info(`Started at: ${new Date().toISOString()}`);
   info('========================================');
 });

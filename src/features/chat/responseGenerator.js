@@ -14,8 +14,8 @@ class ResponseGenerator {
 
     async generateDivineResponse(userMessage) {
         try {
-            // Try Azure OpenAI first
-            if (window.azureIntegrations?.isInitialized()) {
+            // Try Azure OpenAI first (only in browser environment)
+            if (typeof window !== 'undefined' && window.azureIntegrations?.isInitialized()) {
                 const response = await window.azureIntegrations.generateDivineResponse(userMessage, appState.getCurrentUser()?.role);
                 if (response) {
                     this.addToHistory(userMessage, response);
@@ -23,8 +23,8 @@ class ResponseGenerator {
                 }
             }
 
-            // Try GPU AI
-            if (window.gpuAI?.isInitialized()) {
+            // Try GPU AI (only in browser environment)
+            if (typeof window !== 'undefined' && window.gpuAI?.isInitialized()) {
                 const response = await window.gpuAI.generateDivineResponse(userMessage);
                 if (response) {
                     this.addToHistory(userMessage, response);

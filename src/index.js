@@ -7,6 +7,9 @@ import { info, error, warn, debug } from '../utils/loggerWrapper.js';
 // Import core modules
 import app from './core/app.js';
 
+// Import features
+import { initializePrayerSharing } from './features/prayerSharing.js';
+
 // Import global utilities (keeping some for backward compatibility)
 import Sanitizer from '../utils/sanitizer.js';
 import ErrorHandler from '../utils/errorHandler.js';
@@ -20,6 +23,10 @@ document.addEventListener('DOMContentLoaded', async () => {
     try {
         info('Starting GOD Application with modular architecture...');
         await app.initialize();
+
+        // Initialize Phase 5.1: Real-Time Prayer Sharing
+        await initializePrayerSharing();
+
         info('GOD Application fully loaded and operational');
     } catch (err) {
         error('Failed to start GOD Application:', err);

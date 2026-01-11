@@ -35,6 +35,19 @@
             <div id="prayerTemplatesContainer"></div>
         </div>
 
+        <!-- Real-Time Prayer Sharing Section -->
+        <div class="prayer-sharing-section">
+            <h3>🌟 Real-Time Prayer Community</h3>
+            <div class="prayer-sharing-controls">
+                <input type="text" id="prayerShareInput" placeholder="Share your prayer with the community..." maxlength="500" aria-label="Prayer sharing input">
+                <label><input type="checkbox" id="publicPrayerToggle" checked> Public Prayer</label>
+                <button id="sharePrayerBtn">🙏 Share Prayer</button>
+            </div>
+            <div id="prayerFeed" class="prayer-feed" role="log" aria-live="polite" aria-label="Real-time prayer feed">
+                <div class="prayer-feed-placeholder">Welcome to the divine prayer community. Share your prayers and connect with others in real-time.</div>
+            </div>
+        </div>
+
         <!-- Meditation Section -->
         <div class="meditation-section">
             <h3>Divine Meditation</h3>
@@ -252,7 +265,7 @@
     <!-- Utility Scripts - Load First -->
     <script src="utils/sanitizer.js"></script>
     <script src="utils/errorHandler.js"></script>
-    
+
     <!-- Core Application Scripts -->
     <script src="azure-integrations.js"></script>
     <script src="foundry-vtt-integrations.js"></script>
@@ -263,8 +276,13 @@
     <script src="meditation.js"></script>
     <script src="inspiration.js"></script>
     <script src="god-token.js"></script>
-    <script src="script.js"></script>
+
+    <!-- Phase 4: Modular Application Entry Point -->
+    <script type="module" src="src/index.js"></script>
     
+    <!-- Socket.IO for real-time features -->
+    <script src="https://cdn.socket.io/4.7.2/socket.io.min.js"></script>
+
     <!-- TensorFlow.js for GPU-accelerated AI, inspired by NVIDIA Blackwell -->
     <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@4.15.0/dist/tf.min.js"></script>
 </body>
