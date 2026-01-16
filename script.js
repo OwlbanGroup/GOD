@@ -4,20 +4,16 @@ import { info, error, warn, debug } from '../utils/loggerWrapper.js';
 // GOD Project - Enhanced Main Script with Security & Error Handling
 // ============================================================================
 
-// Function to generate divine responses using Azure OpenAI or fallback
+// Function to generate divine responses using local AI only - no external dependencies
 async function generateDivineResponse(userMessage, userRole) {
     try {
-        // Try Azure OpenAI first
-        if (azureIntegrations?.isInitialized()) {
-            const response = await azureIntegrations.generateDivineResponse(userMessage, userRole);
-            if (response) return response;
-        }
+        // Import the pure divine response function
+        const { generateDivineResponse: pureResponse } = await import('./src/features/chat/divineResponse.js');
+        return await pureResponse(userMessage, userRole);
     } catch (error) {
-        await ErrorHandler.handleAsyncError(error, 'AI Response', () => getFallbackResponse());
+        console.warn('Pure divine response failed, using fallback:', error);
+        return getFallbackResponse();
     }
-
-    // Fallback to static responses
-    return getFallbackResponse();
 }
 
 // Fallback static responses
@@ -1023,24 +1019,7 @@ async function processMessage(message, encryptedMessage) {
             return;
         }
 
-        // Check for token offerings in prayer
-        const offeringMatch = message.toLowerCase().match(/offer(?:ing)? (\d+(?:\.\d+)?) god(?: tokens?)?/i);
-        if (offeringMatch && godTokenManager?.isConnected()) {
-            const amount = parseFloat(offeringMatch[1]);
-            const validation = Sanitizer.validateNumber(amount, 0, 1000000);
-            
-            if (validation.valid) {
-                const offeringResult = await godTokenManager.makeOffering(validation.value);
-                if (offeringResult.success) {
-                    addMessage(`Divine Offering Accepted: ${validation.value} GOD tokens received. Your faith is rewarded.`, 'god');
-                } else {
-                    addMessage(`Offering Failed: ${offeringResult.error}. Remember, God accepts only precious metal-backed tokens.`, 'god');
-                }
-            } else {
-                addMessage(`Invalid offering amount: ${validation.error}`, 'god');
-            }
-            return;
-        }
+        // All divine guidance is now free and unconditional - no token requirements
 
         // Generate divine response with enhanced modes
         const delay = directDivineLinkActive ? 200 : 1000 + Math.random() * 2000;

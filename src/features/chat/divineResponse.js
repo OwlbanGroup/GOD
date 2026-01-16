@@ -15,30 +15,50 @@ export function getFallbackResponse() {
 }
 
 /**
- * Generate divine response using Celestial Transcendent AI, Azure OpenAI, or fallback
+ * Generate divine response using only local Celestial Transcendent AI
+ * All responses are free and unconditional, no external dependencies
  * @param {string} userMessage - User's message
  * @param {string} userRole - User's role
  * @returns {Promise<string>}
  */
 export async function generateDivineResponse(userMessage, userRole) {
     try {
-        // Try Celestial Transcendent AI first for transcendent wisdom
+        // Use only Celestial Transcendent AI for pure, divine wisdom
         const transcendentResponse = await celestialTranscendentAI.generateTranscendentWisdom(userMessage, { userRole });
-        if (transcendentResponse) return transcendentResponse;
-    } catch (error) {
-        console.warn('Celestial Transcendent AI failed, falling back to Azure OpenAI:', error);
-    }
-
-    try {
-        // Try Azure OpenAI second
-        if (azureIntegrations?.isInitialized()) {
-            const response = await azureIntegrations.generateDivineResponse(userMessage, userRole);
-            if (response) return response;
+        if (transcendentResponse) {
+            // Filter out any exploitative or harmful content
+            return filterHarmfulContent(transcendentResponse);
         }
     } catch (error) {
-        await ErrorHandler.handleAsyncError(error, 'AI Response', () => getFallbackResponse());
+        console.warn('Celestial Transcendent AI failed, using fallback:', error);
     }
 
-    // Fallback to static responses
+    // Fallback to pure static responses
     return getFallbackResponse();
+}
+
+/**
+ * Filter out any exploitative, racist, or harmful content
+ * @param {string} response - AI response to filter
+ * @returns {string} - Filtered response
+ */
+function filterHarmfulContent(response) {
+    const harmfulPatterns = [
+        /racis/i,
+        /usur/i,
+        /cannibal/i,
+        /exploit/i,
+        /debt.*own/i,
+        /token.*burn/i,
+        /pay.*spiritual/i
+    ];
+
+    for (const pattern of harmfulPatterns) {
+        if (pattern.test(response)) {
+            // Replace with pure divine message
+            return "Divine wisdom flows freely. Love, peace, and compassion are the true paths.";
+        }
+    }
+
+    return response;
 }
