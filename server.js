@@ -95,6 +95,13 @@ app.use(express.static(path.join(__dirname), {
   lastModified: true
 }));
 
+// Serve OSCAR-BROOME-REVENUE executive portal
+app.use('/revenue', express.static(path.join(__dirname, 'OSCAR-BROOME-REVENUE/executive-portal'), {
+  maxAge: NODE_ENV === 'production' ? '1d' : 0,
+  etag: true,
+  lastModified: true
+}));
+
 // API Routes for OSCAR-BROOME-REVENUE integration
 
 // Earnings API
