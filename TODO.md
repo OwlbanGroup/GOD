@@ -1,1 +1,40 @@
-# Jest Tests Fix Plan - Step-by-Step&#10;&#10;## 1. Create missing loggerWrapper.js in OSCAR-BROOME-REVENUE [PENDING]&#10;- Create OSCAR-BROOME-REVENUE/utils/loggerWrapper.js (copy from root)&#10;&#10;## 2. Update OSCAR-BROOME-REVENUE/jest.config.cjs [PENDING]&#10;- Add transform: babel-jest for .js/.mjs&#10;- transformIgnorePatterns: exclude node_modules/@paralleldrive/cuid2, @noble/hashes, formidable, mongodb, mongoose, supertest&#10;- setupFilesAfterEnv: ['<rootDir>/jest.setup.js']&#10;&#10;## 3. Enhance OSCAR-BROOME-REVENUE/jest.setup.js [PENDING]&#10;- Add global.setImmediate = (fn) => setTimeout(fn, 0);&#10;- global.testPassed = () => {};&#10;- Ensure TextEncoder/TextDecoder load early&#10;- Mock winston if needed&#10;&#10;## 4. Verify/Create biometric-auth.js [PENDING]&#10;- Confirm OSCAR-BROOME-REVENUE/public/js/biometric-auth.js exists&#10;- Add export { BiometricAuth } if missing&#10;&#10;## 5. Update owlbangroup.io/jest.config.mjs [PENDING]&#10;- Add transformIgnorePatterns for bson/mongodb deps&#10;&#10;## 6. Fix PWA tests [PENDING]&#10;- Remove/replace testPassed calls or mock&#10;&#10;## 7. Test & Validate [PENDING]&#10;- cd OSCAR-BROOME-REVENUE &amp;&amp; npm test&#10;- cd owlbangroup.io &amp;&amp; npm test&#10;- Update TODO with completions&#10;&#10;## 8. Root jest.config.js update [PENDING]&#10;- Expand transformIgnorePatterns
+# MASTER TODO - Complete All Work Tracker
+Status: Approved Plan Implementation Started
+
+## 1. Jest Fixes (Root/OSCAR/owlbangroup) [0/N]
+
+- [ ] Update OSCAR-BROOME-REVENUE/jest.config.cjs (transformIgnorePatterns, setupFilesAfterEnv)
+- [ ] Enhance OSCAR-BROOME-REVENUE/jest.setup.js (add setImmediate, testPassed)
+- [ ] Update owlbangroup.io/jest.config.mjs (transformIgnorePatterns)
+- [ ] Update root jest.config.js (transformIgnorePatterns)
+- [ ] Fix PWA tests (remove testPassed if needed)
+- [ ] Install deps in OSCAR-BROOME-REVENUE, owlbangroup.io, root
+
+## 2. GOD-TOKEN-COIN Production Readiness [0/6]
+
+- [ ] Fix Solidity warnings (pure funcs, unused)
+- [ ] Run npm test
+- [ ] Update hardhat.config.js (uncomment networks, env)
+- [ ] Test deployment scripts
+- [ ] Security review (reentrancy ok via guards)
+- [ ] Gas optimization/docs
+
+## 3. TS/Syntax Fixes (Perfection TODO)
+
+- [ ] Run safe scripts (if exist)
+- [ ] ESLint . --fix
+- [ ] tsc --noEmit (OSCAR-BROOME-REVENUE)
+
+## 4. Update Trackers
+
+- [ ] Mark [x] in all TODO.md files per completions
+- [ ] Update TODO_PROGRESS.md, blackboxai-*.md
+
+## 5. Verification
+
+- [ ] npm test all dirs
+- [ ] npx hardhat compile (GOD-TOKEN-COIN)
+- [ ] Servers start clean
+
+Progress: 0/5 phases complete
+Last Updated: $(date)
