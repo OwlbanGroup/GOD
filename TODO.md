@@ -1,16 +1,1 @@
-# Jest Tests Fix TODO
-
-## Progress: 3/9 complete
-
-- [x] 1. Update OSCAR-BROOME-REVENUE/jest.config.cjs: Expand transformIgnorePatterns
-- [ ] 2. Create OSCAR-BROOME-REVENUE/quantum/quantumAIWallet.js stub
-- [ ] 3. Create OSCAR-BROOME-REVENUE/public/js/biometric-auth.js stub  
-- [ ] 4. Fix OSCAR-BROOME-REVENUE/tests/quantum_ai_wallet.test.js: path + Jest expect
-- [ ] 5. Fix OSCAR-BROOME-REVENUE/tests/quantumSecurity.test.js: vitest → @jest/globals
-- [ ] 6. Mock localhost/increase timeout OSCAR-BROOME-REVENUE/tests/pwa.test.js
-- [ ] 7. Update owlbangroup.io/jest.config.mjs: transformIgnorePatterns  
-- [ ] 8. Install deps: @noble/hashes etc.
-- [ ] 9. Run npm test in both projects ✅
-
-**Instructions:** Complete steps sequentially, update checkboxes, use attempt_completion when all done.
-
+# Jest Tests Fix Plan - Step-by-Step&#10;&#10;## 1. Create missing loggerWrapper.js in OSCAR-BROOME-REVENUE [PENDING]&#10;- Create OSCAR-BROOME-REVENUE/utils/loggerWrapper.js (copy from root)&#10;&#10;## 2. Update OSCAR-BROOME-REVENUE/jest.config.cjs [PENDING]&#10;- Add transform: babel-jest for .js/.mjs&#10;- transformIgnorePatterns: exclude node_modules/@paralleldrive/cuid2, @noble/hashes, formidable, mongodb, mongoose, supertest&#10;- setupFilesAfterEnv: ['<rootDir>/jest.setup.js']&#10;&#10;## 3. Enhance OSCAR-BROOME-REVENUE/jest.setup.js [PENDING]&#10;- Add global.setImmediate = (fn) => setTimeout(fn, 0);&#10;- global.testPassed = () => {};&#10;- Ensure TextEncoder/TextDecoder load early&#10;- Mock winston if needed&#10;&#10;## 4. Verify/Create biometric-auth.js [PENDING]&#10;- Confirm OSCAR-BROOME-REVENUE/public/js/biometric-auth.js exists&#10;- Add export { BiometricAuth } if missing&#10;&#10;## 5. Update owlbangroup.io/jest.config.mjs [PENDING]&#10;- Add transformIgnorePatterns for bson/mongodb deps&#10;&#10;## 6. Fix PWA tests [PENDING]&#10;- Remove/replace testPassed calls or mock&#10;&#10;## 7. Test & Validate [PENDING]&#10;- cd OSCAR-BROOME-REVENUE &amp;&amp; npm test&#10;- cd owlbangroup.io &amp;&amp; npm test&#10;- Update TODO with completions&#10;&#10;## 8. Root jest.config.js update [PENDING]&#10;- Expand transformIgnorePatterns
