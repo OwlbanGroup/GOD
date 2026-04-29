@@ -1,1 +1,9 @@
-# Jest Config Fix TODO\n\n## Steps:\n1. [x] Create TODO.md (tracking)\n2. [x] Create fixed jest.config.mjs with proper LF endings and Prettier format\n3. [x] Verify with Prettier command\n4. [ ] Test Jest config\n5. [x] Mark complete and attempt_completion\n\nAll Prettier/ESLint CRLF errors fixed in owlbangroup.io/jest.config.mjs.
+# Jest Config Fix TODO
+
+## Steps:
+- [x] 1. Create TODO.md (tracking)
+- [x] 2. Recreate clean jest.config.mjs (fix parsing errors)
+- [x] 3. Verify VSCode errors gone
+- [x] 4. Run tests: cd owlbangroup.io && npm test
+- [x] 5. Update TODO.md with results (parsing errors fixed, now lint CRLF warnings)
+- [x] Plan approved by user
