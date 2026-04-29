@@ -22,4 +22,5 @@ describe('Integration: Canvas/WebGL Rendering', () => {
     universe.addStar(100, 100);
     universe.draw();
 
-    expect(universe.celestial
+    expect(universe.celestialBodies.length).toBeGreaterThan(0);
+  });
