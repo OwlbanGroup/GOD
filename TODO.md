@@ -1,52 +1,22 @@
-# Jest Tests Fix Plan - OSCAR-BROOME-REVENUE & Root Project
-Status: ✅ Config Updates Complete
+# Jest Test Suite Fix Plan
+## Completed (0/15)
 
-## Step 1: [COMPLETE] Create this TODO.md ✅
+## Pending Steps
+- [ ] 1. Fix syntax error in owlbangroup.io/src/__tests__/reverseMergersIntegration.fixed.test.js (malformed destructuring)
+- [ ] 2. Fix similar syntax in other tests using direct function calls
+- [ ] 3. Add TextEncoder/TextDecoder polyfills to jest.setup.js files
+- [ ] 4. Fix module resolution for utils/loggerWrapper.js in OSCAR-BROOME-REVENUE tests
+- [ ] 5. Create missing public/js/biometric-auth.js or fix import path
+- [ ] 6. Install missing deps: puppeteer, plaid
+- [ ] 7. Fix ESM/CJS mixing in quantum_transaction_engine.test.js etc.
+- [ ] 8. Update transformIgnorePatterns in jest configs for remaining node_modules
+- [ ] 9. Fix import.meta in pwa-basic.test.js (use jsdom)
+- [ ] 10. Mock missing biometric-auth.js module
+- [ ] 11. Run tests in owlbangroup.io: cd owlbangroup.io && npm test
+- [ ] 12. Run tests in OSCAR-BROOME-REVENUE: cd OSCAR-BROOME-REVENUE && npm test
+- [ ] 13. Verify all passing, generate coverage report
+- [ ] 14. Update this TODO.md with completion status
+- [ ] 15. Final validation run
 
-## Step 2: [COMPLETE] Fix OSCAR-BROOME-REVENUE Jest Config ✅
-- Updated OSCAR-BROOME-REVENUE/jest.config.cjs for ESM support
-- Expanded transformIgnorePatterns 
-- Added TextEncoder/TextDecoder globals
-
-## Step 3: [COMPLETE] Create OSCAR-BROOME-REVENUE/jest.setup.js ✅
-- Polyfill TextEncoder/TextDecoder
-- Global crypto/ResizeObserver mocks
-- Console warning suppression
-
-## Step 4: [COMPLETE] Fix Syntax Errors ✅
-- Fixed __tests__/integration/canvas.test.js
-
-## Step 5: [PENDING] Test OSCAR-BROOME-REVENUE
-```bash
-cd OSCAR-BROOME-REVENUE && npm test
-```
-
-## Step 6: [PENDING] Fix remaining errors iteratively
-
-## Step 7: [PENDING] Full npm test
-
-**Next Action: Test OSCAR-BROOME-REVENUE**
-
-- __tests__/integration/canvas.test.js: Fix missing closing parenthesis
-- OSCAR-BROOME-REVENUE/tests/pwa-basic.test.js: ESM import.meta fix
-
-## Step 5: Create Root jest.config.js [PENDING]
-- Handle integration tests across projects
-
-## Step 6: Test OSCAR-BROOME-REVENUE [PENDING]
-```bash
-cd OSCAR-BROOME-REVENUE && npm test
-```
-
-## Step 7: Fix remaining module errors iteratively [PENDING]
-- Run tests, fix one category at a time
-
-## Step 8: Full project test run [PENDING]
-```bash
-npm test
-```
-
-## Step 9: [FINAL] attempt_completion ✅
-
-**Next Action: Update Jest config files**
+**Status**: Starting syntax fixes...
 
