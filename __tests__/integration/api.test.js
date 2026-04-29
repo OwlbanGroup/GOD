@@ -2,7 +2,7 @@
  * @jest-environment jsdom
  */
 
-const azureIntegrations = require('../../azure-integrations.js');
+const { default: azureIntegrations } = await import('../../azure-integrations.js');
 const foundryVttIntegrations = require('../../foundry-vtt-integrations.js');
 
 // Mock fetch for API calls

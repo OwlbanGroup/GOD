@@ -2,7 +2,7 @@
  * @jest-environment jsdom
  */
 
-const enhancedCelestialAI = require('../../src/features/ai/enhancedCelestialAI.js');
+const { default: enhancedCelestialAI } = await import('../../src/features/ai/enhancedCelestialAI.js');
 
 describe('Integration: AI Features (mocks)', () => {
   test('should generate divine response', () => {

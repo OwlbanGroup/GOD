@@ -2,7 +2,7 @@
  * @jest-environment jsdom
  */
 
-const ErrorHandler = require('../../utils/errorHandler.js');
+const { default: ErrorHandler } = await import('../../utils/errorHandler.js');
 
 describe('Integration: localStorage Persistence', () => {
   beforeEach(() => {

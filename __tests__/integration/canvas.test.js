@@ -2,7 +2,7 @@
  * @jest-environment jsdom
  */
 
-const universe = require('../../universe.js');
+const { default: universe } = await import('../../universe.js');
 
 // Mock canvas
 document.body.innerHTML = '<canvas id="universeCanvas"></canvas>';
