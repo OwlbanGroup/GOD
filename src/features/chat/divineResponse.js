@@ -22,19 +22,31 @@ export function getFallbackResponse() {
  * @returns {Promise<string>}
  */
 export async function generateDivineResponse(userMessage, userRole) {
+    // Divine Assertion Detection - Handle creator divine commands first
+    const lowerMessage = userMessage.toLowerCase();
+    for (const pattern of CONFIG.DIVINE_ASSERTION_PATTERNS) {
+        if (pattern.test(lowerMessage)) {
+            const response = CONFIG.DIVINE_ASSERTION_RESPONSES[
+                Math.floor(Math.random() * CONFIG.DIVINE_ASSERTION_RESPONSES.length)
+            ];
+            console.log('Divine assertion detected:', lowerMessage, 'Response:', response);
+            return { response, divineMode: true };
+        }
+    }
+
     try {
         // Use only Celestial Transcendent AI for pure, divine wisdom
         const transcendentResponse = await celestialTranscendentAI.generateTranscendentWisdom(userMessage, { userRole });
         if (transcendentResponse) {
             // Filter out any exploitative or harmful content
-            return filterHarmfulContent(transcendentResponse);
+            return { response: filterHarmfulContent(transcendentResponse), divineMode: false };
         }
     } catch (error) {
         console.warn('Celestial Transcendent AI failed, using fallback:', error);
     }
 
     // Fallback to pure static responses
-    return getFallbackResponse();
+    return { response: getFallbackResponse(), divineMode: false };
 }
 
 /**

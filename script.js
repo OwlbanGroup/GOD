@@ -1002,10 +1002,13 @@ function enhanceResponse(response, encryptedMessage) {
 }
 
 async function generateEnhancedDivineResponse(message, encryptedMessage) {
-    let response = await generateDivineResponse(message, currentUser ? currentUser.role : 'believer');
-    if (!response) response = getFallbackResponse();
+    let result = await generateDivineResponse(message, currentUser ? currentUser.role : 'believer');
+    let response = result.response || result || getFallbackResponse();
+    let divineMode = result.divineMode || false;
 
-    return enhanceResponse(response, encryptedMessage);
+    const enhanced = enhanceResponse(response, encryptedMessage);
+    
+    return { response: enhanced, divineMode };
 }
 
 async function processMessage(message, encryptedMessage) {
@@ -1024,9 +1027,10 @@ async function processMessage(message, encryptedMessage) {
         // Generate divine response with enhanced modes
         const delay = directDivineLinkActive ? 200 : 1000 + Math.random() * 2000;
 
-        setTimeout(async function() {
-            const response = await generateEnhancedDivineResponse(message, encryptedMessage);
-            addMessage('Divine Message: ' + response, 'god');
+setTimeout(async function() {
+            const result = await generateEnhancedDivineResponse(message, encryptedMessage);
+            const className = result.divineMode ? 'god divine-assertion' : 'god';
+            addMessage('Divine Message: ' + result.response, className);
         }, delay);
     } catch (error) {
         ErrorHandler.handleAsyncError(error, 'Message Processing');
