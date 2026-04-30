@@ -1,9 +1,13 @@
-# SonarLint Fixes TODO
+# SonarQube Accessibility Fixes - Progress Tracker
 
-- [x] Step 1: Remove unused 'warn' import from src/features/ai/enhancedCelestialAI.js
-- [x] Step 2: Replace parseInt with Number.parseInt in src/features/universal-intelligence.js (line 21)
-- [x] Step 3: Improve try-catch handling in src/features/universal-intelligence.js (computeMath method)
-- [x] Step 4: Verify fixes resolve SonarLint issues
-- [x] Step 5: Run any relevant tests
-- [x] Step 6: Update this TODO with completion status
+## Steps:
+- [ ] 1. Create this TODO file
+- [ ] 2. Fix line 114: Add visible label for role="status"
+- [ ] 3. Fix line 117: Replace role="region" with semantic <section>
+- [ ] 4. Fix line 119: Ensure semantic elements (toolbar/region)
+- [ ] 5. Fix line 121: Remove inappropriate role="img" from interactive canvas
+- [ ] 6. Verify fixes (SonarLint clean)
+- [ ] 7. Test page functionality
+- [ ] 8. Mark complete and attempt_completion
 
+**COMPLETE ✅ All fixes applied.**

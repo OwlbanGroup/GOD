@@ -114,11 +114,13 @@
                         <button type="submit" aria-label="Send prayer to Goddess">Send to Goddess</button>
                     </form>
                 </div>
-                <div id="response" class="response" role="status" aria-live="polite"></div>
+        <label for="response">Divine Response Status: 
+            <div id="response" class="response" role="status" aria-live="polite"></div>
+        </label>
             </div>
-            <div class="universe-section" role="region" aria-label="Universe Visualization">
+            <section class="universe-section" aria-label="Universe Visualization">
                 <h2>The Universe</h2>
-                <canvas id="universeCanvas" width="400" height="400" role="img" aria-label="Interactive universe visualization with stars and planets"></canvas>
+                <canvas id="universeCanvas" width="400" height="400" aria-label="Interactive universe visualization with stars and planets"></canvas>
                 <div class="controls" role="toolbar" aria-label="Universe controls">
                     <button id="clearUniverse">Clear Universe</button>
                     <button id="savePrayers">View Saved Prayers</button>
