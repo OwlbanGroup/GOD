@@ -3,7 +3,7 @@
  */
 
 const { default: azureIntegrations } = await import('../../azure-integrations.js');
-const foundryVttIntegrations = require('../../foundry-vtt-integrations.js');
+
 
 // Mock fetch for API calls
 global.fetch = jest.fn();
