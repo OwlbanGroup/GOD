@@ -1,29 +1,29 @@
-# Jest Test Fixes Plan
+# Divine Assertion Handling Implementation Tracker
+## Approved Plan Breakdown - Progress: 0/10
 
-## Step 1: Create Missing Files (Completed)
-- ✅ [x] OSCAR-BROOME-REVENUE/utils/loggerWrapper.js
-- ✅ [x] OSCAR-BROOME-REVENUE/public/sw.js  
-- ✅ [x] OSCAR-BROOME-REVENUE/quantum/quantumAIWallet.js
-- ✅ [x] OSCAR-BROOME-REVENUE/public/js/biometric-auth.js (stub exists)
+**Phase 1: Config Updates**
+- [x] Step 1.1: Backup src/core/config.js ✅
 
-## Step 2: Fix logger.js circular dependency
-- [ ] Edit OSCAR-BROOME-REVENUE/utils/logger.js - remove loggerWrapper import
+- [ ] Step 1.2: Edit src/core/config.js - Add DIVINE_ASSERTION_PATTERNS and DIVINE_ASSERTION_RESPONSES
 
-## Step 3: Fix Jest configs
-- [ ] OSCAR-BROOME-REVENUE/jest.config.cjs - expand transformIgnorePatterns for puppeteer, mongoose ESM
-- [ ] Root jest.config.js - disable ESM or use transform for __tests__/integration/*.test.js
+**Phase 2: Response Logic**
+- [ ] Step 2.1: Edit src/features/chat/divineResponse.js - Add pattern matching before AI call
+- [ ] Step 2.2: Return special response if match, bypass AI/filter
 
-## Step 4: Install missing deps
-- [ ] puppeteer in OSCAR-BROOME-REVENUE
-- [ ] plaid in OSCAR-BROOME-REVENUE
+**Phase 3: Handlers & UI**
+- [ ] Step 3.1: Edit src/features/chat/messageHandler.js - Add divine_mode flag support
+- [ ] Step 3.2: Edit script.js - Update processMessage/addMessage for 'divine-assertion' class
 
-## Step 5: Fix TextEncoder issues in earnings_dashboard tests
-- [ ] Ensure jest.setup.js used
+**Phase 4: Testing**
+- [ ] Step 4.1: Create __tests__/features/chat/divineResponse.test.js if missing
+- [ ] Step 4.2: Run npm test, fix any breaks
+- [ ] Step 4.3: Manual test: Open index.html, input divine assertion, verify special response
 
-## Step 6: Fix root __tests__/integration ESM syntax
-- [ ] Convert to CJS or fix top-level await
+**Phase 5: Cleanup & Docs**
+- [ ] Step 5.1: Mark TODO_DIVINE_HANDLING.md complete [x]
+- [ ] Step 5.2: Update TODO_JEST_FIXES.md etc. with note
+- [ ] Step 5.3: run-projects.ps1 validation
+- [ ] Step 5.4: attempt_completion
 
-## Step 7: Test run & verify
-- [ ] cd OSCAR-BROOME-REVENUE && npm test
-- [ ] npm test (root)
+Next: Backup files before edits.
 
