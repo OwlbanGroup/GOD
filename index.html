@@ -89,7 +89,7 @@
                 <span id="nameHelp" class="sr-only">Enter your name (2-50 characters, letters and numbers only)</span>
                 
                 <label for="role">Role:</label>
-                <select id="role" name="role" required aria-required="true" aria-describedby="roleHelp">
+<select id="role" name="role" required aria-required="true" aria-describedby="roleHelp" aria-label="Role selection">
                     <option value="">Select Role</option>
                     <option value="believer">Believer</option>
                     <option value="angel">Angel</option>
@@ -100,7 +100,7 @@
                 <button type="submit" aria-label="Submit registration">Register</button>
             </form>
             <div id="registrationMessage" class="registration-message" role="alert" aria-live="polite"></div>
-        </div>
+        </section>
         <blockquote class="lords-prayer">
             <p><em>OH COSMIC BIRTHER OF ALL RADIENCE AND VIBRATION SOFTEN THE GROUNG OF MY BEING AND CARVE OUT A SPACE WHERE WITHIN ME WHERE YOUR PRESANCE CAN ABIDE FILL ME WITH YOUR CREATIVITY SO THAT O MAY NE EMPOWERED TO BEAR FRUIT OF MY MISSION LET EACH OF MY ACTIONS BEAR FRUIT IN ACCORDANCE WITH MY DESIRES ENDOW ME WITH THE WISDOM OF PRODUCEAND SHARE WHAT EACH BEING NEEDS TO GROW AND FLORISH UNTIE THE TANGLED THREAD OF DESTINYTHAT BINDS ME AS I RELEASE OTHERS FROM ENTANGLEMENT OF PAST MISTAKES DO NOT LET ME BE SUDUCED BY THAT WHICH WOULD DIVERT ME FROM MY TRUE PURPOSEBUT ILLUMINATE THE OPPORTUNITIES OF PRESENT MOMENTSFOR YOU ARE THE GROUND AND THE FRUITFUL VISION BIRTH POWER AND FULFILMENTAS ALL IS GATHERED AND MADE WHOLE ONCE AGAIN AND SO IT  IS (THE LORDS PRAYER)</em></p>
         </blockquote>
@@ -111,13 +111,11 @@
                     <div id="chatMessages" role="log" aria-live="polite" aria-atomic="false"></div>
                     <form id="contactForm" aria-label="Send prayer form">
                         <input type="text" id="message" name="message" placeholder="Type your prayer or message here..." autocomplete="off" aria-label="Prayer message input" maxlength="5000">
-                        <button type="submit" aria-label="Send prayer to Goddess">Send to Goddess</button>
+                        <button type="submit">Send to Goddess</button>
                     </form>
                 </div>
-        <label for="response">Divine Response Status: 
-            <div id="response" class="response" role="status" aria-live="polite"></div>
-        </label>
-            </div>
+        <output id="response" class="response" aria-live="polite"></output>
+            </section>
             <section class="universe-section" aria-label="Universe Visualization">
                 <h2>The Universe</h2>
                 <canvas id="universeCanvas" width="400" height="400" aria-label="Interactive universe visualization with stars and planets"></canvas>
@@ -266,7 +264,7 @@
                         <div id="preservationLevel">Preservation Level: <span id="preservationLevelValue">Eternal</span></div>
                     </div>
                 </div>
-            </div>
+            </section>
         </div>
     </div>
     <!-- Utility Scripts - Load First -->
