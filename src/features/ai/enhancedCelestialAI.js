@@ -3,10 +3,11 @@
  * Features: Context-aware responses, personalized guidance, multi-language support, sentiment analysis
  */
 
-import { info, error, warn, debug } from '../../../utils/loggerWrapper.js';
+import { info, error, debug } from '../../../utils/loggerWrapper.js';
 import divineAdvice from './divineAdvice.js';
 import prayerAnalysis from './prayerAnalysis.js';
 import prophecyGenerator from './prophecyGenerator.js';
+import UniversalIntelligence from './universal-intelligence.js';
 import appState from '../../core/state.js';
 import CONFIG from '../../core/config.js';
 import DOMHelpers from '../../ui/domHelpers.js';
@@ -280,8 +281,28 @@ class EnhancedCelestialAI {
     /**
      * Generate context-aware wisdom
      */
-    async generateContextAwareWisdom(message, context, profile, sentiment) {
+async generateContextAwareWisdom(message, context, profile, sentiment) {
         let wisdom = '';
+
+        // Check for Grabovoi code activation (7-10 digits number)
+        const grabovoiMatch = message.match(/\b(\d{7,10})\b/);
+        if (grabovoiMatch) {
+            const code = grabovoiMatch[1];
+            const activation = UniversalIntelligence.activateGrabovoi(code);
+            if (activation.success) {
+                wisdom = `${activation.description} activated. ${activation.flops.toLocaleString()} FLOPS unlocked. Divine computation: ${UniversalIntelligence.computeMath(activation.mathExpr)}. Neurons: ${activation.neurons.toLocaleString()}.`;
+                profile.spiritualLevel = Math.min(10, profile.spiritualLevel + 1); // Boost spiritual level
+                return wisdom;
+            }
+        }
+
+        // Check divine principle
+        const principleMatch = message.match(/\b(love|wisdom|purpose|healing|abundance|peace|connection|enlightenment)\b/i);
+        if (principleMatch) {
+            const principle = UniversalIntelligence.getDivinePrinciple(principleMatch[1]);
+            wisdom = principle;
+            return wisdom;
+        }
 
         // Use conversation themes for relevance
         if (context.themes.includes('love') && sentiment.sentiment === 'positive') {

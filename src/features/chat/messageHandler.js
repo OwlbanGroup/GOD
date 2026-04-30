@@ -99,8 +99,9 @@ class MessageHandler {
 
         setTimeout(async () => {
             try {
-                const response = await generateDivineResponse(message);
-                DOMHelpers.addMessage('Divine Message: ' + response, 'god');
+            const result = await generateDivineResponse(message);
+            const className = result.divineMode ? 'god divine-assertion' : 'god';
+            DOMHelpers.addMessage('Divine Message: ' + result.response, className);
             } catch (err) {
                 error('Failed to generate response:', err);
                 const fallback = CONFIG.FALLBACK_RESPONSES[
