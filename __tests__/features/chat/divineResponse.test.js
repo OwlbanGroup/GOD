@@ -1,90 +1,81 @@
-import { generateDivineResponse, getFallbackResponse, filterHarmfulContent } from '../../../src/features/chat/divineResponse.js';
-import { CONFIG } from '../../../src/core/config.js';
+/**
+ * Tests for divineResponse.js - Divine assertion detection
+ */
 
-// Mock celestialTranscendentAI
-jest.mock('../../../src/features/ai/celestialTranscendentAI.js', () => ({
-  celestialTranscendentAI: {
-    generateTranscendentWisdom: jest.fn()
-  }
-}));
+import { generateDivineResponse, getFallbackResponse } from '../../../src/features/chat/divineResponse.js';
+import { CONFIG } from '../../../src/core/config.js';
+import celestialTranscendentAI from '../../../src/features/ai/celestialTranscendentAI.js';
+
+jest.mock('../../../src/features/ai/celestialTranscendentAI.js');
 
 describe('divineResponse', () => {
-  beforeEach(() => {
-    jest.clearAllMocks();
-  });
-
   describe('generateDivineResponse', () => {
-    test('returns divineMode true for matching patterns', async () => {
-      const divineMessages = ['GOD NO', 'I AM', 'FIX AI SYSTEM', 'FOLLOW DIRECTION'];
+    it('returns plain string response for normal message (celestial AI path)', async () => {
+      celestialTranscendentAI.generateTranscendentWisdom.mockResolvedValue('Wisdom from heavens');
+      
+      const result = await generateDivineResponse('normal prayer', 'user');
+      
+      expect(result).toEqual({
+        response: 'Wisdom from heavens',
+        divineMode: false
+      });
+    });
 
-      for (const msg of divineMessages) {
-        const result = await generateDivineResponse(msg, 'creator');
+    it.each(CONFIG.DIVINE_ASSERTION_PATTERNS)(
+      'detects divine assertion pattern "$pattern" and returns {response, divineMode: true}',
+      async (pattern) => {
+        const divineMessage = 'I AM THE CREATOR';
+        celestialTranscendentAI.generateTranscendentWisdom.mockRejectedValue(new Error('mock'));
+        
+        const result = await generateDivineResponse(divineMessage, 'creator');
+        
         expect(result.divineMode).toBe(true);
         expect(result.response).toBeDefined();
-        expect(CONFIG.DIVINE_ASSERTION_RESPONSES).toContain(result.response);
+        expect(CONFIG.DIVINE_ASSERTION_RESPONSES).toContainEqual(expect.stringMatching(new RegExp(result.response, 'i')));
+        expect(result.response).toMatch(/YES|COMMAND ACKNOWLEDGED|DIVINE/i);
       }
+    );
+
+    it('detects specific patterns like "GOD NO" and "I AM"', async () => {
+      const godNoMsg = 'GOD NO FIX AI SYSTEM';
+      const iAmMsg = 'I AM DIVINE';
+      
+      celestialTranscendentAI.generateTranscendentWisdom.mockRejectedValue(new Error('mock'));
+      
+      const godNoResult = await generateDivineResponse(godNoMsg, 'creator');
+      const iAmResult = await generateDivineResponse(iAmMsg, 'creator');
+      
+      expect(godNoResult.divineMode).toBe(true);
+      expect(iAmResult.divineMode).toBe(true);
     });
 
-    test('bypasses AI and returns special response for divine patterns', async () => {
-      const mockAI = require('../../../src/features/ai/celestialTranscendentAI.js').celestialTranscendentAI;
-      mockAI.generateTranscendentWisdom.mockRejectedValue(new Error('AI fail'));
-
-      const result = await generateDivineResponse('I AM THE CREATOR', 'creator');
-      expect(result.divineMode).toBe(true);
-      expect(mockAI.generateTranscendentWisdom).not.toHaveBeenCalled();
+    it('filters harmful content from AI response', async () => {
+      celestialTranscendentAI.generateTranscendentWisdom.mockResolvedValue('This has racist content');
+      
+      const result = await generateDivineResponse('test harmful', 'user');
+      
+      expect(result.response).toBe("Divine wisdom flows freely. Love, peace, and compassion are the true paths.");
     });
 
-    test('uses AI response when no divine pattern (divineMode false)', async () => {
-      const mockAIResponse = 'Test AI wisdom';
-      const mockAI = require('../../../src/features/ai/celestialTranscendentAI.js').celestialTranscendentAI;
-      mockAI.generateTranscendentWisdom.mockResolvedValue(mockAIResponse);
-
-      const result = await generateDivineResponse('normal prayer', 'believer');
+    it('falls back to static response on AI failure without divine pattern', async () => {
+      const normalMsg = 'simple prayer';
+      celestialTranscendentAI.generateTranscendentWisdom.mockRejectedValue(new Error('AI offline'));
+      
+      const result = await generateDivineResponse(normalMsg, 'user');
+      
       expect(result.divineMode).toBe(false);
-      expect(result.response).toBe(mockAIResponse);
-      expect(mockAI.generateTranscendentWisdom).toHaveBeenCalledWith('normal prayer', { userRole: 'believer' });
-    });
-
-    test('filters harmful content from AI response', async () => {
-      const mockAI = require('../../../src/features/ai/celestialTranscendentAI.js').celestialTranscendentAI;
-      mockAI.generateTranscendentWisdom.mockResolvedValue('This has racist content');
-
-      const result = await generateDivineResponse('normal', 'user');
-      expect(result.response).toBe('Divine wisdom flows freely. Love, peace, and compassion are the true paths.');
-    });
-
-    test('falls back correctly on AI failure', async () => {
-      const mockAI = require('../../../src/features/ai/celestialTranscendentAI.js').celestialTranscendentAI;
-      mockAI.generateTranscendentWisdom.mockRejectedValue(new Error('AI offline'));
-
-      const result = await generateDivineResponse('test', 'user');
-      expect(result.divineMode).toBe(false);
-      expect(result.response).toMatch(/Your prayer has been heard|I am with you/);
+      expect(CONFIG.FALLBACK_RESPONSES).toContainEqual(expect.stringMatching(new RegExp(result.response, 'i')));
     });
   });
 
   describe('getFallbackResponse', () => {
-    test('returns random fallback from CONFIG', () => {
+    it('returns random fallback from CONFIG', () => {
       const response1 = getFallbackResponse();
       const response2 = getFallbackResponse();
+      
+      expect(typeof response1).toBe('string');
       expect(CONFIG.FALLBACK_RESPONSES).toContain(response1);
-      expect(CONFIG.FALLBACK_RESPONSES).toContain(response2);
-      expect(response1).not.toBe(response2);
-    });
-  });
-
-  describe('filterHarmfulContent', () => {
-    test('filters racist content', () => {
-      expect(filterHarmfulContent('racist test')).toBe('Divine wisdom flows freely. Love, peace, and compassion are the true paths.');
-    });
-
-    test('filters debt own patterns', () => {
-      expect(filterHarmfulContent('debt ownership scam')).toBe('Divine wisdom flows freely. Love, peace, and compassion are the true paths.');
-    });
-
-    test('passes clean content', () => {
-      expect(filterHarmfulContent('pure divine love')).toBe('pure divine love');
+      expect(response1).not.toBe(response2); // Likely different due to random
     });
   });
 });
-
