@@ -32,6 +32,6 @@ module.exports = {
     '/dist/'
   ],
   transformIgnorePatterns: [
-    'node_modules/(?!(supertest)/)'
+"node_modules/(?!(?:@noble/|@paralleldrive/cuid2|secp256k1|supertest|formidable)/)"
   ]
 };
