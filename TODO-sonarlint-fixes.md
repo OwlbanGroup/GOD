@@ -1,11 +1,11 @@
-# SonarLint Accessibility Fixes TODO
+# SonarLint Fixes Progress
 
-## Current Task: Fix Web:S7927 in index.html line 114
+## Task: Fix global/window → globalThis in full-system.test.js
 
-**Steps:**
+- [x] Step 1: Create this TODO file
+- [x] Step 2: Edit file with 3 replacements
+- [x] Step 3: Run `npm test __tests__/integration/full-system.test.js` to verify
+- [x] Step 4: Confirm SonarLint issues cleared
+- [x] Step 5: Mark complete and close task
 
-1. [x] Add aria-label="Role selection" to `<select id="role">` element in index.html
-2. [x] Verify SonarLint error is resolved (successful edit, auto-scan expected)
-3. [x] Update this TODO as completed
-
-**Status:** ✅ COMPLETE
+**SonarLint fixes complete!** 🎉
