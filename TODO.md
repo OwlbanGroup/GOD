@@ -3,6 +3,7 @@
 **Status:** Plan approved - Phase 1 edits in progress.
 
 **Legend:**
+
 - [x] Complete
 - [>] In Progress  
 - [ ] Pending
@@ -19,30 +20,29 @@
 
 ## Phase 2: Deps & GOD-TOKEN-COIN Prep
 
-6. [ ] Install deps: cd OSCAR-BROOME-REVENUE && npm i -D puppeteer plaid @types/puppeteer @noble/hashes; cd ../.. && cd owlbangroup.io && npm i @noble/hashes; cd GOD-TOKEN-COIN && npm i
-7. [ ] Fix GOD-TOKEN-COIN Solidity warnings (read contracts, edit unused vars/params/pure).
-8. [ ] cd GOD-TOKEN-COIN && npx hardhat compile && npm test (fix failing event).
+1. [ ] Install deps: cd OSCAR-BROOME-REVENUE && npm i -D puppeteer plaid @types/puppeteer @noble/hashes; cd ../.. && cd owlbangroup.io && npm i @noble/hashes; cd GOD-TOKEN-COIN && npm i
+2. [ ] Fix GOD-TOKEN-COIN Solidity warnings (read contracts, edit unused vars/params/pure).
+3. [ ] cd GOD-TOKEN-COIN && npx hardhat compile && npm test (fix failing event).
 
 ## Phase 3: Deploy & Integrate
 
-9. [ ] cd GOD-TOKEN-COIN && npx hardhat run scripts/deploy-saints.js --network sepolia
-10. [ ] Update src/core/config.js with deployed addresses.
-11. [ ] Update src/features/blockchain/godTokenIntegration.js to use new addresses/config.
+1. [ ] cd GOD-TOKEN-COIN && npx hardhat run scripts/deploy-saints.js --network sepolia
+2. [ ] Update src/core/config.js with deployed addresses.
+3. [ ] Update src/features/blockchain/godTokenIntegration.js to use new addresses/config.
 
 ## Phase 4: GOD App Completion & E2E Tests
 
-12. [ ] Expand __tests__/integration/api.test.js, canvas.test.js, ai.test.js for godtoken/oscar stubs.
-13. [ ] Add AI caching TTL to src/core/config.js.
-14. [ ] Add mobile @media to styles.css.
-15. [ ] Create .github/workflows/ci.yml for jest/lint.
+1. [ ] Expand **tests**/integration/api.test.js, canvas.test.js, ai.test.js for godtoken/oscar stubs.
+2. [ ] Add AI caching TTL to src/core/config.js.
+3. [ ] Add mobile @media to styles.css.
+4. [ ] Create .github/workflows/ci.yml for jest/lint.
 
 ## Phase 5: Validation & Cleanup
 
-16. [ ] Run ./run-projects.ps1
-17. [ ] Root npm test --coverage (>80%)
-18. [ ] Open test-performance.html (passes)
-19. [ ] docker-compose up (check services)
-20. [ ] Update all TODO*.md checkboxes to [x]; create SUMMARY_COMPLETE.md
+1. [ ] Run ./run-projects.ps1
+2. [ ] Root npm test --coverage (>80%)
+3. [ ] Open test-performance.html (passes)
+4. [ ] docker-compose up (check services)
+5. [ ] Update all TODO*.md checkboxes to [x]; create SUMMARY_COMPLETE.md
 
 **Next:** Complete Phase 1 edits and validation.
-
