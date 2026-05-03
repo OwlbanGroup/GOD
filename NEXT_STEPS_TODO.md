@@ -5,8 +5,8 @@ Status: Approved - DO IT ALL NOW. Updated as completed.
 ## 1. Jest Fixes - OSCAR-BROOME-REVENUE & owlbangroup.io (High Priority)
 
 ### OSCAR-BROOME-REVENUE (from TODO_PROGRESS.md)
-- [ ] 2. Create quantum/quantumAIWallet.js stub
-- [ ] 3. Create public/js/biometric-auth.js stub  
+- [x] 2. Create quantum/quantumAIWallet.js stub
+- [x] 3. Create public/js/biometric-auth.js stub
 - [ ] 4. Fix tests/quantum_ai_wallet.test.js
 - [ ] 5. Fix tests/quantumSecurity.test.js (vitest → jest)
 - [ ] 6. Mock localhost/timeout tests/pwa.test.js
@@ -16,7 +16,7 @@ Status: Approved - DO IT ALL NOW. Updated as completed.
 - [ ] 7. ESM/CJS fixes in quantum_transaction_engine.test.js etc.
 - [ ] 8. Update jest.config.mjs transformIgnorePatterns
 - [ ] 9. Mock import.meta in pwa-basic.test.js
-- [ ] 10. Mock biometric-auth.js
+- [x] 10. Mock biometric-auth.js
 - [ ] npm test
 
 ## 2. GOD-TOKEN-COIN Deploy (Parallel)
