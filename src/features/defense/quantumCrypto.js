@@ -82,18 +82,17 @@ class QuantumCrypto {
         }
     }
 
-    async encrypt(data, keyId = 'master') {
+async encrypt(data, keyId = 'master') {
+        if (!this.isActive) {
+            throw new Error('Quantum crypto is not active - cannot encrypt');
+        }
+
+        const keyData = this.keys.get(keyId);
+        if (!keyData) {
+            throw new Error('Encryption key not found');
+        }
+
         try {
-            if (!this.isActive) {
-                warn('Quantum crypto not active');
-                return data;
-            }
-
-            const keyData = this.keys.get(keyId);
-            if (!keyData) {
-                throw new Error('Encryption key not found');
-            }
-
             const key = await window.crypto.subtle.importKey(
                 'raw',
                 keyData,
@@ -111,30 +110,44 @@ class QuantumCrypto {
                 encodedData
             );
 
+            // Generate HMAC for integrity verification
+            const hmacKey = await window.crypto.subtle.importKey(
+                'raw',
+                keyData,
+                { name: 'HMAC', hash: 'SHA-256' },
+                false,
+                ['sign']
+            );
+            const hmacSignature = await window.crypto.subtle.sign(
+                'HMAC',
+                hmacKey,
+                encodedData
+            );
+
             return {
                 encrypted: Array.from(new Uint8Array(encrypted)),
                 iv: Array.from(iv),
                 algorithm: 'AES-256-GCM',
+                hmac: Array.from(new Uint8Array(hmacSignature)),
                 timestamp: new Date().toISOString()
             };
         } catch (err) {
             error('Quantum encryption failed:', err);
-            return data;
+            throw new Error('Encryption failed: ' + err.message);
         }
     }
 
-    async decrypt(encryptedData, keyId = 'master') {
+async decrypt(encryptedData, keyId = 'master') {
+        if (!this.isActive) {
+            throw new Error('Quantum crypto is not active - cannot decrypt');
+        }
+
+        const keyData = this.keys.get(keyId);
+        if (!keyData) {
+            throw new Error('Decryption key not found');
+        }
+
         try {
-            if (!this.isActive) {
-                warn('Quantum crypto not active');
-                return encryptedData;
-            }
-
-            const keyData = this.keys.get(keyId);
-            if (!keyData) {
-                throw new Error('Decryption key not found');
-            }
-
             const key = await window.crypto.subtle.importKey(
                 'raw',
                 keyData,
@@ -149,11 +162,31 @@ class QuantumCrypto {
                 new Uint8Array(encryptedData.encrypted)
             );
 
+            // Verify HMAC integrity if present
+            if (encryptedData.hmac) {
+                const hmacKey = await window.crypto.subtle.importKey(
+                    'raw',
+                    keyData,
+                    { name: 'HMAC', hash: 'SHA-256' },
+                    false,
+                    ['verify']
+                );
+                const isValid = await window.crypto.subtle.verify(
+                    'HMAC',
+                    hmacKey,
+                    new Uint8Array(encryptedData.hmac),
+                    decrypted
+                );
+                if (!isValid) {
+                    throw new Error('HMAC integrity verification failed - data may be tampered');
+                }
+            }
+
             const decoder = new TextDecoder();
             return JSON.parse(decoder.decode(decrypted));
         } catch (err) {
             error('Quantum decryption failed:', err);
-            return encryptedData;
+            throw new Error('Decryption failed: ' + err.message);
         }
     }
 
@@ -207,9 +240,42 @@ class QuantumCrypto {
         }
     }
 
-    verifySignature(data, signature) {
-        // In a real implementation, this would verify against a public key
-        return signature && signature.length === 32;
+async verifySignature(data, expectedHmac) {
+        if (!expectedHmac || !Array.isArray(expectedHmac)) {
+            return false;
+        }
+
+        try {
+            const encoder = new TextEncoder();
+            const dataBuffer = encoder.encode(JSON.stringify(data));
+            
+            // Get the stored key for verification
+            const keyData = this.keys.get('master');
+            if (!keyData) {
+                warn('No master key available for verification');
+                return false;
+            }
+
+            const hmacKey = await window.crypto.subtle.importKey(
+                'raw',
+                keyData,
+                { name: 'HMAC', hash: 'SHA-256' },
+                false,
+                ['verify']
+            );
+
+            const isValid = await window.crypto.subtle.verify(
+                'HMAC',
+                hmacKey,
+                new Uint8Array(expectedHmac),
+                dataBuffer
+            );
+
+            return isValid;
+        } catch (err) {
+            warn('Signature verification failed:', err);
+            return false;
+        }
     }
 
     getStatus() {
