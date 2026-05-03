@@ -12,6 +12,111 @@ const PORT = process.env.PORT || 3000;
 const HOST = process.env.HOST || '0.0.0.0';
 const NODE_ENV = process.env.NODE_ENV || 'development';
 
+// ============================================================================
+// Server-Side Rate Limiting
+// ============================================================================
+
+// In-memory rate limit store (use Redis in production)
+const rateLimitStore = new Map();
+
+// Rate limit configuration
+const RATE_LIMIT_WINDOW_MS = 60000; // 1 minute window
+const RATE_LIMIT_MAX_REQUESTS = 10; // 10 requests per minute per IP
+
+/**
+ * Get client IP address from request
+ * @param {object} req - Express request object
+ * @returns {string} - Client IP address
+ */
+function getClientIp(req) {
+    // Check for forwarded header (when behind proxy)
+    const forwarded = req.headers['x-forwarded-for'];
+    if (forwarded) {
+        return forwarded.split(',')[0].trim();
+    }
+    return req.ip || req.connection.remoteAddress || 'unknown';
+}
+
+/**
+ * Server-side rate limiting middleware
+ * @param {object} req - Express request object
+ * @param {object} res - Express response object
+ * @param {function} next - Express next function
+ */
+function rateLimitMiddleware(req, res, next) {
+    const clientIp = getClientIp(req);
+    const now = Date.now();
+    
+    // Get or initialize client data
+    let clientData = rateLimitStore.get(clientIp);
+    
+    if (!clientData) {
+        // First request from this IP
+        clientData = {
+            attempts: 1,
+            firstAttempt: now,
+            lastAttempt: now
+        };
+        rateLimitStore.set(clientIp, clientData);
+        res.setHeader('X-RateLimit-Limit', RATE_LIMIT_MAX_REQUESTS);
+        res.setHeader('X-RateLimit-Remaining', RATE_LIMIT_MAX_REQUESTS - 1);
+        return next();
+    }
+    
+    // Clean old entries outside the window
+    if (now - clientData.lastAttempt > RATE_LIMIT_WINDOW_MS) {
+        // Window expired, reset
+        clientData = {
+            attempts: 1,
+            firstAttempt: now,
+            lastAttempt: now
+        };
+        rateLimitStore.set(clientIp, clientData);
+        res.setHeader('X-RateLimit-Limit', RATE_LIMIT_MAX_REQUESTS);
+        res.setHeader('X-RateLimit-Remaining', RATE_LIMIT_MAX_REQUESTS - 1);
+        return next();
+    }
+    
+    // Check if limit exceeded
+    if (clientData.attempts >= RATE_LIMIT_MAX_REQUESTS) {
+        const resetTime = Math.ceil((clientData.firstAttempt + RATE_LIMIT_WINDOW_MS - now) / 1000);
+        res.setHeader('X-RateLimit-Limit', RATE_LIMIT_MAX_REQUESTS);
+        res.setHeader('X-RateLimit-Remaining', 0);
+        res.setHeader('Retry-After', resetTime);
+        
+        warn(`Rate limit exceeded for IP: ${clientIp}`);
+        
+        return res.status(429).json({
+            error: 'Too Many Requests',
+            message: 'Rate limit exceeded. Please try again later.',
+            retryAfter: resetTime,
+            limit: RATE_LIMIT_MAX_REQUESTS,
+            window: '1 minute'
+        });
+    }
+    
+    // Increment attempts
+    clientData.attempts += 1;
+    clientData.lastAttempt = now;
+    rateLimitStore.set(clientIp, clientData);
+    
+    // Set rate limit headers
+    res.setHeader('X-RateLimit-Limit', RATE_LIMIT_MAX_REQUESTS);
+    res.setHeader('X-RateLimit-Remaining', RATE_LIMIT_MAX_REQUESTS - clientData.attempts);
+    
+    next();
+}
+
+// Periodic cleanup of old rate limit entries
+setInterval(() => {
+    const now = Date.now();
+    for (const [ip, data] of rateLimitStore.entries()) {
+        if (now - data.lastAttempt > RATE_LIMIT_WINDOW_MS) {
+            rateLimitStore.delete(ip);
+        }
+    }
+}, 5 * 60 * 1000); // Clean every 5 minutes
+
 // Server start time for uptime tracking
 const startTime = Date.now();
 
@@ -60,8 +165,8 @@ app.get('/ready', (req, res) => {
 // Middleware for parsing JSON
 app.use(express.json());
 
-// Contact endpoint for divine consultations
-app.post('/contact', async (req, res) => {
+// Contact endpoint for divine consultations (with rate limiting)
+app.post('/contact', rateLimitMiddleware, async (req, res) => {
   try {
     const { message } = req.body;
     if (!message) {

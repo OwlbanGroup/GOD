@@ -171,7 +171,7 @@ class Sanitizer {
         }
     }
 
-    /**
+/**
      * Validates a number input
      * @param {any} value - The value to validate
      * @param {number} min - Minimum allowed value
@@ -194,6 +194,199 @@ class Sanitizer {
         }
 
         return { valid: true, value: num, error: null };
+    }
+
+    /**
+     * Calculate password entropy
+     * @param {string} password - The password to calculate entropy for
+     * @returns {number} - Entropy in bits
+     */
+    static calculateEntropy(password) {
+        if (!password || password.length === 0) {
+            return 0;
+        }
+
+        let charsetSize = 0;
+
+        // Check character sets present
+        if (/[a-z]/.test(password)) charsetSize += 26;         // lowercase
+        if (/[A-Z]/.test(password)) charsetSize += 26;         // uppercase
+        if (/[0-9]/.test(password)) charsetSize += 10;        // digits
+        if (/[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]/.test(password)) charsetSize += 32; // special chars
+
+        if (charsetSize === 0) return 0;
+
+        // Entropy = length * log2(charsetSize)
+        return Math.floor(password.length * Math.log2(charsetSize));
+    }
+
+    /**
+     * Validates password complexity and entropy
+     * @param {string} password - The password to validate
+     * @returns {Object} - {valid: boolean, error: string, entropy: number, score: number}
+     */
+    static validatePassword(password) {
+        const errors = [];
+        const warnings = [];
+        let score = 0;
+
+        if (!password || typeof password !== 'string') {
+            return { valid: false, error: 'Password is required', entropy: 0, score: 0 };
+        }
+
+        // Minimum length check
+        if (password.length < 12) {
+            errors.push('Password must be at least 12 characters long');
+        } else {
+            score += 20;
+        }
+
+        if (password.length >= 16) {
+            score += 10;
+        }
+
+        // Uppercase check
+        if (!/[A-Z]/.test(password)) {
+            errors.push('Password must contain at least one uppercase letter');
+        } else {
+            score += 15;
+        }
+
+        // Lowercase check
+        if (!/[a-z]/.test(password)) {
+            errors.push('Password must contain at least one lowercase letter');
+        } else {
+            score += 15;
+        }
+
+        // Number check
+        if (!/[0-9]/.test(password)) {
+            errors.push('Password must contain at least one number');
+        } else {
+            score += 15;
+        }
+
+        // Special character check
+        if (!/[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]/.test(password)) {
+            errors.push('Password must contain at least one special character');
+        } else {
+            score += 15;
+        }
+
+        // Calculate entropy
+        const entropy = this.calculateEntropy(password);
+
+        // Minimum entropy requirement (40 bits is considered strong)
+        if (entropy < 40) {
+            errors.push(`Password entropy too low (${entropy} bits). Need at least 40 bits.`);
+        } else {
+            score += 10;
+        }
+
+        // Additional strength checks
+        if (entropy >= 60) {
+            score += 10;
+            warnings.push('Excellent entropy');
+        } else if (entropy >= 50) {
+            warnings.push('Good entropy');
+        }
+
+        // Check for common patterns to avoid
+        const commonPatterns = [
+            /123456/i, /password/i, /qwerty/i, /abc/i, /111/i, /000/,
+            /admin/i, /user/i, /love/i, /god/i
+        ];
+        
+        for (const pattern of commonPatterns) {
+            if (pattern.test(password)) {
+                warnings.push('Avoid common words or sequences');
+                score -= 10;
+                break;
+            }
+        }
+
+        // Check for repeated characters
+        if (/(.)\1{2,}/.test(password)) {
+            warnings.push('Avoid repeated characters');
+            score -= 5;
+        }
+
+        const isValid = errors.length === 0;
+        
+        return {
+            valid: isValid,
+            error: isValid ? null : errors.join('; '),
+            entropy: entropy,
+            score: Math.max(0, Math.min(100, score)),
+            warnings: warnings,
+            strength: entropy >= 60 ? 'strong' : entropy >= 40 ? 'medium' : 'weak'
+        };
+    }
+
+    /**
+     * Server-side rate limit check (for use with session/IP tracking)
+     * @param {string} ip - Client IP address
+     * @param {Map} rateLimitStore - In-memory store for rate limiting
+     * @param {number} maxAttempts - Maximum attempts allowed
+     * @param {number} windowMs - Time window in milliseconds
+     * @returns {Object} - {allowed: boolean, remaining: number, resetTime: number}
+     */
+    static checkServerRateLimit(ip, rateLimitStore, maxAttempts = 10, windowMs = 60000) {
+        if (!ip || !rateLimitStore) {
+            return { allowed: true, remaining: maxAttempts, resetTime: 0 };
+        }
+
+        const now = Date.now();
+        const clientData = rateLimitStore.get(ip);
+        
+        if (!clientData) {
+            // First request from this IP
+            rateLimitStore.set(ip, {
+                attempts: 1,
+                firstAttempt: now,
+                lastAttempt: now
+            });
+            return {
+                allowed: true,
+                remaining: maxAttempts - 1,
+                resetTime: now + windowMs
+            };
+        }
+
+        // Clean old entries outside the window
+        if (now - clientData.lastAttempt > windowMs) {
+            // Window expired, reset
+            rateLimitStore.set(ip, {
+                attempts: 1,
+                firstAttempt: now,
+                lastAttempt: now
+            });
+            return {
+                allowed: true,
+                remaining: maxAttempts - 1,
+                resetTime: now + windowMs
+            };
+        }
+
+        // Check if limit exceeded
+        if (clientData.attempts >= maxAttempts) {
+            return {
+                allowed: false,
+                remaining: 0,
+                resetTime: clientData.firstAttempt + windowMs
+            };
+        }
+
+        // Increment attempts
+        clientData.attempts += 1;
+        clientData.lastAttempt = now;
+        rateLimitStore.set(ip, clientData);
+
+        return {
+            allowed: true,
+            remaining: maxAttempts - clientData.attempts,
+            resetTime: clientData.firstAttempt + windowMs
+        };
     }
 }
 
