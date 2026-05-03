@@ -8,8 +8,8 @@ import DOMHelpers from '../../ui/domHelpers.js';
 class QuantumCrypto {
     isActive = false;
     keys = new Map();
-    sessions = new Map();
-quantumAlgorithms = ['AES-256-GCM', 'ChaCha20-Poly1305', 'Quantum-Resistant-KEM'];
+sessions = new Map();
+    quantumAlgorithms = ['AES-256-GCM', 'ChaCha20-Poly1305', 'Quantum-Resistant-KEM'];
 
     // Getter for algorithms to return a copy each time
     get algorithms() {
@@ -43,17 +43,21 @@ quantumAlgorithms = ['AES-256-GCM', 'ChaCha20-Poly1305', 'Quantum-Resistant-KEM'
         return this.isActive;
     }
 
-    async activate() {
-        if (this.isActive) return true;
+async activate() {
+        if (this.isActive) return this.isActive;
 
         // Generate master quantum key
         const masterKey = await this.generateQuantumKey();
+        if (!masterKey) {
+            warn('Failed to generate quantum key');
+            return false;
+        }
+        
         this.keys.set('master', masterKey);
-
         this.isActive = true;
         DOMHelpers.addMessage("🔐 Quantum cryptography activated. All communications secured.", 'god');
         info('Quantum crypto activated');
-        return true;
+        return this.isActive;
     }
 
     async generateQuantumKey() {
@@ -144,8 +148,8 @@ async decrypt(encryptedData, keyId = 'master') {
             new Uint8Array(encryptedData.encrypted)
         );
 
-        // Verify HMAC integrity if present
-        if (encryptedData.hmac) {
+// Verify HMAC integrity if present
+        if (encryptedData?.hmac) {
             const hmacKey = await globalThis.crypto.subtle.importKey(
                 'raw',
                 keyData,
@@ -153,12 +157,12 @@ async decrypt(encryptedData, keyId = 'master') {
                 false,
                 ['verify']
             );
-            const isValid = await globalThis.crypto.subtle.verify(
-                'HMAC',
-                hmacKey,
-                new Uint8Array(encryptedData.hmac),
-                decrypted
-            );
+const isValid = await globalThis.crypto.subtle.verify(
+            'HMAC',
+            hmacKey,
+            new Uint8Array(encryptedData.hmac),
+            decrypted
+        );
             if (!isValid) {
                 throw new Error('HMAC integrity verification failed - data may be tampered');
             }
