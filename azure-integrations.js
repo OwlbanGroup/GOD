@@ -3,6 +3,83 @@ import { info, error, warn, debug } from '../utils/loggerWrapper.js';
 // azure-integrations.js - Azure Cloud Integrations for GOD Project
 // Integrates Azure OpenAI, Blob Storage, Functions, and other services
 
+/**
+ * Custom error class for Azure integration errors
+ * Provides detailed error information for troubleshooting
+ */
+class AzureIntegrationError extends Error {
+    constructor(message, service, statusCode = null, isRetryable = false) {
+        super(message);
+        this.name = 'AzureIntegrationError';
+        this.service = service;
+        this.statusCode = statusCode;
+        this.isRetryable = isRetryable;
+        this.timestamp = new Date().toISOString();
+    }
+}
+
+/**
+ * Retry configuration for network calls
+ */
+const RETRY_CONFIG = {
+    maxRetries: 3,
+    initialDelayMs: 1000,
+    maxDelayMs: 5000,
+    backoffMultiplier: 2
+};
+
+/**
+ * Sleep utility for retry delays
+ * @param {number} ms - Milliseconds to sleep
+ * @returns {Promise<void>}
+ */
+function sleep(ms) {
+    return new Promise(resolve => setTimeout(resolve, ms));
+}
+
+/**
+ * Execute with retry logic
+ * @param {Function} asyncFn - Async function to execute
+ * @param {Object} options - Retry options
+ * @returns {Promise<any>} - Result of async function
+ */
+async function executeWithRetry(asyncFn, options = {}) {
+    const {
+        maxRetries = RETRY_CONFIG.maxRetries,
+        initialDelayMs = RETRY_CONFIG.initialDelayMs,
+        maxDelayMs = RETRY_CONFIG.maxDelayMs,
+        backoffMultiplier = RETRY_CONFIG.backoffMultiplier
+    } = options;
+
+    let lastError;
+    let delayMs = initialDelayMs;
+
+    for (let attempt = 0; attempt <= maxRetries; attempt++) {
+        try {
+            return await asyncFn();
+        } catch (err) {
+            lastError = err;
+            
+            // Determine if error is retryable
+            const isRetryable = err.statusCode === 429 || 
+                             err.statusCode >= 500 || 
+                             err.isRetryable ||
+                             err.code === 'ETIMEDOUT' ||
+                             err.code === 'ENOTFOUND';
+
+            if (!isRetryable || attempt === maxRetries) {
+                throw err;
+            }
+
+            warn(`Retry ${attempt + 1}/${maxRetries} after ${delayMs}ms:`, err.message);
+            await sleep(delayMs);
+            delayMs = Math.min(delayMs * backoffMultiplier, maxDelayMs);
+        }
+    }
+
+    throw lastError;
+}
+
 class AzureIntegrations {
     constructor() {
         this.config = {
@@ -42,11 +119,19 @@ class AzureIntegrations {
         }
     }
 
-    // Azure OpenAI Integration
+// Azure OpenAI Integration
     async generateDivineResponse(userMessage, userRole) {
-        if (!this.initialized) return null;
+        if (!this.initialized) {
+            throw new AzureIntegrationError(
+                'Azure integrations not initialized',
+                'OpenAI',
+                null,
+                false
+            );
+        }
 
-        try {
+        // Use retry logic for network calls
+        return executeWithRetry(async () => {
             const prompt = `You are God, responding to a ${userRole}'s prayer or message: "${userMessage}". Provide a wise, compassionate, divine response that aligns with spiritual teachings. Keep it under 100 words.`;
 
             const response = await fetch(`${this.config.openAI.endpoint}openai/deployments/${this.config.openAI.deploymentName}/chat/completions?api-version=${this.config.openAI.apiVersion}`, {
@@ -66,22 +151,33 @@ class AzureIntegrations {
             });
 
             if (!response.ok) {
-                throw new Error(`Azure OpenAI API error: ${response.status}`);
+                const isRetryable = response.status === 429 || response.status >= 500;
+                throw new AzureIntegrationError(
+                    `Azure OpenAI API error: ${response.status}`,
+                    'OpenAI',
+                    response.status,
+                    isRetryable
+                );
             }
 
             const data = await response.json();
             return data.choices[0].message.content.trim();
-        } catch (error) {
-            logger.error('Azure OpenAI error:', error);
-            return null;
-        }
+        }, { maxRetries: 3 });
     }
 
-    // Azure Blob Storage for Prayers
+// Azure Blob Storage for Prayers
     async savePrayerToBlob(prayerData) {
-        if (!this.initialized) return false;
+        if (!this.initialized) {
+            throw new AzureIntegrationError(
+                'Azure integrations not initialized',
+                'BlobStorage',
+                null,
+                false
+            );
+        }
 
-        try {
+        // Use retry logic for network calls
+        return executeWithRetry(async () => {
             const blobName = `prayer-${Date.now()}-${Math.random().toString(36).substring(2, 11)}.json`;
             const blobUrl = `https://${this.config.blobStorage.accountName}.blob.core.windows.net/${this.config.blobStorage.containerName}/${blobName}${this.config.blobStorage.sasToken}`;
 
@@ -94,24 +190,44 @@ class AzureIntegrations {
                 body: JSON.stringify(prayerData)
             });
 
-            return response.ok;
-        } catch (error) {
-            logger.warn('Azure Blob Storage save failed:', error);
-            return false;
-        }
+            if (!response.ok) {
+                const isRetryable = response.status === 429 || response.status >= 500;
+                throw new AzureIntegrationError(
+                    `Azure Blob Storage save failed: ${response.status}`,
+                    'BlobStorage',
+                    response.status,
+                    isRetryable
+                );
+            }
+
+            return true;
+        }, { maxRetries: 3 });
     }
 
     async loadPrayersFromBlob() {
-        if (!this.initialized) return [];
+        if (!this.initialized) {
+            throw new AzureIntegrationError(
+                'Azure integrations not initialized',
+                'BlobStorage',
+                null,
+                false
+            );
+        }
 
-        try {
+        // Use retry logic for network calls
+        return executeWithRetry(async () => {
             // First, list blobs in the container
             const listUrl = `https://${this.config.blobStorage.accountName}.blob.core.windows.net/${this.config.blobStorage.containerName}?restype=container&comp=list${this.config.blobStorage.sasToken}`;
             const listResponse = await fetch(listUrl);
 
             if (!listResponse.ok) {
-                logger.warn('Failed to list blobs:', listResponse.status);
-                return [];
+                const isRetryable = listResponse.status === 429 || listResponse.status >= 500;
+                throw new AzureIntegrationError(
+                    `Azure Blob Storage list failed: ${listResponse.status}`,
+                    'BlobStorage',
+                    listResponse.status,
+                    isRetryable
+                );
             }
 
             const listData = await listResponse.text();
@@ -133,17 +249,22 @@ class AzureIntegrations {
             }
 
             return prayers;
-        } catch (error) {
-            logger.warn('Azure Blob Storage load failed:', error);
-            return [];
-        }
+        }, { maxRetries: 3 });
     }
 
     // Azure Functions for Serverless Processing
     async processPrayerWithFunction(prayerText) {
-        if (!this.initialized) return null;
+        if (!this.initialized) {
+            throw new AzureIntegrationError(
+                'Azure integrations not initialized',
+                'Functions',
+                null,
+                false
+            );
+        }
 
-        try {
+        // Use retry logic for network calls
+        return executeWithRetry(async () => {
             const response = await fetch(`${this.config.functions.baseUrl}/ProcessPrayer`, {
                 method: 'POST',
                 headers: {
@@ -152,21 +273,33 @@ class AzureIntegrations {
                 body: JSON.stringify({ prayer: prayerText })
             });
 
-            if (response.ok) {
-                return await response.json();
+            if (!response.ok) {
+                const isRetryable = response.status === 429 || response.status >= 500;
+                throw new AzureIntegrationError(
+                    `Azure Functions call failed: ${response.status}`,
+                    'Functions',
+                    response.status,
+                    isRetryable
+                );
             }
-            return null;
-        } catch (error) {
-            logger.warn('Azure Functions call failed:', error);
-            return null;
-        }
+
+            return await response.json();
+        }, { maxRetries: 3 });
     }
 
     // Azure Cosmos DB for User Data
     async saveUserToCosmosDB(userData) {
-        if (!this.initialized) return false;
+        if (!this.initialized) {
+            throw new AzureIntegrationError(
+                'Azure integrations not initialized',
+                'CosmosDB',
+                null,
+                false
+            );
+        }
 
-        try {
+        // Use retry logic for network calls
+        return executeWithRetry(async () => {
             const response = await fetch(`${this.config.cosmosDB.endpoint}dbs/${this.config.cosmosDB.databaseId}/colls/${this.config.cosmosDB.containerId}/docs`, {
                 method: 'POST',
                 headers: {
@@ -176,17 +309,32 @@ class AzureIntegrations {
                 body: JSON.stringify(userData)
             });
 
-            return response.ok;
-        } catch (error) {
-            logger.warn('Azure Cosmos DB save failed:', error);
-            return false;
-        }
+            if (!response.ok) {
+                const isRetryable = response.status === 429 || response.status >= 500;
+                throw new AzureIntegrationError(
+                    `Azure Cosmos DB save failed: ${response.status}`,
+                    'CosmosDB',
+                    response.status,
+                    isRetryable
+                );
+            }
+
+            return true;
+        }, { maxRetries: 3 });
     }
 
     async loadUsersFromCosmosDB() {
-        if (!this.initialized) return [];
+        if (!this.initialized) {
+            throw new AzureIntegrationError(
+                'Azure integrations not initialized',
+                'CosmosDB',
+                null,
+                false
+            );
+        }
 
-        try {
+        // Use retry logic for network calls
+        return executeWithRetry(async () => {
             const response = await fetch(`${this.config.cosmosDB.endpoint}dbs/${this.config.cosmosDB.databaseId}/colls/${this.config.cosmosDB.containerId}/docs`, {
                 method: 'GET',
                 headers: {
@@ -194,15 +342,19 @@ class AzureIntegrations {
                 }
             });
 
-            if (response.ok) {
-                const data = await response.json();
-                return data.Documents || [];
+            if (!response.ok) {
+                const isRetryable = response.status === 429 || response.status >= 500;
+                throw new AzureIntegrationError(
+                    `Azure Cosmos DB load failed: ${response.status}`,
+                    'CosmosDB',
+                    response.status,
+                    isRetryable
+                );
             }
-            return [];
-        } catch (error) {
-            logger.warn('Azure Cosmos DB load failed:', error);
-            return [];
-        }
+
+            const data = await response.json();
+            return data.Documents || [];
+        }, { maxRetries: 3 });
     }
 
     // Azure Cognitive Services - Speech
