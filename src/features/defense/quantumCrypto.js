@@ -257,7 +257,7 @@ async verifySignature(data, expectedHmac) {
         info('Quantum crypto deactivated');
     }
 
-    // Quantum-resistant key exchange simulation
+// Quantum-resistant key exchange simulation
     async performKeyExchange(peerId) {
         // Simulate quantum-resistant key exchange
         const sharedSecret = await this.generateQuantumKey();
@@ -269,6 +269,146 @@ async verifySignature(data, expectedHmac) {
             publicKey,
             established: new Date().toISOString()
         };
+    }
+
+    // ===== KEY PERSISTENCE SYSTEM =====
+
+    /**
+     * Backup all keys to an encrypted file
+     * @param {string} password - Password to encrypt the backup
+     * @returns {Blob} - Encrypted key backup file
+     */
+    async backupKeys(password) {
+        if (!this.keys || this.keys.size === 0) {
+            throw new Error('No keys to backup');
+        }
+
+        // Create key backup data
+        const keyData = {
+            version: '1.0',
+            timestamp: new Date().toISOString(),
+            keys: Array.from(this.keys.entries())
+        };
+
+        // Encrypt with password-derived key
+        const encoder = new TextEncoder();
+        const keyBuffer = encoder.encode(JSON.stringify(keyData));
+        
+        // Derive key from password using PBKDF2
+        const salt = globalThis.crypto.getRandomValues(new Uint8Array(16));
+        const passwordKey = await globalThis.crypto.subtle.importKey(
+            'raw',
+            encoder.encode(password),
+            'PBKDF2',
+            false,
+            ['deriveKey']
+        );
+        
+        const derivedKey = await globalThis.crypto.subtle.deriveKey(
+            {
+                name: 'PBKDF2',
+                salt: salt,
+                iterations: 100000,
+                hash: 'SHA-256'
+            },
+            passwordKey,
+            { name: 'AES-GCM', length: 256 },
+            false,
+            ['encrypt', 'decrypt']
+        );
+
+        const iv = globalThis.crypto.getRandomValues(new Uint8Array(12));
+        const encrypted = await globalThis.crypto.subtle.encrypt(
+            { name: 'AES-GCM', iv: iv },
+            derivedKey,
+            keyBuffer
+        );
+
+        // Combine salt + iv + encrypted data
+        const combined = new Uint8Array(salt.length + iv.length + encrypted.byteLength);
+        combined.set(salt, 0);
+        combined.set(iv, salt.length);
+        combined.set(new Uint8Array(encrypted), salt.length + iv.length);
+
+        // Create downloadable blob
+        const blob = new Blob([combined], { type: 'application/octet-stream' });
+        info('Keys backed up successfully');
+        
+        return blob;
+    }
+
+    /**
+     * Restore keys from an encrypted backup file
+     * @param {File} file - The backup file
+     * @param {string} password - Password to decrypt
+     * @returns {boolean} - Success status
+     */
+    async restoreKeys(file, password) {
+        try {
+            const buffer = await file.arrayBuffer();
+            const data = new Uint8Array(buffer);
+
+            // Extract salt, iv, and encrypted data
+            const salt = data.slice(0, 16);
+            const iv = data.slice(16, 28);
+            const encrypted = data.slice(28);
+
+            // Derive key from password
+            const encoder = new TextEncoder();
+            const passwordKey = await globalThis.crypto.subtle.importKey(
+                'raw',
+                encoder.encode(password),
+                'PBKDF2',
+                false,
+                ['deriveKey']
+            );
+
+            const derivedKey = await globalThis.crypto.subtle.deriveKey(
+                {
+                    name: 'PBKDF2',
+                    salt: salt,
+                    iterations: 100000,
+                    hash: 'SHA-256'
+                },
+                passwordKey,
+                { name: 'AES-GCM', length: 256 },
+                false,
+                ['encrypt', 'decrypt']
+            );
+
+            // Decrypt
+            const decrypted = await globalThis.crypto.subtle.decrypt(
+                { name: 'AES-GCM', iv: iv },
+                derivedKey,
+                encrypted
+            );
+
+            // Parse restored data
+            const decoder = new TextDecoder();
+            const keyData = JSON.parse(decoder.decode(decrypted));
+
+            // Validate backup format
+            if (!keyData.version || !keyData.keys) {
+                throw new Error('Invalid backup file format');
+            }
+
+            // Restore keys
+            this.keys = new Map(keyData.keys);
+            info('Keys restored successfully:', this.keys.size, 'keys');
+            
+            return true;
+        } catch (err) {
+            error('Key restoration failed:', err);
+            throw new Error('Failed to restore keys - invalid password or corrupted file');
+        }
+    }
+
+    /**
+     * Get key count for display
+     * @returns {number}
+     */
+    getKeyCount() {
+        return this.keys ? this.keys.size : 0;
     }
 }
 
