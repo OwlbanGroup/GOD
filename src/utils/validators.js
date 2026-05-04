@@ -28,8 +28,8 @@ class Validators {
         return { valid: true, sanitized: sanitized };
     }
 
-    static validateRole(role) {
-        const validRoles = ['believer', 'priest', 'prophet', 'saint', 'angel', 'archangel'];
+static validateRole(role) {
+        const validRoles = ['believer', 'priest', 'prophet', 'saint', 'angel', 'archangel', 'angleCoder'];
         if (!role || !validRoles.includes(role)) {
             return { valid: false, error: 'Please select a valid role' };
         }

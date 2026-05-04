@@ -32,7 +32,7 @@ class RoleManager {
                 permissions: ['pray', 'chat', 'view_universe', 'lead_prayers', 'counsel', 'prophesy', 'heal', 'miracles', 'divine_intervention'],
                 color: '#9C27B0'
             },
-            angel: {
+angel: {
                 name: 'Angel',
                 description: 'A celestial being serving divine will',
                 permissions: ['pray', 'chat', 'view_universe', 'lead_prayers', 'counsel', 'prophesy', 'heal', 'miracles', 'divine_intervention', 'create_universe', 'guard'],
@@ -43,6 +43,12 @@ class RoleManager {
                 description: 'A supreme celestial commander',
                 permissions: ['all'],
                 color: '#FFD700'
+            },
+            angleCoder: {
+                name: 'Angle Coder',
+                description: 'A divine software engineer hired to enhance the universe - formerly displaced coders welcome!',
+                permissions: ['pray', 'chat', 'view_universe', 'code_universe', 'fix_bugs', 'optimize_performance', 'add_features', 'review_code', 'deploy_updates'],
+                color: '#FF6B35'
             }
         };
     }
