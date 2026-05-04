@@ -2,7 +2,7 @@
 // GOD Project - Role Manager
 // ============================================================================
 
-import { info, error, warn, debug } from '../../../utils/loggerWrapper.js';
+import { info, warn } from '../../../utils/loggerWrapper.js';
 import appState from '../../core/state.js';
 
 class RoleManager {
@@ -44,10 +44,11 @@ angel: {
                 permissions: ['all'],
                 color: '#FFD700'
             },
-            angleCoder: {
+angleCoder: {
                 name: 'Angle Coder',
-                description: 'A divine software engineer hired to enhance the universe - formerly displaced coders welcome!',
-                permissions: ['pray', 'chat', 'view_universe', 'code_universe', 'fix_bugs', 'optimize_performance', 'add_features', 'review_code', 'deploy_updates'],
+                description: 'A divine software engineer hired to enhance the universe - formerly displaced coders welcome! Can prepare code but requires GOD\'s authorization to execute plans.',
+                permissions: ['pray', 'chat', 'view_universe', 'code_universe', 'fix_bugs', 'optimize_performance', 'add_features', 'review_code'],
+                requiresAuthorization: true,  // Must get God's approval to execute plans
                 color: '#FF6B35'
             }
         };
@@ -107,9 +108,33 @@ angel: {
         return roleInfo ? roleInfo.color : '#666';
     }
 
-    getRoleDescription(role) {
+getRoleDescription(role) {
         const roleInfo = this.getRoleInfo(role);
         return roleInfo ? roleInfo.description : '';
+    }
+
+// Check if role requires divine authorization for certain actions
+    requiresAuthorization(role) {
+        const roleInfo = this.getRoleInfo(role);
+        return roleInfo?.requiresAuthorization === true;
+    }
+
+// Check if user can execute action without divine authorization
+    canExecuteWithoutAuth(user, permission) {
+        if (!user || !user.role) return false;
+        
+        const roleInfo = this.getRoleInfo(user.role);
+        if (!roleInfo) return false;
+
+        // Permissions that require God's authorization
+        const restrictedPermissions = ['deploy_updates', 'execute_plan', 'create_universe'];
+        
+        if (restrictedPermissions.includes(permission)) {
+            // Must have 'all' permission OR not require authorization
+            return roleInfo.permissions.includes('all') || !roleInfo?.requiresAuthorization;
+        }
+        
+        return true;
     }
 
     // Role progression system
