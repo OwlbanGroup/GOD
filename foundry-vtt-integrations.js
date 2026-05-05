@@ -3,6 +3,19 @@ import { info, error, warn, debug } from '../utils/loggerWrapper.js';
 // foundry-vtt-integrations.js - Foundry VTT Integrations for GOD Project
 // Connects the web app to Foundry Virtual Tabletop for divine RPG sessions
 
+/**
+ * Custom error class for Foundry VTT integration errors
+ */
+class FoundryVTTError extends Error {
+    constructor(message, operation, isRetryable = false) {
+        super(message);
+        this.name = 'FoundryVTTError';
+        this.operation = operation;
+        this.isRetryable = isRetryable;
+        this.timestamp = new Date().toISOString();
+    }
+}
+
 class FoundryVTTIntegrations {
     constructor() {
         this.config = {
@@ -20,9 +33,9 @@ class FoundryVTTIntegrations {
             logger.info('Initializing Foundry VTT integrations...');
             this.connect();
             return true;
-        } catch (error) {
-            logger.warn('Foundry VTT initialization failed:', error);
-            return false;
+        } catch (err) {
+            logger.error('Foundry VTT initialization failed:', err);
+            throw new FoundryVTTError(`Initialization failed: ${err.message}`, 'initialize', true);
         }
     }
 
