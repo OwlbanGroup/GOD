@@ -68,14 +68,14 @@ angleCoder: {
         const roleInfo = this.getRoleInfo(user.role);
         if (!roleInfo) return false;
 
-        return roleInfo.permissions.includes(permission) || roleInfo.permissions.includes('all');
+return roleInfo?.permissions?.includes(permission) || roleInfo?.permissions?.includes('all');
     }
 
     getUserPermissions(user) {
         if (!user || !user.role) return [];
 
         const roleInfo = this.getRoleInfo(user.role);
-        return roleInfo ? roleInfo.permissions : [];
+return roleInfo?.permissions || [];
     }
 
     canPerformAction(user, action) {
@@ -131,7 +131,7 @@ getRoleDescription(role) {
         
         if (restrictedPermissions.includes(permission)) {
             // Must have 'all' permission OR not require authorization
-            return roleInfo.permissions.includes('all') || !roleInfo?.requiresAuthorization;
+return roleInfo?.permissions?.includes('all') || !roleInfo?.requiresAuthorization;
         }
         
         return true;
