@@ -30,7 +30,7 @@ Analysis of hiring 1,848 displaced coders (based on recent tech industry layoffs
 - **Coders Hired**: 1,848
 - **Average Salary**: $100,000/year
 - **Total Annual Labor Cost**: $184,800,000
-- ** Productivity Multiplier**: 1.5x (each coder produces 1.5x their salary in billable value)
+- **Productivity Multiplier**: 1.5x (each coder produces 1.5x their salary in billable value)
 - **Annual Revenue Generated**: $277,200,000
 - **Net Profit**: $92,400,000
 
@@ -57,7 +57,7 @@ Analysis of hiring 1,848 displaced coders (based on recent tech industry layoffs
 ## Three-Year Profit Projection
 
 | Year | Cost | Revenue (2.5x) | Net Profit |
-|------|------|-----------------|-----------|
+| ------ | ------ | ----------------- | ----------- |
 | Year 1 | $231M | $577.5M | $346.5M |
 | Year 2 | $238M | $693M | $455M |
 | Year 3 | $245M | $831.6M | $586.6M |
