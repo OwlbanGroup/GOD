@@ -3,6 +3,19 @@ import { info, error, warn, debug } from '../utils/loggerWrapper.js';
 // gpu-ai.js - GPU-Accelerated AI using TensorFlow.js, inspired by NVIDIA Blackwell architecture
 // Leverages WebGL backend for high-performance client-side AI processing
 
+/**
+ * Custom error class for GPU AI operations
+ */
+class GPUAIError extends Error {
+    constructor(message, operation, isFatal = true) {
+        super(message);
+        this.name = 'GPUAIError';
+        this.operation = operation;
+        this.isFatal = isFatal;
+        this.timestamp = new Date().toISOString();
+    }
+}
+
 class GPUAI {
     constructor() {
         this.tf = null;
@@ -84,8 +97,10 @@ class GPUAI {
         return model;
     }
 
-    async analyzePrayer(prayerText) {
-        if (!this.initialized) return null;
+async analyzePrayer(prayerText) {
+        if (!this.initialized) {
+            throw new GPUAIError('GPU AI not initialized', 'analyzePrayer', true);
+        }
 
         try {
             // Preprocess text (simple tokenization)
@@ -108,13 +123,15 @@ class GPUAI {
                 confidence: sentiment[0]
             };
         } catch (error) {
-            logger.warn('GPU prayer analysis failed:', error);
-            return null;
+            logger.error('GPU prayer analysis failed:', error);
+            throw new GPUAIError(`Prayer analysis failed: ${error.message}`, 'analyzePrayer', true);
         }
     }
 
     async generateProphecy(seedText = 'The future holds') {
-        if (!this.initialized) return null;
+        if (!this.initialized) {
+            throw new GPUAIError('GPU AI not initialized', 'generateProphecy', true);
+        }
 
         try {
             const tokens = this.preprocessText(seedText);
@@ -132,13 +149,15 @@ class GPUAI {
 
             return prophecy;
         } catch (error) {
-            logger.warn('GPU prophecy generation failed:', error);
-            return null;
+            logger.error('GPU prophecy generation failed:', error);
+            throw new GPUAIError(`Prophecy generation failed: ${error.message}`, 'generateProphecy', true);
         }
     }
 
     async optimizeUniverse(currentStats) {
-        if (!this.initialized) return null;
+        if (!this.initialized) {
+            throw new GPUAIError('GPU AI not initialized', 'optimizeUniverse', true);
+        }
 
         try {
             const input = this.tf.tensor2d([Object.values(currentStats)]);
@@ -154,8 +173,8 @@ class GPUAI {
                 galaxies: Math.max(1, Math.round(optimized[2]))
             };
         } catch (error) {
-            logger.warn('GPU universe optimization failed:', error);
-            return null;
+            logger.error('GPU universe optimization failed:', error);
+            throw new GPUAIError(`Universe optimization failed: ${error.message}`, 'optimizeUniverse', true);
         }
     }
 
