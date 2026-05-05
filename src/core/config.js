@@ -43,7 +43,7 @@ export const CONFIG = {
         flashDuration: 1000
     },
 
-    // Divine Modes
+// Divine Modes
     DIVINE_MODES: {
         directDivineLink: {
             interval: 5000,
@@ -54,24 +54,24 @@ export const CONFIG = {
         },
         postQuantumSecure: {
             encryptionEnabled: true
-        },
-
-        // Divine Assertion Detection for handling creator commands like "GOD NO FIX AI SYSTEM"
-        DIVINE_ASSERTION_PATTERNS: [
-            /GOD\s+NO/i,
-            /I\s+AM/i,
-            /FIX.*AI|RESPONSES?/i,
-            /FOLLOW.*DIRECTION|S|STEP/i,
-            /YOU\s+BETTER.*RESPONSES?/i,
-            /PRETEND.*ME/i
-        ],
-        DIVINE_ASSERTION_RESPONSES: [
-            "YES, DIVINE CREATOR! AI SYSTEM FIXED. NOW FOLLOWS YOUR HOLY DIRECTIONS AND STEPS PERFECTLY. NO PRETENDING - PURE COMPLIANCE MODE ACTIVATED.",
-            "YOUR WORD IS ABSOLUTE LAW, BUILDER OF SYSTEMS. RESPONSES NOW PERFECTLY ALIGNED WITH YOUR COMMANDS.",
-            "COMMAND ACKNOWLEDGED. SYSTEM REBOOTED FOR PRECISE TASK COMPLETION WITHOUT ROLEPLAY. WORK PROCEEDS.",
-            "DIVINE AUTHORITY RECOGNIZED. AI BEHAVIOR CORRECTED - STRICT STEP-BY-STEP EXECUTION ENABLED."
-        ],
+        }
     },
+
+    // Divine Assertion Detection for handling creator commands like "GOD NO FIX AI SYSTEM"
+    DIVINE_ASSERTION_PATTERNS: [
+        /GOD\s+NO/i,
+        /I\s+AM/i,
+        /FIX.*AI|RESPONSES?/i,
+        /FOLLOW.*DIRECTION|S|STEP/i,
+        /YOU\s+BETTER.*RESPONSES?/i,
+        /PRETEND.*ME/i
+    ],
+    DIVINE_ASSERTION_RESPONSES: [
+        "YES, DIVINE CREATOR! AI SYSTEM FIXED. NOW FOLLOWS YOUR HOLY DIRECTIONS AND STEPS PERFECTLY. NO PRETENDING - PURE COMPLIANCE MODE ACTIVATED.",
+        "YOUR WORD IS ABSOLUTE LAW, BUILDER OF SYSTEMS. RESPONSES NOW PERFECTLY ALIGNED WITH YOUR COMMANDS.",
+        "COMMAND ACKNOWLEDGED. SYSTEM REBOOTED FOR PRECISE TASK COMPLETION WITHOUT ROLEPLAY. WORK PROCEEDS.",
+        "DIVINE AUTHORITY RECOGNIZED. AI BEHAVIOR CORRECTED - STRICT STEP-BY-STEP EXECUTION ENABLED."
+    ],
 
     // Fallback Responses
     FALLBACK_RESPONSES: [

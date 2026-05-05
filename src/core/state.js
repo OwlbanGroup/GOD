@@ -4,6 +4,12 @@
 
 import { info, error, warn, debug } from '../../utils/loggerWrapper.js';
 
+// Check if we're running in a browser environment with localStorage
+const isBrowser = typeof localStorage !== 'undefined';
+
+// In-memory storage fallback for Node.js environments
+const memoryStorage = new Map();
+
 class AppState {
     constructor() {
         this.prayers = [];
@@ -41,19 +47,32 @@ class AppState {
 
     safeLocalStorageGet(key, defaultValue) {
         try {
-            const item = localStorage.getItem(key);
-            return item ? JSON.parse(item) : defaultValue;
+            // Use localStorage in browser, fall back to memory storage in Node.js
+            if (isBrowser) {
+                const item = localStorage.getItem(key);
+                return item ? JSON.parse(item) : defaultValue;
+            } else {
+                // Use in-memory storage in Node.js environment
+                const item = memoryStorage.get(key);
+                return item !== undefined ? JSON.parse(item) : defaultValue;
+            }
         } catch (err) {
-            warn(`Failed to get ${key} from localStorage:`, err);
+            warn(`Failed to get ${key} from storage:`, err);
             return defaultValue;
         }
     }
 
     safeLocalStorageSet(key, value) {
         try {
-            localStorage.setItem(key, JSON.stringify(value));
+            // Use localStorage in browser, fall back to memory storage in Node.js
+            if (isBrowser) {
+                localStorage.setItem(key, JSON.stringify(value));
+            } else {
+                // Use in-memory storage in Node.js environment
+                memoryStorage.set(key, JSON.stringify(value));
+            }
         } catch (err) {
-            error(`Failed to set ${key} in localStorage:`, err);
+            error(`Failed to set ${key} in storage:`, err);
         }
     }
 

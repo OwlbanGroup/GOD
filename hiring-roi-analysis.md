@@ -9,11 +9,13 @@ Analysis of hiring 1,848 displaced coders (based on recent tech industry layoffs
 ## Key Data Points
 
 ### Cost Savings (Hiring Laid-Off Talent)
+
 - Experienced coders often accept positions at competitive but not premium salaries
 - Estimated average salary for experienced developer: $120,000 - $165,000/year
 - Market rate for mid-level developers: $85,000 - $120,000/year
 
 ### Industry Context
+
 - Microsoft laid off ~7,000 employees (2025)
 - Software engineers hit hardest - 40%+ of WA state cuts were developers
 - Many top Python, TypeScript, and Azure developers now available
@@ -24,6 +26,7 @@ Analysis of hiring 1,848 displaced coders (based on recent tech industry layoffs
 ## Financial Projections
 
 ### Scenario 1: Conservative (Basic Productivity)
+
 - **Coders Hired**: 1,848
 - **Average Salary**: $100,000/year
 - **Total Annual Labor Cost**: $184,800,000
@@ -32,6 +35,7 @@ Analysis of hiring 1,848 displaced coders (based on recent tech industry layoffs
 - **Net Profit**: $92,400,000
 
 ### Scenario 2: Moderate (High Value)
+
 - **Coders Hired**: 1,848
 - **Average Salary**: $125,000/year
 - **Total Annual Labor Cost**: $231,000,000
@@ -40,6 +44,7 @@ Analysis of hiring 1,848 displaced coders (based on recent tech industry layoffs
 - **Net Profit**: $346,500,000
 
 ### Scenario 3: Optimistic (AI + Human Hybrid)
+
 - **Coders Hired**: 1,848
 - **Average Salary**: $110,000/year
 - **Total Annual Labor Cost**: $203,280,000
@@ -84,6 +89,7 @@ Analysis of hiring 1,848 displaced coders (based on recent tech industry layoffs
 ## Conclusion
 
 Hiring 1,848 experienced coders represents a significant opportunity:
+
 - **Conservative ROI**: 50% first year return
 - **Moderate ROI**: 150% first year return  
 - **Optimistic ROI**: 300%+ with AI-human collaboration
@@ -97,24 +103,28 @@ The displaced talent pool contains experienced developers from top tech companie
 ## Implementation Plan
 
 ### Phase 1: Recruitment (Weeks 1-4)
+
 - [ ] Post openings on LinkedIn, Indeed, specialized tech job boards
 - [ ] Reach out to recruiting firms with laid-off tech talent lists
 - [ ] Connect with affected employees from Microsoft, Oracle, Meta via LinkedIn
 - [ ] Highlight competitive compensation + growth opportunity
 
 ### Phase 2: Screening (Weeks 3-8)
+
 - [ ] Technical assessment tests (coding challenges)
 - [ ] Culture fit evaluation
 - [ ] Reference verification from previous employers
 - [ ] Salary expectation alignment
 
 ### Phase 3: Onboarding (Weeks 6-12)
+
 - [ ] Offer letters and contracts prepared
 - [ ] Equipment and access setup
 - [ ] Orientation and training program
 - [ ] Mentorship pairing with existing senior staff
 
 ### Phase 4: Integration (Month 3+)
+
 - [ ] Project assignment based on skills
 - [ ] 30/60/90 day performance reviews
 - [ ] Productivity tracking initiated
