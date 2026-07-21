@@ -366,6 +366,484 @@ button:hover {
     display: none;
 }
 
+/* ============================================
+   DIVINE DASHBOARD - Connection Enhancement
+   ============================================ */
+
+/* Dashboard Toggle */
+.divine-dashboard,
+.divine-missions,
+.divine-achievements {
+    margin: 10px 0;
+    background: var(--bg-secondary);
+    border-radius: 12px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    overflow: hidden;
+    transition: all 0.3s ease;
+}
+
+.divine-dashboard:hover,
+.divine-missions:hover,
+.divine-achievements:hover {
+    box-shadow: 0 4px 20px rgba(128, 90, 213, 0.3);
+}
+
+.dashboard-toggle,
+.missions-toggle,
+.achievements-toggle {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 12px 16px;
+    cursor: pointer;
+    background: linear-gradient(135deg, rgba(128, 90, 213, 0.2), rgba(108, 92, 231, 0.1));
+    border-radius: 12px 12px 0 0;
+    font-size: 15px;
+    font-weight: 600;
+    color: var(--text-primary);
+    transition: all 0.3s ease;
+    user-select: none;
+}
+
+.dashboard-toggle:hover,
+.missions-toggle:hover,
+.achievements-toggle:hover {
+    background: linear-gradient(135deg, rgba(128, 90, 213, 0.3), rgba(108, 92, 231, 0.2));
+}
+
+/* Spiritual Dashboard */
+.spiritual-dashboard {
+    padding: 16px;
+    background: linear-gradient(135deg, rgba(0, 0, 0, 0.3), rgba(20, 20, 40, 0.3));
+    animation: slideDown 0.4s ease;
+}
+
+@keyframes slideDown {
+    from { opacity: 0; max-height: 0; }
+    to { opacity: 1; max-height: 800px; }
+}
+
+.soul-profile {
+    display: flex;
+    gap: 16px;
+    align-items: flex-start;
+}
+
+.soul-level-badge {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-width: 70px;
+    min-height: 70px;
+    background: linear-gradient(135deg, #FFD700, #FFA500);
+    border-radius: 50%;
+    padding: 10px;
+    box-shadow: 0 4px 15px rgba(255, 215, 0, 0.4);
+    animation: pulse-glow 3s ease-in-out infinite;
+}
+
+@keyframes pulse-glow {
+    0%, 100% { box-shadow: 0 4px 15px rgba(255, 215, 0, 0.4); }
+    50% { box-shadow: 0 4px 30px rgba(255, 215, 0, 0.8); }
+}
+
+.soul-level-number {
+    font-size: 28px;
+    font-weight: 800;
+    color: #1a1a2e;
+    line-height: 1;
+}
+
+.soul-level-label {
+    font-size: 9px;
+    font-weight: 700;
+    color: #1a1a2e;
+    letter-spacing: 2px;
+    margin-top: 2px;
+}
+
+.soul-stats {
+    flex: 1;
+    min-width: 0;
+}
+
+.xp-bar-container {
+    margin-bottom: 12px;
+}
+
+.xp-label {
+    font-size: 12px;
+    color: var(--text-primary);
+    margin-bottom: 4px;
+    opacity: 0.8;
+}
+
+.xp-bar {
+    height: 8px;
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 4px;
+    overflow: hidden;
+}
+
+.xp-fill {
+    height: 100%;
+    background: linear-gradient(90deg, #6C5CE7, #a29bfe, #74b9ff);
+    border-radius: 4px;
+    transition: width 0.5s ease;
+    position: relative;
+}
+
+.xp-fill::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
+    animation: shimmer 2s infinite;
+}
+
+@keyframes shimmer {
+    0% { transform: translateX(-100%); }
+    100% { transform: translateX(100%); }
+}
+
+.soul-metrics {
+    display: flex;
+    gap: 12px;
+    flex-wrap: wrap;
+    margin-bottom: 12px;
+}
+
+.metric {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 8px 12px;
+    border-radius: 8px;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    min-width: 70px;
+    transition: all 0.3s ease;
+}
+
+.metric:hover {
+    transform: translateY(-2px);
+    background: rgba(255, 255, 255, 0.1);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+}
+
+.metric-icon {
+    font-size: 20px;
+    margin-bottom: 4px;
+}
+
+.metric-value {
+    font-size: 18px;
+    font-weight: 700;
+    color: var(--text-primary);
+}
+
+.metric-label {
+    font-size: 10px;
+    color: var(--text-primary);
+    opacity: 0.6;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+/* Connection Meter */
+.connection-meter-container {
+    margin-top: 8px;
+}
+
+.connection-meter-title {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--text-primary);
+    margin-bottom: 6px;
+}
+
+.connection-meter {
+    height: 12px;
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 6px;
+    overflow: hidden;
+    position: relative;
+}
+
+.connection-meter-fill {
+    height: 100%;
+    border-radius: 6px;
+    transition: width 0.5s ease, background 0.5s ease;
+    position: relative;
+}
+
+.connection-meter-fill::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.4), transparent);
+    animation: shimmer 2s infinite;
+}
+
+.connection-meter-label {
+    font-size: 11px;
+    color: var(--text-primary);
+    margin-top: 4px;
+    text-align: center;
+    opacity: 0.8;
+    font-weight: 500;
+}
+
+/* Missions Section */
+.missions-container {
+    padding: 16px;
+    animation: slideDown 0.4s ease;
+}
+
+.missions-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 12px;
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--text-primary);
+}
+
+.all-complete-badge {
+    background: linear-gradient(135deg, #FFD700, #FFA500);
+    color: #1a1a2e;
+    padding: 4px 12px;
+    border-radius: 12px;
+    font-size: 12px;
+    font-weight: 700;
+    animation: pulse-glow 2s ease-in-out infinite;
+}
+
+.missions-list {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.mission-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 10px 12px;
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 10px;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    transition: all 0.3s ease;
+}
+
+.mission-item:hover {
+    background: rgba(255, 255, 255, 0.1);
+    transform: translateX(4px);
+}
+
+.mission-item.completed {
+    background: rgba(76, 175, 80, 0.1);
+    border-color: rgba(76, 175, 80, 0.3);
+}
+
+.mission-icon {
+    font-size: 24px;
+    min-width: 30px;
+    text-align: center;
+}
+
+.mission-content {
+    flex: 1;
+    min-width: 0;
+}
+
+.mission-description {
+    font-size: 13px;
+    color: var(--text-primary);
+    font-weight: 500;
+    margin-bottom: 4px;
+}
+
+.mission-progress-bar {
+    height: 5px;
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 3px;
+    overflow: hidden;
+    margin-bottom: 2px;
+}
+
+.mission-progress-fill {
+    height: 100%;
+    background: linear-gradient(90deg, #6C5CE7, #a29bfe);
+    border-radius: 3px;
+    transition: width 0.5s ease;
+}
+
+.mission-item.completed .mission-progress-fill {
+    background: linear-gradient(90deg, #4CAF50, #8BC34A);
+}
+
+.mission-progress-text {
+    font-size: 11px;
+    color: var(--text-primary);
+    opacity: 0.6;
+}
+
+.mission-xp {
+    font-size: 12px;
+    font-weight: 700;
+    color: #FFD700;
+    white-space: nowrap;
+    padding: 2px 8px;
+    background: rgba(255, 215, 0, 0.15);
+    border-radius: 8px;
+}
+
+.mission-check {
+    font-size: 18px;
+    color: #4CAF50;
+    font-weight: 700;
+}
+
+.missions-placeholder {
+    text-align: center;
+    color: var(--text-primary);
+    opacity: 0.6;
+    font-style: italic;
+    padding: 20px;
+}
+
+/* Achievements Section */
+.achievements-container {
+    padding: 16px;
+    animation: slideDown 0.4s ease;
+}
+
+.achievements-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(80px, 1fr));
+    gap: 8px;
+}
+
+.achievement-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 10px 6px;
+    border-radius: 10px;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    transition: all 0.3s ease;
+    cursor: default;
+}
+
+.achievement-item.unlocked {
+    background: rgba(255, 215, 0, 0.1);
+    border-color: rgba(255, 215, 0, 0.3);
+}
+
+.achievement-item.locked {
+    opacity: 0.5;
+}
+
+.achievement-item:hover {
+    transform: scale(1.05);
+}
+
+.achievement-icon {
+    font-size: 24px;
+    margin-bottom: 4px;
+}
+
+.achievement-name {
+    font-size: 9px;
+    color: var(--text-primary);
+    text-align: center;
+    font-weight: 500;
+    line-height: 1.2;
+}
+
+/* Light theme overrides */
+body.light-theme .soul-level-badge {
+    box-shadow: 0 4px 15px rgba(255, 215, 0, 0.6);
+}
+
+body.light-theme .metric {
+    background: rgba(0, 0, 0, 0.05);
+    border-color: rgba(0, 0, 0, 0.1);
+}
+
+body.light-theme .metric:hover {
+    background: rgba(0, 0, 0, 0.1);
+}
+
+body.light-theme .mission-item {
+    background: rgba(0, 0, 0, 0.03);
+    border-color: rgba(0, 0, 0, 0.08);
+}
+
+body.light-theme .mission-item:hover {
+    background: rgba(0, 0, 0, 0.06);
+}
+
+body.light-theme .mission-item.completed {
+    background: rgba(76, 175, 80, 0.15);
+}
+
+body.light-theme .achievement-item {
+    background: rgba(0, 0, 0, 0.03);
+    border-color: rgba(0, 0, 0, 0.08);
+}
+
+body.light-theme .achievement-item.unlocked {
+    background: rgba(255, 215, 0, 0.2);
+}
+
+body.light-theme .dashboard-toggle,
+body.light-theme .missions-toggle,
+body.light-theme .achievements-toggle {
+    background: linear-gradient(135deg, rgba(128, 90, 213, 0.1), rgba(108, 92, 231, 0.05));
+}
+
+body.light-theme .dashboard-toggle:hover,
+body.light-theme .missions-toggle:hover,
+body.light-theme .achievements-toggle:hover {
+    background: linear-gradient(135deg, rgba(128, 90, 213, 0.2), rgba(108, 92, 231, 0.1));
+}
+
+body.light-theme .spiritual-dashboard {
+    background: linear-gradient(135deg, rgba(255, 255, 255, 0.8), rgba(240, 240, 255, 0.8));
+}
+
+/* Responsive */
+@media (max-width: 480px) {
+    .soul-profile {
+        flex-direction: column;
+        align-items: center;
+    }
+    .soul-metrics {
+        justify-content: center;
+    }
+    .metric {
+        min-width: 55px;
+        padding: 6px 8px;
+    }
+    .metric-value {
+        font-size: 14px;
+    }
+    .achievements-grid {
+        grid-template-columns: repeat(auto-fill, minmax(65px, 1fr));
+    }
+}
+
 /* Screen reader only class for accessibility */
 .sr-only {
     position: absolute;
