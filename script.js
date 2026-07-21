@@ -1,4 +1,4 @@
-import { info, error, warn, debug } from '../utils/loggerWrapper.js';
+import { error } from '../utils/loggerWrapper.js';
 
 // ============================================================================
 // GOD Project - Enhanced Main Script with Security & Error Handling
@@ -464,7 +464,7 @@ function validateInput(name, role) {
  */
 function checkExistingUser(name) {
     const sanitizedName = Sanitizer.sanitizeInput(name);
-    const existingUser = registeredUsers.find(user => user.name === sanitizedName);
+    const existingUser = registeredUsers.some(user => user.name === sanitizedName);
     if (existingUser) {
         showRegistrationMessage('This name is already registered.', 'error');
         return true;
@@ -749,7 +749,8 @@ async function analyzePrayers() {
                 count: (themes.match(new RegExp(word, 'g')) || []).length 
             }));
 
-            analysisMessage = `AI Analysis: You've sent ${totalPrayers} prayers (${recentPrayers} in the last week). Common themes: ${themeCounts.filter(t => t.count > 0).map(t => `${t.word} (${t.count})`).join(', ')}. Your faith is growing stronger.`;
+            const themeStrings = themeCounts.filter(t => t.count > 0).map(t => t.word + ' (' + t.count + ')');
+            analysisMessage = `AI Analysis: You've sent ${totalPrayers} prayers (${recentPrayers} in the last week). Common themes: ${themeStrings.join(', ')}. Your faith is growing stronger.`;
         }
 
         addMessage(analysisMessage, 'god');
@@ -1348,7 +1349,7 @@ function routeMessage() {
 function updateBroadcastCount(count) {
     const element = document.getElementById('broadcastCountValue');
     if (element) {
-        element.textContent = parseInt(element.textContent) + count;
+        element.textContent = Number.parseInt(element.textContent) + count;
     }
 }
 
