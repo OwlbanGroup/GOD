@@ -2,7 +2,7 @@
 
 ## Steps
 - [x] 1. Create `src/features/spiritual-tracker.js` - DONE
-- [ ] 2. `sounds.js` - Add ambient soundscape (wind chimes, drone, nature)
+- [x] 2. `sounds.js` - Add ambient soundscape (wind chimes, drone, nature) - ALREADY IMPLEMENTED
 - [ ] 3. `universe.js` - Add triggerCelebration() for level-up/mission bursts
 - [ ] 4. `meditation.js` - Visual breathing animation + completion callback + ambient sync
 - [ ] 5. `divineResponse.js` - Soul-level personalization

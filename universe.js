@@ -1026,6 +1026,59 @@ class Universe {
         logger.info(`Caching ${enabled ? 'enabled' : 'disabled'}`);
     }
 
+    /**
+     * triggerCelebration - Visual burst effect for level-ups or mission completions
+     * @param {'levelup'|'mission'} type - Type of celebration
+     */
+    triggerCelebration(type = 'levelup') {
+        const particleCount = type === 'levelup' ? 40 : 25;
+        const colors = type === 'levelup'
+            ? [ [1, 0.84, 0, 1], [1, 0.92, 0.2, 1], [1, 0.75, 0, 1] ]  // Golds
+            : [ [0.3, 1, 0.3, 1], [0.5, 1, 0.5, 1], [0.2, 0.8, 0.2, 1] ]; // Greens
+
+        if (this.useWebGL) {
+            for (let i = 0; i < particleCount; i++) {
+                const angle = (Math.PI * 2 * i) / particleCount;
+                const dist = 50 + Math.random() * 100;
+                const x = this.canvas.width / 2 + Math.cos(angle) * dist;
+                const y = this.canvas.height / 2 + Math.sin(angle) * dist;
+                this.addParticle(x, y, 'star');
+                const p = this.particles[this.particles.length - 1];
+                if (p) {
+                    p.color = colors[i % colors.length];
+                    p.baseSize = type === 'levelup' ? 5 + Math.random() * 3 : 4 + Math.random() * 2;
+                    p.velocity = [Math.cos(angle) * 2, Math.sin(angle) * 2];
+                    p.life = 2;
+                }
+            }
+        } else {
+            // 2D fallback
+            const canvas = this.canvas;
+            for (let i = 0; i < particleCount; i++) {
+                const angle = (Math.PI * 2 * i) / particleCount;
+                const dist = 50 + Math.random() * 100;
+                const color = type === 'levelup' ? '#FFD700' : '#4CAF50';
+                this.celestialBodies.push({
+                    type: 'goldenStar',
+                    x: canvas.width / 2 + Math.cos(angle) * dist,
+                    y: canvas.height / 2 + Math.sin(angle) * dist,
+                    radius: type === 'levelup' ? 4 : 3,
+                    color: color
+                });
+            }
+        }
+
+        // Flash glow effect
+        const canvas = document.getElementById('universeCanvas');
+        if (canvas) {
+            const glowColor = type === 'levelup' ? '#FFD700' : '#4CAF50';
+            canvas.style.boxShadow = `0 0 40px ${glowColor}, 0 0 80px ${glowColor}`;
+            setTimeout(() => {
+                canvas.style.boxShadow = 'none';
+            }, 2000);
+        }
+    }
+
     // Phase 4: Transcendent Reality Engine
     setDimension(dimension) {
         this.currentDimension = dimension;
