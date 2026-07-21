@@ -606,6 +606,35 @@ document.addEventListener('DOMContentLoaded', ErrorHandler.wrapAsync(async funct
     // Initialize theme toggle
     initializeThemeToggle();
 
+    // Initialize Spiritual Dashboard Toggle
+    const dashboardToggle = document.getElementById('dashboardToggle');
+    const spiritualDashboard = document.getElementById('spiritualDashboard');
+    if (dashboardToggle && spiritualDashboard) {
+        dashboardToggle.addEventListener('click', ErrorHandler.wrapEventHandler(() => {
+            spiritualDashboard.classList.toggle('hidden');
+            const icon = document.getElementById('dashboardToggleIcon');
+            if (icon) icon.textContent = spiritualDashboard.classList.contains('hidden') ? '📊' : '📈';
+        }, 'Dashboard Toggle'));
+    }
+
+    // Initialize Missions Toggle
+    const missionsToggle = document.getElementById('missionsToggle');
+    const missionsContainer = document.getElementById('missionsContainer');
+    if (missionsToggle && missionsContainer) {
+        missionsToggle.addEventListener('click', ErrorHandler.wrapEventHandler(() => {
+            missionsContainer.classList.toggle('hidden');
+        }, 'Missions Toggle'));
+    }
+
+    // Initialize Achievements Toggle
+    const achievementsToggle = document.getElementById('achievementsToggle');
+    const achievementsContainer = document.getElementById('achievementsContainer');
+    if (achievementsToggle && achievementsContainer) {
+        achievementsToggle.addEventListener('click', ErrorHandler.wrapEventHandler(() => {
+            achievementsContainer.classList.toggle('hidden');
+        }, 'Achievements Toggle'));
+    }
+
     // Initialize inspiration and meditation
     if (inspirationManager) {
         inspirationManager.initialize();
@@ -1019,7 +1048,19 @@ async function processMessage(message, encryptedMessage) {
             setTimeout(() => {
                 addMessage('Divine Action: ' + commandResponse, 'god');
             }, 500);
+            // Track divine command usage
+            if (window.spiritualTracker) {
+                const commandKey = Object.keys(commandActions).find(cmd => message.toLowerCase().includes(cmd));
+                if (commandKey) {
+                    window.spiritualTracker.onDivineCommandUsed(commandKey);
+                }
+            }
             return;
+        }
+
+        // Track prayer sent
+        if (window.spiritualTracker) {
+            window.spiritualTracker.onPrayerSent();
         }
 
         // All divine guidance is now free and unconditional - no token requirements
