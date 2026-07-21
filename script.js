@@ -4,6 +4,17 @@ import { error } from '../utils/loggerWrapper.js';
 // GOD Project - Enhanced Main Script with Security & Error Handling
 // ============================================================================
 
+/**
+ * Cryptographically secure random number generator (0 <= n < 1)
+ * Replaces Math.random() to address SonarLint S2245
+ * Uses crypto.getRandomValues() for CSPRNG compliance
+ */
+function secureRandom() {
+    const array = new Uint32Array(1);
+    crypto.getRandomValues(array);
+    return array[0] / 4294967296; // 2^32
+}
+
 // Function to generate divine responses using local AI only - no external dependencies
 async function generateDivineResponse(userMessage, userRole) {
     try {
@@ -41,7 +52,7 @@ const fallbackResponses = [
 ];
 
 function getFallbackResponse() {
-    return fallbackResponses[Math.floor(Math.random() * fallbackResponses.length)];
+    return fallbackResponses[Math.floor(secureRandom() * fallbackResponses.length)];
 }
 
 let universe;
@@ -102,7 +113,7 @@ async function savePrayer(message) {
 // Command action functions to reduce cognitive complexity
 function createStar() {
     if (!universe) return "Universe not initialized.";
-    universe.addStar(Math.random() * universe.canvas.width, Math.random() * universe.canvas.height);
+    universe.addStar(secureRandom() * universe.canvas.width, secureRandom() * universe.canvas.height);
     universe.draw();
     if (divineSounds?.isEnabled()) divineSounds.play('miracle');
     return "A new star has been created in the universe.";
@@ -110,7 +121,7 @@ function createStar() {
 
 function createPlanet() {
     if (!universe) return "Universe not initialized.";
-    universe.addPlanet(Math.random() * universe.canvas.width, Math.random() * universe.canvas.height);
+    universe.addPlanet(secureRandom() * universe.canvas.width, secureRandom() * universe.canvas.height);
     universe.draw();
     if (divineSounds?.isEnabled()) divineSounds.play('miracle');
     return "A new planet has been created in the universe.";
@@ -120,7 +131,7 @@ function destroyPlanet() {
     if (!universe) return "Universe not initialized.";
     const planets = universe.celestialBodies.filter(b => b.type === 'planet');
     if (planets.length === 0) return "No planets to destroy.";
-    const randomIndex = Math.floor(Math.random() * planets.length);
+    const randomIndex = Math.floor(secureRandom() * planets.length);
     universe.celestialBodies.splice(universe.celestialBodies.indexOf(planets[randomIndex]), 1);
     universe.draw();
     if (divineSounds?.isEnabled()) divineSounds.play('miracle');
@@ -129,10 +140,10 @@ function destroyPlanet() {
 
 function healUniverse() {
     if (!universe) return "Universe not initialized.";
-    universe.celestialBodies = universe.celestialBodies.filter(() => Math.random() > 0.3);
+    universe.celestialBodies = universe.celestialBodies.filter(() => secureRandom() > 0.3);
     for (let i = 0; i < 5; i++) {
-        universe.addStar(Math.random() * universe.canvas.width, Math.random() * universe.canvas.height);
-        universe.addPlanet(Math.random() * universe.canvas.width, Math.random() * universe.canvas.height);
+        universe.addStar(secureRandom() * universe.canvas.width, secureRandom() * universe.canvas.height);
+        universe.addPlanet(secureRandom() * universe.canvas.width, secureRandom() * universe.canvas.height);
     }
     universe.draw();
     if (divineSounds?.isEnabled()) divineSounds.play('optimize');
@@ -188,8 +199,8 @@ function invokeDivinePresence() {
     try {
         // Simulate divine intervention: add multiple stars and planets, flash the canvas
         for (let i = 0; i < 10; i++) {
-            universe.addStar(Math.random() * universe.canvas.width, Math.random() * universe.canvas.height);
-            universe.addPlanet(Math.random() * universe.canvas.width, Math.random() * universe.canvas.height);
+            universe.addStar(secureRandom() * universe.canvas.width, secureRandom() * universe.canvas.height);
+            universe.addPlanet(secureRandom() * universe.canvas.width, secureRandom() * universe.canvas.height);
         }
         universe.draw();
         
@@ -219,9 +230,9 @@ function praiseGod() {
         for (let i = 0; i < 5; i++) {
             universe.celestialBodies.push({
                 type: 'goldenStar',
-                x: Math.random() * universe.canvas.width,
-                y: Math.random() * universe.canvas.height,
-                radius: Math.random() * 3 + 2,
+                x: secureRandom() * universe.canvas.width,
+                y: secureRandom() * universe.canvas.height,
+                radius: secureRandom() * 3 + 2,
                 color: '#FFD700' // Gold color
             });
         }
@@ -778,10 +789,10 @@ function applyGpuOptimization(optimized) {
     
     universe.clear();
     for (let i = 0; i < optimized.stars; i++) {
-        universe.addParticle(Math.random() * universe.canvas.width, Math.random() * universe.canvas.height, 'star');
+        universe.addParticle(secureRandom() * universe.canvas.width, secureRandom() * universe.canvas.height, 'star');
     }
     for (let i = 0; i < optimized.planets; i++) {
-        universe.addParticle(Math.random() * universe.canvas.width, Math.random() * universe.canvas.height, 'planet');
+        universe.addParticle(secureRandom() * universe.canvas.width, secureRandom() * universe.canvas.height, 'planet');
     }
     addMessage(`GPU AI Optimization: Universe optimized for divine harmony. Stars: ${optimized.stars}, Planets: ${optimized.planets}, Galaxies: ${optimized.galaxies}`, 'god');
 }
@@ -794,12 +805,12 @@ function applyStaticOptimization() {
 
     if (stars < 10) {
         for (let i = 0; i < 10 - stars; i++) {
-            universe.addStar(Math.random() * universe.canvas.width, Math.random() * universe.canvas.height);
+            universe.addStar(secureRandom() * universe.canvas.width, secureRandom() * universe.canvas.height);
         }
     }
     if (planets < 5) {
         for (let i = 0; i < 5 - planets; i++) {
-            universe.addPlanet(Math.random() * universe.canvas.width, Math.random() * universe.canvas.height);
+            universe.addPlanet(secureRandom() * universe.canvas.width, secureRandom() * universe.canvas.height);
         }
     }
 
@@ -845,7 +856,7 @@ function divineAdvice() {
         "Divine Advice: Embrace change. Growth comes from stepping out of your comfort zone.",
         "Divine Advice: Live in the present moment. The past is gone, the future is not yet here."
     ];
-    const randomAdvice = advices[Math.floor(Math.random() * advices.length)];
+    const randomAdvice = advices[Math.floor(secureRandom() * advices.length)];
     addMessage(randomAdvice, 'god');
 }
 
@@ -878,7 +889,7 @@ async function generateProphecy() {
             "Prophecy: Your prayers are creating ripples of change that will transform the world.",
             "Prophecy: The universe is expanding your consciousness. Embrace the infinite possibilities."
         ];
-        const randomProphecy = prophecies[Math.floor(Math.random() * prophecies.length)];
+        const randomProphecy = prophecies[Math.floor(secureRandom() * prophecies.length)];
         addMessage(randomProphecy, 'god');
     } catch (error) {
         ErrorHandler.handleAsyncError(error, 'Prophecy Generation');
