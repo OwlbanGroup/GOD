@@ -69,6 +69,7 @@
         <div class="prayer-sharing-section">
             <h3>🌟 Real-Time Prayer Community</h3>
             <div class="prayer-sharing-controls">
+                <label for="prayerShareInput" class="sr-only">Share your prayer with the community</label>
                 <input type="text" id="prayerShareInput" placeholder="Share your prayer with the community..." maxlength="500" aria-label="Prayer sharing input">
                 <label><input type="checkbox" id="publicPrayerToggle" checked> Public Prayer</label>
                 <button id="sharePrayerBtn">🙏 Share Prayer</button>
@@ -174,7 +175,7 @@
                     <div class="reality-controls">
                         <button id="enterVR">🥽 Enter VR</button>
                         <button id="enterAR">📱 Enter AR</button>
-                        <select id="dimensionSelector" title="Select Reality Dimension">
+<select id="dimensionSelector" title="Select Reality Dimension" aria-label="Select reality dimension">
                             <option value="2d">2D Reality</option>
                             <option value="3d">3D Reality</option>
                             <option value="4d">4D Reality</option>
@@ -211,6 +212,7 @@
                 <div class="phase6-controls">
                     <h3>Eternal Knowledge Repository</h3>
                     <div class="knowledge-controls">
+                        <label for="knowledgeQuery" class="sr-only">Search eternal knowledge</label>
                         <input type="text" id="knowledgeQuery" placeholder="Search eternal knowledge..." aria-label="Knowledge search query">
                         <button id="searchKnowledge">🔍 Search Knowledge</button>
                         <button id="aiCuration">🤖 AI Curation</button>
@@ -229,7 +231,7 @@
                     <div class="communication-controls">
                         <input type="text" id="broadcastMessage" placeholder="Enter divine message..." aria-label="Broadcast message">
                         <button id="realTimeBroadcast">📡 Real-Time Broadcast</button>
-                        <select id="languageSelector" title="Select language for translation">
+<select id="languageSelector" title="Select language for translation" aria-label="Select language for translation">
                             <option value="en">English</option>
                             <option value="es">Spanish</option>
                             <option value="fr">French</option>
@@ -317,9 +319,9 @@
     <script type="module" src="src/index.js"></script>
     
     <!-- Socket.IO for real-time features -->
-    <script src="https://cdn.socket.io/4.7.2/socket.io.min.js"></script>
+    <script src="https://cdn.socket.io/4.7.2/socket.io.min.js" integrity="sha384-mZLF4UVrpi/QTWPA7BjNPEnkIfRFn4ZEO3Qt/HFklTJBj/gBOV8G3HcKn4NfQblz" crossorigin="anonymous"></script>
 
     <!-- TensorFlow.js for GPU-accelerated AI, inspired by NVIDIA Blackwell -->
-    <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@4.15.0/dist/tf.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@4.15.0/dist/tf.min.js" integrity="sha384-h/XNDFVVo8fubLoOyBCXZW8B+OPOs7cpygLoTtS6f8DDTPRPCoFNMaE4JXtqrSWj" crossorigin="anonymous"></script>
 </body>
 </html>
