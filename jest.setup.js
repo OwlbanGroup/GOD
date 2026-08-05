@@ -4,11 +4,11 @@ require('@testing-library/jest-dom');
 // ============================================================================
 // Web Crypto API polyfill for jsdom (Node 24 provides webcrypto)
 // ============================================================================
-const { webcrypto } = require('crypto');
+const { webcrypto } = require('node:crypto');
 
 // Provide globalThis.crypto with subtle support
 // jsdom's crypto may be a non-writable getter, so use Object.defineProperty
-if (!globalThis.crypto || !globalThis.crypto.subtle) {
+if (!globalThis.crypto?.subtle) {
   try {
     Object.defineProperty(globalThis, 'crypto', {
       value: webcrypto,
@@ -21,11 +21,11 @@ if (!globalThis.crypto || !globalThis.crypto.subtle) {
 }
 
 // Provide TextEncoder/TextDecoder if not present
-if (typeof globalThis.TextEncoder === 'undefined') {
-  globalThis.TextEncoder = require('util').TextEncoder;
+if (globalThis.TextEncoder === undefined) {
+  globalThis.TextEncoder = require('node:util').TextEncoder;
 }
-if (typeof globalThis.TextDecoder === 'undefined') {
-  globalThis.TextDecoder = require('util').TextDecoder;
+if (globalThis.TextDecoder === undefined) {
+  globalThis.TextDecoder = require('node:util').TextDecoder;
 }
 
 // Create a more robust localStorage mock that simulates real behavior
