@@ -1,7 +1,7 @@
 // Universal Intelligence Manager - Beyond AI Control
 // Integrates Grabovoi codes, divine math, Blackwell GPU sim into GOD app
 
-import universalData from '../data/universal-intelligence.json' assert { type: 'json' };
+const universalData = require('../data/universal-intelligence.json');
 
 class UniversalIntelligence {
   static getGrabovoiCode(code) {

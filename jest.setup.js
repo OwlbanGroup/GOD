@@ -7,8 +7,17 @@ require('@testing-library/jest-dom');
 const { webcrypto } = require('crypto');
 
 // Provide globalThis.crypto with subtle support
+// jsdom's crypto may be a non-writable getter, so use Object.defineProperty
 if (!globalThis.crypto || !globalThis.crypto.subtle) {
-  globalThis.crypto = webcrypto;
+  try {
+    Object.defineProperty(globalThis, 'crypto', {
+      value: webcrypto,
+      writable: true,
+      configurable: true
+    });
+  } catch (e) {
+    globalThis.crypto = webcrypto;
+  }
 }
 
 // Provide TextEncoder/TextDecoder if not present
