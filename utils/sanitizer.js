@@ -1,4 +1,4 @@
-import { info, error, warn, debug } from '../utils/loggerWrapper.js';
+import { error } from '../utils/loggerWrapper.js';
 
 /**
  * Input Sanitization Utilities for GOD Project
@@ -48,10 +48,33 @@ class Sanitizer {
         }
 
         // Remove null bytes
-        sanitized = sanitized.replace(/\0/g, '');
+        sanitized = sanitized.replaceAll('\0', '');
 
         // Remove control characters except newlines and tabs
         sanitized = sanitized.replace(/[\x00-\x08\x0B\x0C\x0E-\x1F\x7F]/g, '');
+
+// Encode all angle brackets to neutralize any HTML tag formation
+        const amp = String.fromCodePoint(38); // '&' (built via code point to avoid tool entity-decoding)
+        sanitized = sanitized.replaceAll('<', amp + 'lt;').replaceAll('>', amp + 'gt;');
+
+        // Strip SQL injection keywords
+        const sqlPatterns = [
+            /\bDROP\s+TABLE\b/gi,
+            /\bDELETE\s+FROM\b/gi,
+            /\bINSERT\s+INTO\b/gi,
+            /\bUPDATE\s+\w+\s+SET\b/gi,
+            /\bALTER\s+TABLE\b/gi,
+            /\bCREATE\s+TABLE\b/gi,
+            /\bSELECT\s+\*\b/gi,
+            /\bUNION\s+SELECT\b/gi,
+            /\b--\b/g
+        ];
+        for (const pattern of sqlPatterns) {
+            sanitized = sanitized.replace(pattern, '');
+        }
+
+        // Strip path traversal attempts
+        sanitized = sanitized.replace(/\.\.[/\\]/g, '');
 
         return sanitized;
     }
@@ -61,27 +84,35 @@ class Sanitizer {
      * @param {string} name - The name to validate
      * @returns {Object} - {valid: boolean, sanitized: string, error: string}
      */
-    static validateName(name) {
-        // First check length before sanitization to catch too-long names
-        if (typeof name === 'string' && name.trim().length > 50) {
-            return { valid: false, sanitized: '', error: 'Name must be less than 50 characters' };
-        }
-
-        const sanitized = this.sanitizeInput(name, 50);
-
-        if (sanitized.length === 0) {
+static validateName(name) {
+        if (typeof name !== 'string') {
             return { valid: false, sanitized: '', error: 'Name cannot be empty' };
         }
 
-        if (sanitized.length < 2) {
-            return { valid: false, sanitized, error: 'Name must be at least 2 characters' };
+        const trimmed = name.trim();
+
+        if (trimmed.length === 0) {
+            return { valid: false, sanitized: '', error: 'Name cannot be empty' };
         }
 
-        // Allow letters, numbers, spaces, hyphens, and underscores
-        const nameRegex = /^[a-zA-Z0-9\s\-_]+$/;
-        if (!nameRegex.test(sanitized)) {
-            return { valid: false, sanitized, error: 'Name contains invalid characters' };
+        if (trimmed.length < 2) {
+            return { valid: false, sanitized: trimmed, error: 'Name must be at least 2 characters' };
         }
+
+        if (trimmed.length > 50) {
+            return { valid: false, sanitized: '', error: 'Name must be less than 50 characters' };
+        }
+
+        // Allow letters, numbers, spaces, hyphens, and underscores.
+        // Validate the raw input BEFORE sanitization so that otherwise-stripped
+        // dangerous characters (e.g. <script>) still cause rejection.
+        const nameRegex = /^[a-zA-Z0-9\s\-_]+$/;
+        if (!nameRegex.test(trimmed)) {
+            return { valid: false, sanitized: trimmed, error: 'Name contains invalid characters' };
+        }
+
+        // Sanitize the valid name for safe display/storage
+        const sanitized = this.sanitizeInput(trimmed, 50);
 
         return { valid: true, sanitized, error: null };
     }
@@ -127,15 +158,64 @@ class Sanitizer {
      * @param {any} data - The data to sanitize
      * @returns {string} - Sanitized JSON string
      */
-    static sanitizeForStorage(data) {
+static sanitizeForStorage(data) {
         try {
-            // Convert to JSON and back to remove any functions or undefined values
-            const cleaned = JSON.parse(JSON.stringify(data));
+            // Recursively strip functions and undefined values, deep-cloning in the process.
+            // This avoids relying on structuredClone (not available in all environments).
+            const cleaned = this.stripUnserializable(data, new WeakSet());
             return JSON.stringify(cleaned);
-        } catch (error) {
-            error('Error sanitizing data for storage:', error);
+        } catch (err) {
+            error('Error sanitizing data for storage:', err);
             return '{}';
         }
+    }
+
+    /**
+     * Recursively removes functions and undefined values from data,
+     * producing a deep clone safe for JSON.stringify.
+     * Throws on circular references so the caller can handle them gracefully.
+     * @param {any} value - The value to clean
+     * @param {WeakSet} seen - Set of already-visited objects (for cycle detection)
+     * @returns {any} - Cleaned, JSON-safe value
+     */
+    static stripUnserializable(value, seen) {
+        // Functions are not serializable - drop them
+        if (typeof value === 'function') {
+            return undefined;
+        }
+
+        // null and undefined are preserved as-is (undefined is filtered by callers)
+        if (value === null || typeof value !== 'object') {
+            return value;
+        }
+
+        // Detect circular references
+        if (seen.has(value)) {
+            throw new Error('Circular reference detected');
+        }
+        seen.add(value);
+
+        let result;
+        if (Array.isArray(value)) {
+            result = [];
+            for (const item of value) {
+                const cleanedItem = this.stripUnserializable(item, seen);
+                if (cleanedItem !== undefined) {
+                    result.push(cleanedItem);
+                }
+            }
+        } else {
+            result = {};
+            for (const key of Object.keys(value)) {
+                const cleanedItem = this.stripUnserializable(value[key], seen);
+                if (cleanedItem !== undefined) {
+                    result[key] = cleanedItem;
+                }
+            }
+        }
+
+        seen.delete(value);
+        return result;
     }
 
     /**
@@ -148,7 +228,7 @@ class Sanitizer {
     static checkRateLimit(key, maxAttempts = 10, windowMs = 60000) {
         const now = Date.now();
         const storageKey = `rateLimit_${key}`;
-        
+
         try {
             const data = localStorage.getItem(storageKey);
             const attempts = data ? JSON.parse(data) : [];
@@ -165,13 +245,13 @@ class Sanitizer {
             localStorage.setItem(storageKey, JSON.stringify(recentAttempts));
 
             return true;
-        } catch (error) {
-            error('Rate limit check error:', error);
+        } catch (err) {
+            error('Rate limit check error:', err);
             return true; // Allow on error to not block legitimate users
         }
     }
 
-/**
+    /**
      * Validates a number input
      * @param {any} value - The value to validate
      * @param {number} min - Minimum allowed value
@@ -179,9 +259,9 @@ class Sanitizer {
      * @returns {Object} - {valid: boolean, value: number, error: string}
      */
     static validateNumber(value, min = 0, max = Number.MAX_SAFE_INTEGER) {
-        const num = parseFloat(value);
+        const num = Number.parseFloat(value);
 
-        if (isNaN(num)) {
+        if (Number.isNaN(num)) {
             return { valid: false, value: 0, error: 'Invalid number' };
         }
 
@@ -211,8 +291,8 @@ class Sanitizer {
         // Check character sets present
         if (/[a-z]/.test(password)) charsetSize += 26;         // lowercase
         if (/[A-Z]/.test(password)) charsetSize += 26;         // uppercase
-        if (/[0-9]/.test(password)) charsetSize += 10;        // digits
-        if (/[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]/.test(password)) charsetSize += 32; // special chars
+        if (/\d/.test(password)) charsetSize += 10;        // digits
+        if (/[!@#$%^&*()_+\-=[\]{};':"\\|,.<>/?]/.test(password)) charsetSize += 32; // special chars
 
         if (charsetSize === 0) return 0;
 
@@ -225,104 +305,124 @@ class Sanitizer {
      * @param {string} password - The password to validate
      * @returns {Object} - {valid: boolean, error: string, entropy: number, score: number}
      */
-    static validatePassword(password) {
-        const errors = [];
-        const warnings = [];
-        let score = 0;
-
+static validatePassword(password) {
         if (!password || typeof password !== 'string') {
             return { valid: false, error: 'Password is required', entropy: 0, score: 0 };
         }
 
-        // Minimum length check
-        if (password.length < 12) {
-            errors.push('Password must be at least 12 characters long');
-        } else {
-            score += 20;
-        }
+        const errors = [];
+        const warnings = [];
+        let score = this.scoreRequirements(password, errors);
 
         if (password.length >= 16) {
             score += 10;
         }
 
-        // Uppercase check
-        if (!/[A-Z]/.test(password)) {
-            errors.push('Password must contain at least one uppercase letter');
-        } else {
-            score += 15;
-        }
-
-        // Lowercase check
-        if (!/[a-z]/.test(password)) {
-            errors.push('Password must contain at least one lowercase letter');
-        } else {
-            score += 15;
-        }
-
-        // Number check
-        if (!/[0-9]/.test(password)) {
-            errors.push('Password must contain at least one number');
-        } else {
-            score += 15;
-        }
-
-        // Special character check
-        if (!/[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]/.test(password)) {
-            errors.push('Password must contain at least one special character');
-        } else {
-            score += 15;
-        }
-
-        // Calculate entropy
         const entropy = this.calculateEntropy(password);
+        this.applyEntropyScore(entropy, errors, warnings, (points) => { score += points; });
 
-        // Minimum entropy requirement (40 bits is considered strong)
+        score += this.checkCommonPatterns(password, warnings);
+
+        const isValid = errors.length === 0;
+        const strength = this.getStrength(entropy);
+
+        return {
+            valid: isValid,
+            error: isValid ? null : errors.join('; '),
+            entropy,
+            score: Math.max(0, Math.min(100, score)),
+            warnings,
+            strength
+        };
+    }
+
+    /**
+     * Scores the password against the base complexity requirements
+     * @param {string} password - The password to score
+     * @param {string[]} errors - Array to collect unmet requirement errors
+     * @returns {number} - Points earned from satisfied requirements
+     */
+    static scoreRequirements(password, errors) {
+        const requirements = [
+            { test: (p) => p.length >= 12, error: 'Password must be at least 12 characters long', points: 20 },
+            { test: (p) => /[A-Z]/.test(p), error: 'Password must contain at least one uppercase letter', points: 15 },
+            { test: (p) => /[a-z]/.test(p), error: 'Password must contain at least one lowercase letter', points: 15 },
+            { test: (p) => /\d/.test(p), error: 'Password must contain at least one number', points: 15 },
+            { test: (p) => /[!@#$%^&*()_+\-=[\]{};':"\\|,.<>/?]/.test(p), error: 'Password must contain at least one special character', points: 15 }
+        ];
+
+        let score = 0;
+        for (const requirement of requirements) {
+            if (requirement.test(password)) {
+                score += requirement.points;
+            } else {
+                errors.push(requirement.error);
+            }
+        }
+        return score;
+    }
+
+    /**
+     * Applies entropy-based scores and warnings
+     * @param {number} entropy - Password entropy in bits
+     * @param {string[]} errors - Array to collect entropy errors
+     * @param {string[]} warnings - Array to collect entropy warnings
+     * @param {function} addScore - Callback to adjust the score
+     */
+    static applyEntropyScore(entropy, errors, warnings, addScore) {
         if (entropy < 40) {
             errors.push(`Password entropy too low (${entropy} bits). Need at least 40 bits.`);
         } else {
-            score += 10;
+            addScore(10);
         }
 
-        // Additional strength checks
         if (entropy >= 60) {
-            score += 10;
+            addScore(10);
             warnings.push('Excellent entropy');
         } else if (entropy >= 50) {
             warnings.push('Good entropy');
         }
+    }
 
-        // Check for common patterns to avoid
+    /**
+     * Detects common patterns and repeated characters in the password
+     * @param {string} password - The password to check
+     * @param {string[]} warnings - Array to collect pattern warnings
+     * @returns {number} - Penalty points (negative) for detected patterns
+     */
+    static checkCommonPatterns(password, warnings) {
+        let penalty = 0;
         const commonPatterns = [
             /123456/i, /password/i, /qwerty/i, /abc/i, /111/i, /000/,
             /admin/i, /user/i, /love/i, /god/i
         ];
-        
-        for (const pattern of commonPatterns) {
-            if (pattern.test(password)) {
-                warnings.push('Avoid common words or sequences');
-                score -= 10;
-                break;
-            }
+        if (commonPatterns.some((pattern) => pattern.test(password))) {
+            warnings.push('Avoid common words or sequences');
+            penalty -= 10;
         }
 
-        // Check for repeated characters
         if (/(.)\1{2,}/.test(password)) {
             warnings.push('Avoid repeated characters');
-            score -= 5;
+            penalty -= 5;
         }
 
-        const isValid = errors.length === 0;
-        
-        return {
-            valid: isValid,
-            error: isValid ? null : errors.join('; '),
-            entropy: entropy,
-            score: Math.max(0, Math.min(100, score)),
-            warnings: warnings,
-            strength: entropy >= 60 ? 'strong' : entropy >= 40 ? 'medium' : 'weak'
-        };
+        return penalty;
     }
 
+    /**
+     * Maps entropy to a human-readable strength label
+     * @param {number} entropy - Password entropy in bits
+     * @returns {string} - 'strong', 'medium', or 'weak'
+     */
+    static getStrength(entropy) {
+        if (entropy >= 60) {
+            return 'strong';
+        }
+        if (entropy >= 40) {
+            return 'medium';
+        }
+        return 'weak';
+    }
     /**
      * Server-side rate limit check (for use with session/IP tracking)
      * @param {string} ip - Client IP address
@@ -338,7 +438,7 @@ class Sanitizer {
 
         const now = Date.now();
         const clientData = rateLimitStore.get(ip);
-        
+
         if (!clientData) {
             // First request from this IP
             rateLimitStore.set(ip, {

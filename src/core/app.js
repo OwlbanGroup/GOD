@@ -2,20 +2,19 @@
 // GOD Project - Main Application Initialization
 // ============================================================================
 
-import { info, error, warn, debug } from '../../utils/loggerWrapper.js';
+import { info, error, warn } from '../../utils/loggerWrapper.js';
 import appState from './state.js';
-import CONFIG from './config.js';
 import { initializeChat } from '../features/chat/messageHandler.js';
 import { initializeRegistration } from '../features/registration/userRegistration.js';
 import { initializeCommands } from '../features/commands/commandParser.js';
 import { initializeAI } from '../features/ai/prayerAnalysis.js';
 import { initializeUI } from '../ui/domHelpers.js';
+import { initializeSpiritualTracker } from '../features/spiritual-tracker.js';
 
 class App {
-    constructor() {
-        this.universe = null;
-        this.initialized = false;
-    }
+    universe = null;
+    initialized = false;
+    spiritualTracker = null;
 
     async initialize() {
         try {
@@ -83,6 +82,29 @@ class App {
         initializeCommands();
         initializeAI();
         initializeUI();
+
+        // Initialize Spiritual Tracker (soul progress, missions, connection meter)
+        try {
+            const tracker = initializeSpiritualTracker();
+            if (tracker) {
+                this.spiritualTracker = tracker;
+                window.spiritualTracker = tracker;
+                // Wire meditation completion to spiritual tracker
+                if (window.meditationManager) {
+                    const originalStart = window.meditationManager.startSession.bind(window.meditationManager);
+                    window.meditationManager.startSession = function(sessionType) {
+                        originalStart(sessionType, function(minutes, type) {
+                            if (window.spiritualTracker) {
+                                window.spiritualTracker.onMeditationComplete(minutes, type);
+                            }
+                        });
+                    };
+                }
+            }
+            info('Spiritual Tracker initialized');
+        } catch (err) {
+            warn('Spiritual Tracker initialization failed:', err);
+        }
 
         // Initialize integrations
         await this.initializeIntegrations();

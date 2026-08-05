@@ -56,12 +56,12 @@ describe('Sanitizer', () => {
 
     test('should enforce max length', () => {
       const longString = 'a'.repeat(2000);
-      expect(Sanitizer.sanitizeInput(longString, 100).length).toBe(100);
+      expect(Sanitizer.sanitizeInput(longString, 100)).toHaveLength(100);
     });
 
     test('should use default max length of 1000', () => {
       const longString = 'a'.repeat(2000);
-      expect(Sanitizer.sanitizeInput(longString).length).toBe(1000);
+      expect(Sanitizer.sanitizeInput(longString)).toHaveLength(1000);
     });
 
     test('should handle non-string input', () => {
@@ -90,22 +90,16 @@ describe('Sanitizer', () => {
   });
 
   describe('validateName', () => {
-    test('should accept valid names', () => {
-      const result = Sanitizer.validateName('John Doe');
+    test.each([
+      ['John Doe', 'John Doe'],
+      ['User123', 'User123'],
+      ['Mary-Jane', 'Mary-Jane'],
+      ['user_name', 'user_name']
+    ])('should accept valid name "%s"', (input, expected) => {
+      const result = Sanitizer.validateName(input);
       expect(result.valid).toBe(true);
-      expect(result.sanitized).toBe('John Doe');
+      expect(result.sanitized).toBe(expected);
       expect(result.error).toBeNull();
-    });
-
-    test('should accept names with numbers', () => {
-      const result = Sanitizer.validateName('User123');
-      expect(result.valid).toBe(true);
-      expect(result.sanitized).toBe('User123');
-    });
-
-    test('should accept names with hyphens and underscores', () => {
-      expect(Sanitizer.validateName('Mary-Jane').valid).toBe(true);
-      expect(Sanitizer.validateName('user_name').valid).toBe(true);
     });
 
     test('should reject empty names', () => {

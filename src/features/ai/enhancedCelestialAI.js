@@ -7,7 +7,7 @@ import { info, error, debug } from '../../../utils/loggerWrapper.js';
 import divineAdvice from './divineAdvice.js';
 import prayerAnalysis from './prayerAnalysis.js';
 import prophecyGenerator from './prophecyGenerator.js';
-import UniversalIntelligence from './universal-intelligence.js';
+import UniversalIntelligence from '../universal-intelligence.js';
 import appState from '../../core/state.js';
 import CONFIG from '../../core/config.js';
 import DOMHelpers from '../../ui/domHelpers.js';

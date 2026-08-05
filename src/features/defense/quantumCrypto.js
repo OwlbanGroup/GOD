@@ -2,7 +2,7 @@
 // GOD Project - Quantum Crypto
 // ============================================================================
 
-import { info, warn } from '../../../utils/loggerWrapper.js';
+import { info, warn, error } from '../../../utils/loggerWrapper.js';
 import DOMHelpers from '../../ui/domHelpers.js';
 
 class QuantumCrypto {
@@ -101,7 +101,8 @@ async encrypt(data, keyId = 'master') {
             encodedData
         );
 
-        // Generate HMAC for integrity verification
+// Generate HMAC over the ciphertext for integrity verification
+        // (verify ciphertext BEFORE decrypt to detect tampering reliably)
         const hmacKey = await globalThis.crypto.subtle.importKey(
             'raw',
             keyData,
@@ -112,7 +113,7 @@ async encrypt(data, keyId = 'master') {
         const hmacSignature = await globalThis.crypto.subtle.sign(
             'HMAC',
             hmacKey,
-            encodedData
+            encrypted
         );
 
         return {
@@ -134,6 +135,30 @@ async decrypt(encryptedData, keyId = 'master') {
             throw new Error('Decryption key not found');
         }
 
+const encryptedBytes = new Uint8Array(encryptedData.encrypted);
+
+        // Verify HMAC over the ciphertext BEFORE decrypting.
+        // This ensures tampered ciphertext is rejected with a clear
+        // integrity error instead of a generic AES-GCM OperationError.
+        if (encryptedData?.hmac) {
+            const hmacKey = await globalThis.crypto.subtle.importKey(
+                'raw',
+                keyData,
+                { name: 'HMAC', hash: 'SHA-256' },
+                false,
+                ['verify']
+            );
+            const isValid = await globalThis.crypto.subtle.verify(
+                'HMAC',
+                hmacKey,
+                new Uint8Array(encryptedData.hmac),
+                encryptedBytes
+            );
+            if (!isValid) {
+                throw new Error('HMAC integrity verification failed - data may be tampered');
+            }
+        }
+
         const key = await globalThis.crypto.subtle.importKey(
             'raw',
             keyData,
@@ -145,28 +170,8 @@ async decrypt(encryptedData, keyId = 'master') {
         const decrypted = await globalThis.crypto.subtle.decrypt(
             { name: 'AES-GCM', iv: new Uint8Array(encryptedData.iv) },
             key,
-            new Uint8Array(encryptedData.encrypted)
+            encryptedBytes
         );
-
-// Verify HMAC integrity if present
-        if (encryptedData?.hmac) {
-            const hmacKey = await globalThis.crypto.subtle.importKey(
-                'raw',
-                keyData,
-                { name: 'HMAC', hash: 'SHA-256' },
-                false,
-                ['verify']
-            );
-const isValid = await globalThis.crypto.subtle.verify(
-            'HMAC',
-            hmacKey,
-            new Uint8Array(encryptedData.hmac),
-            decrypted
-        );
-            if (!isValid) {
-                throw new Error('HMAC integrity verification failed - data may be tampered');
-            }
-        }
 
         const decoder = new TextDecoder();
         return JSON.parse(decoder.decode(decrypted));
@@ -185,8 +190,8 @@ const isValid = await globalThis.crypto.subtle.verify(
     }
 
     async secureCommunication(message, sessionId) {
-        const session = this.sessions.get(sessionId);
-        if (!session || !session.active) {
+const session = this.sessions.get(sessionId);
+        if (!session?.active) {
             throw new Error('Invalid session');
         }
 
@@ -198,13 +203,32 @@ const isValid = await globalThis.crypto.subtle.verify(
         };
     }
 
-    async createSignature(data) {
-        // Create a simple hash-based signature
-        const encoder = new TextEncoder();
-        const dataBuffer = encoder.encode(JSON.stringify(data) + Date.now());
-        const hash = await globalThis.crypto.subtle.digest('SHA-256', dataBuffer);
+async createSignature(data) {
+        // Use a keyed HMAC-SHA256 over the canonical message so the
+        // signature is deterministic and unforgeable without the master key.
+        const keyData = this.keys.get('master');
+        if (!keyData) {
+            warn('No master key available for signing');
+            throw new Error('Signature key not found');
+        }
 
-        return Array.from(new Uint8Array(hash));
+        const encoder = new TextEncoder();
+        const dataBuffer = encoder.encode(JSON.stringify(data));
+
+        const hmacKey = await globalThis.crypto.subtle.importKey(
+            'raw',
+            keyData,
+            { name: 'HMAC', hash: 'SHA-256' },
+            false,
+            ['sign']
+        );
+        const signature = await globalThis.crypto.subtle.sign(
+            'HMAC',
+            hmacKey,
+            dataBuffer
+        );
+
+        return Array.from(new Uint8Array(signature));
     }
 
 async verifySignature(data, expectedHmac) {
@@ -214,7 +238,7 @@ async verifySignature(data, expectedHmac) {
 
         const encoder = new TextEncoder();
         const dataBuffer = encoder.encode(JSON.stringify(data));
-        
+
         // Get the stored key for verification
         const keyData = this.keys.get('master');
         if (!keyData) {

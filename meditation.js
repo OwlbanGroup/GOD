@@ -46,9 +46,12 @@ class MeditationManager {
         this.isActive = false;
         this.currentStepIndex = 0;
         this.elapsedTime = 0;
+        this.onComplete = null; // Callback for session completion
+        this.breathingPhase = 'inhale'; // 'inhale' | 'hold' | 'exhale'
+        this.breathTimer = 0;
     }
 
-    startSession(sessionType) {
+    startSession(sessionType, onCompleteCallback) {
         if (this.isActive) this.stopSession();
 
         this.currentSession = this.sessions[sessionType];
@@ -57,12 +60,20 @@ class MeditationManager {
         this.isActive = true;
         this.currentStepIndex = 0;
         this.elapsedTime = 0;
+        this.breathTimer = 0;
+        this.breathingPhase = 'inhale';
+        this.onComplete = onCompleteCallback || null;
 
         this.updateDisplay();
         this.timer = setInterval(() => this.tick(), 1000);
 
         // Play gentle meditation sound
         if (divineSounds) divineSounds.play('advice');
+
+        // Start ambient soundscape
+        if (divineSounds && divineSounds.startAmbient) {
+            divineSounds.startAmbient();
+        }
 
         return true;
     }
@@ -74,11 +85,31 @@ class MeditationManager {
         }
         this.isActive = false;
         this.currentSession = null;
+        this.breathTimer = 0;
+        this.onComplete = null;
         this.updateDisplay();
+
+        // Stop ambient soundscape
+        if (divineSounds && divineSounds.stopAmbient) {
+            divineSounds.stopAmbient();
+        }
     }
 
     tick() {
         this.elapsedTime++;
+        this.breathTimer++;
+
+        // Advance breathing phase every 4 seconds (for 4-count breathing)
+        if (this.breathTimer >= 4) {
+            this.breathTimer = 0;
+            if (this.breathingPhase === 'inhale') {
+                this.breathingPhase = 'hold';
+            } else if (this.breathingPhase === 'hold') {
+                this.breathingPhase = 'exhale';
+            } else {
+                this.breathingPhase = 'inhale';
+            }
+        }
 
         // Check if we need to advance to next step
         const currentStep = this.currentSession.steps[this.currentStepIndex];
@@ -94,9 +125,19 @@ class MeditationManager {
     }
 
     completeSession() {
+        const sessionType = this.currentSession ? this.currentSession.name.toLowerCase() : 'meditation';
+        const elapsedMinutes = Math.max(1, Math.floor(this.elapsedTime / 60));
+        const callback = this.onComplete;
+        const type = sessionType;
+
         this.stopSession();
         addMessage('Meditation session complete. May divine peace remain with you.', 'god');
         if (divineSounds) divineSounds.play('praise');
+
+        // Invoke completion callback for spiritual tracker
+        if (callback && typeof callback === 'function') {
+            callback(elapsedMinutes, type);
+        }
     }
 
     updateDisplay() {
@@ -111,9 +152,20 @@ class MeditationManager {
         const progress = (this.elapsedTime / this.currentSession.duration) * 100;
         const currentStep = this.currentSession.steps[this.currentStepIndex];
 
+        // Breathing animation: expand on inhale, contract on exhale
+        const breathScale = this.breathingPhase === 'inhale'
+            ? 1.0 + (this.breathTimer / 4) * 0.4  // scale 1.0 → 1.4
+            : this.breathingPhase === 'hold'
+            ? 1.4
+            : 1.0 + (this.breathTimer / 4) * -0.4; // scale 1.4 → 1.0
+
         container.innerHTML = `
             <div class="meditation-session">
                 <h3>${this.currentSession.name}</h3>
+                <div class="breathing-circle-container">
+                    <div class="breathing-circle" style="transform: scale(${breathScale}); opacity: ${0.4 + (breathScale - 1.0) * 1.5};"></div>
+                    <div class="breathing-label">${this.breathingPhase.toUpperCase()}</div>
+                </div>
                 <div class="progress-bar">
                     <div class="progress-fill" style="width: ${progress}%"></div>
                 </div>

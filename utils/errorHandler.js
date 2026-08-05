@@ -8,26 +8,26 @@ import { info, error, warn, debug } from '../utils/loggerWrapper.js';
 class ErrorHandler {
     /**
      * Handles async operation errors with user-friendly messages
-     * @param {Error} error - The error object
+     * @param {Error} err - The error object
      * @param {string} context - Context where error occurred
      * @param {Function} fallbackFn - Optional fallback function to execute
      * @returns {any} - Result of fallback function or null
      */
-    static async handleAsyncError(error, context, fallbackFn = null) {
-        logger.error(`Error in ${context}:`, error);
+    static async handleAsyncError(err, context, fallbackFn = null) {
+        error(`Error in ${context}:`, err);
 
         // Log to external service if available (Azure Application Insights, etc.)
-        this.logError(error, context);
+        this.logError(err, context);
 
         // Show user-friendly message
-        this.showUserMessage(this.getUserFriendlyMessage(error, context), 'error');
+        this.showUserMessage(this.getUserFriendlyMessage(err, context), 'error');
 
         // Execute fallback if provided
         if (fallbackFn && typeof fallbackFn === 'function') {
             try {
                 return await fallbackFn();
             } catch (fallbackError) {
-                logger.error(`Fallback error in ${context}:`, fallbackError);
+                error(`Fallback error in ${context}:`, fallbackError);
                 return null;
             }
         }
@@ -46,19 +46,19 @@ class ErrorHandler {
         return async function(...args) {
             try {
                 return await fn.apply(this, args);
-            } catch (error) {
-                return ErrorHandler.handleAsyncError(error, context, fallbackFn);
+            } catch (err) {
+                return ErrorHandler.handleAsyncError(err, context, fallbackFn);
             }
         };
     }
 
     /**
      * Gets a user-friendly error message
-     * @param {Error} error - The error object
+     * @param {Error} err - The error object
      * @param {string} context - Context where error occurred
      * @returns {string} - User-friendly message
      */
-    static getUserFriendlyMessage(error, context) {
+    static getUserFriendlyMessage(err, context) {
         const errorMessages = {
             'AI Response': 'Unable to generate AI response. Using divine fallback.',
             'Prayer Save': 'Prayer saved locally but cloud sync failed.',
@@ -86,22 +86,22 @@ class ErrorHandler {
         if (typeof addMessage === 'function') {
             addMessage(`[${type.toUpperCase()}] ${message}`, 'god');
         } else {
-            logger.info(`[${type.toUpperCase()}] ${message}`);
+            info(`[${type.toUpperCase()}] ${message}`);
         }
     }
 
     /**
      * Logs error to external service (placeholder for Azure Application Insights, etc.)
-     * @param {Error} error - The error object
+     * @param {Error} err - The error object
      * @param {string} context - Context where error occurred
      */
-    static logError(error, context) {
+    static logError(err, context) {
         // Placeholder for external logging service
         const errorLog = {
             timestamp: new Date().toISOString(),
             context,
-            message: error.message,
-            stack: error.stack,
+            message: err.message,
+            stack: err.stack,
             userAgent: navigator.userAgent,
             url: window.location.href
         };
@@ -115,7 +115,7 @@ class ErrorHandler {
             }
             localStorage.setItem('errorLog', JSON.stringify(errors));
         } catch (storageError) {
-            logger.error('Failed to log error to localStorage:', storageError);
+            error('Failed to log error to localStorage:', storageError);
         }
 
         // TODO: Send to Azure Application Insights or other monitoring service
@@ -126,31 +126,31 @@ class ErrorHandler {
 
     /**
      * Handles WebGL/Canvas errors gracefully
-     * @param {Error} error - The error object
+     * @param {Error} err - The error object
      * @returns {boolean} - True if fallback should be used
      */
-    static handleWebGLError(error) {
-        logger.error('WebGL Error:', error);
+    static handleWebGLError(err) {
+        error('WebGL Error:', err);
         this.showUserMessage('Advanced graphics unavailable. Using standard 2D rendering.', 'warning');
         return true; // Signal to use fallback
     }
 
     /**
      * Handles network/API errors
-     * @param {Error} error - The error object
+     * @param {Error} err - The error object
      * @param {string} apiName - Name of the API
      * @returns {Object} - Error response object
      */
-    static handleNetworkError(error, apiName) {
-        logger.error(`Network error with ${apiName}:`, error);
+    static handleNetworkError(err, apiName) {
+        error(`Network error with ${apiName}:`, err);
         
         let message = `Connection to ${apiName} failed.`;
         
         if (!navigator.onLine) {
             message = 'No internet connection. Working in offline mode.';
-        } else if (error.message.includes('timeout')) {
+        } else if (err.message.includes('timeout')) {
             message = `${apiName} request timed out. Please try again.`;
-        } else if (error.message.includes('401') || error.message.includes('403')) {
+        } else if (err.message.includes('401') || err.message.includes('403')) {
             message = `Authentication failed with ${apiName}. Please check your credentials.`;
         }
 
@@ -173,8 +173,8 @@ class ErrorHandler {
             localStorage.setItem(test, test);
             localStorage.removeItem(test);
             return true;
-        } catch (error) {
-            if (error.name === 'QuotaExceededError') {
+        } catch (err) {
+            if (err.name === 'QuotaExceededError') {
                 this.showUserMessage('Storage quota exceeded. Please clear some data.', 'error');
             } else {
                 this.showUserMessage('Local storage unavailable. Data will not persist.', 'warning');
@@ -198,8 +198,8 @@ class ErrorHandler {
             const stringValue = typeof value === 'string' ? value : JSON.stringify(value);
             localStorage.setItem(key, stringValue);
             return true;
-        } catch (error) {
-            this.handleAsyncError(error, 'Local Storage Write');
+        } catch (err) {
+            this.handleAsyncError(err, 'Local Storage Write');
             return false;
         }
     }
@@ -227,8 +227,8 @@ class ErrorHandler {
             } catch {
                 return value;
             }
-        } catch (error) {
-            this.handleAsyncError(error, 'Local Storage Read');
+        } catch (err) {
+            this.handleAsyncError(err, 'Local Storage Read');
             return defaultValue;
         }
     }
@@ -257,8 +257,8 @@ class ErrorHandler {
         return function(event) {
             try {
                 return handler.call(this, event);
-            } catch (error) {
-                ErrorHandler.handleAsyncError(error, context);
+            } catch (err) {
+                ErrorHandler.handleAsyncError(err, context);
             }
         };
     }
@@ -271,14 +271,14 @@ class ErrorHandler {
             const errors = JSON.parse(localStorage.getItem('errorLog') || '[]');
             const oneDayAgo = Date.now() - (24 * 60 * 60 * 1000);
             
-            const recentErrors = errors.filter(error => {
-                const errorTime = new Date(error.timestamp).getTime();
+            const recentErrors = errors.filter(err => {
+                const errorTime = new Date(err.timestamp).getTime();
                 return errorTime > oneDayAgo;
             });
 
             localStorage.setItem('errorLog', JSON.stringify(recentErrors));
-        } catch (error) {
-            logger.error('Failed to clear old error logs:', error);
+        } catch (err) {
+            error('Failed to clear old error logs:', err);
         }
     }
 }
