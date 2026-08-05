@@ -53,15 +53,9 @@ class Sanitizer {
         // Remove control characters except newlines and tabs
         sanitized = sanitized.replace(/[\x00-\x08\x0B\x0C\x0E-\x1F\x7F]/g, '');
 
-// Neutralize HTML tags to prevent XSS (strip angle brackets)
-        const dangerousTags = /<\/?(?:script|style|iframe|object|embed|svg|form|input|button|a)[^>]*>/gi;
-        sanitized = sanitized.replace(dangerousTags, '');
-
-        // Strip inline event-handler attributes (e.g., onclick, onload) to prevent XSS
-        sanitized = sanitized.replace(/\s+on\w+\s*=\s*("[^"]*"|'[^']*'|[^\s>]*)/gi, '');
-
-        // Encode remaining angle brackets to prevent tag formation
-        sanitized = sanitized.replaceAll('<', '&lt;').replaceAll('>', '&gt;');
+// Encode all angle brackets to neutralize any HTML tag formation
+        const amp = String.fromCodePoint(38); // '&' (built via code point to avoid tool entity-decoding)
+        sanitized = sanitized.replaceAll('<', amp + 'lt;').replaceAll('>', amp + 'gt;');
 
         // Strip SQL injection keywords
         const sqlPatterns = [
@@ -90,27 +84,35 @@ class Sanitizer {
      * @param {string} name - The name to validate
      * @returns {Object} - {valid: boolean, sanitized: string, error: string}
      */
-    static validateName(name) {
-        // First check length before sanitization to catch too-long names
-        if (typeof name === 'string' && name.trim().length > 50) {
-            return { valid: false, sanitized: '', error: 'Name must be less than 50 characters' };
-        }
-
-        const sanitized = this.sanitizeInput(name, 50);
-
-        if (sanitized.length === 0) {
+static validateName(name) {
+        if (typeof name !== 'string') {
             return { valid: false, sanitized: '', error: 'Name cannot be empty' };
         }
 
-        if (sanitized.length < 2) {
-            return { valid: false, sanitized, error: 'Name must be at least 2 characters' };
+        const trimmed = name.trim();
+
+        if (trimmed.length === 0) {
+            return { valid: false, sanitized: '', error: 'Name cannot be empty' };
         }
 
-        // Allow letters, numbers, spaces, hyphens, and underscores
-        const nameRegex = /^[a-zA-Z0-9\s\-_]+$/;
-        if (!nameRegex.test(sanitized)) {
-            return { valid: false, sanitized, error: 'Name contains invalid characters' };
+        if (trimmed.length < 2) {
+            return { valid: false, sanitized: trimmed, error: 'Name must be at least 2 characters' };
         }
+
+        if (trimmed.length > 50) {
+            return { valid: false, sanitized: '', error: 'Name must be less than 50 characters' };
+        }
+
+        // Allow letters, numbers, spaces, hyphens, and underscores.
+        // Validate the raw input BEFORE sanitization so that otherwise-stripped
+        // dangerous characters (e.g. <script>) still cause rejection.
+        const nameRegex = /^[a-zA-Z0-9\s\-_]+$/;
+        if (!nameRegex.test(trimmed)) {
+            return { valid: false, sanitized: trimmed, error: 'Name contains invalid characters' };
+        }
+
+        // Sanitize the valid name for safe display/storage
+        const sanitized = this.sanitizeInput(trimmed, 50);
 
         return { valid: true, sanitized, error: null };
     }
@@ -158,8 +160,9 @@ class Sanitizer {
      */
 static sanitizeForStorage(data) {
         try {
-            // Remove functions and undefined values, then deep-clone with structuredClone
-            const cleaned = structuredClone(this.stripUnserializable(data));
+            // Recursively strip functions and undefined values, deep-cloning in the process.
+            // This avoids relying on structuredClone (not available in all environments).
+            const cleaned = this.stripUnserializable(data, new WeakSet());
             return JSON.stringify(cleaned);
         } catch (err) {
             error('Error sanitizing data for storage:', err);
@@ -168,30 +171,51 @@ static sanitizeForStorage(data) {
     }
 
     /**
-     * Recursively removes functions and undefined values from data
-     * (structuredClone cannot clone functions and drops undefined in properties)
+     * Recursively removes functions and undefined values from data,
+     * producing a deep clone safe for JSON.stringify.
+     * Throws on circular references so the caller can handle them gracefully.
      * @param {any} value - The value to clean
-     * @returns {any} - Cleaned value
+     * @param {WeakSet} seen - Set of already-visited objects (for cycle detection)
+     * @returns {any} - Cleaned, JSON-safe value
      */
-    static stripUnserializable(value) {
-        if (Array.isArray(value)) {
-            return value
-                .map((item) => this.stripUnserializable(item))
-                .filter((item) => item !== undefined);
+    static stripUnserializable(value, seen) {
+        // Functions are not serializable - drop them
+        if (typeof value === 'function') {
+            return undefined;
         }
 
-        if (value && typeof value === 'object') {
-            const result = {};
-            for (const key of Object.keys(value)) {
-                const item = this.stripUnserializable(value[key]);
-                if (item !== undefined) {
-                    result[key] = item;
+        // null and undefined are preserved as-is (undefined is filtered by callers)
+        if (value === null || typeof value !== 'object') {
+            return value;
+        }
+
+        // Detect circular references
+        if (seen.has(value)) {
+            throw new Error('Circular reference detected');
+        }
+        seen.add(value);
+
+        let result;
+        if (Array.isArray(value)) {
+            result = [];
+            for (const item of value) {
+                const cleanedItem = this.stripUnserializable(item, seen);
+                if (cleanedItem !== undefined) {
+                    result.push(cleanedItem);
                 }
             }
-            return result;
+        } else {
+            result = {};
+            for (const key of Object.keys(value)) {
+                const cleanedItem = this.stripUnserializable(value[key], seen);
+                if (cleanedItem !== undefined) {
+                    result[key] = cleanedItem;
+                }
+            }
         }
 
-        return value;
+        seen.delete(value);
+        return result;
     }
 
     /**
