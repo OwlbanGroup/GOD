@@ -1205,3 +1205,6 @@ if (typeof window !== 'undefined') {
         }
     });
 }
+
+// Export for module usage (tests, ES6 imports)
+export default Universe;

@@ -2,7 +2,7 @@
  * @jest-environment jsdom
  */
 
-const { default: ErrorHandler } = await import('../../utils/errorHandler.js');
+const ErrorHandler = require('../../utils/errorHandler.js');
 
 describe('ErrorHandler', () => {
   let originalLocation;

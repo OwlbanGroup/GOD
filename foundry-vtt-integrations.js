@@ -515,3 +515,6 @@ class FoundryVTTIntegrations {
 
 // Global instance
 const foundryVTT = new FoundryVTTIntegrations();
+
+// Export for module usage (tests, ES6 imports)
+export default foundryVTT;

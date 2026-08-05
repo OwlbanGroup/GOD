@@ -132,8 +132,8 @@ class Sanitizer {
             // Convert to JSON and back to remove any functions or undefined values
             const cleaned = JSON.parse(JSON.stringify(data));
             return JSON.stringify(cleaned);
-        } catch (error) {
-            error('Error sanitizing data for storage:', error);
+        } catch (err) {
+            error('Error sanitizing data for storage:', err);
             return '{}';
         }
     }
@@ -165,8 +165,8 @@ class Sanitizer {
             localStorage.setItem(storageKey, JSON.stringify(recentAttempts));
 
             return true;
-        } catch (error) {
-            error('Rate limit check error:', error);
+        } catch (err) {
+            error('Rate limit check error:', err);
             return true; // Allow on error to not block legitimate users
         }
     }

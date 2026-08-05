@@ -2,7 +2,7 @@
  * @jest-environment jsdom
  */
 
-const { default: universe } = await import('../../universe.js');
+const Universe = require('../../universe.js').default;
 
 // Mock canvas
 document.body.innerHTML = '<canvas id="universeCanvas"></canvas>';
@@ -10,6 +10,8 @@ const canvas = document.getElementById('universeCanvas');
 const ctx = canvas.getContext('2d');
 ctx.clearRect = jest.fn();
 ctx.fillRect = jest.fn();
+
+const universe = new Universe('universeCanvas');
 
 describe('Integration: Canvas/WebGL Rendering', () => {
   test('should initialize canvas correctly', () => {
@@ -24,3 +26,4 @@ describe('Integration: Canvas/WebGL Rendering', () => {
 
     expect(universe.celestialBodies.length).toBeGreaterThan(0);
   });
+});

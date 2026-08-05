@@ -416,3 +416,6 @@ class AzureIntegrations {
 
 // Global instance
 const azureIntegrations = new AzureIntegrations();
+
+// Export for module usage (tests, ES6 imports)
+export default azureIntegrations;

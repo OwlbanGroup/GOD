@@ -1,6 +1,24 @@
 // Add custom matchers
 require('@testing-library/jest-dom');
 
+// ============================================================================
+// Web Crypto API polyfill for jsdom (Node 24 provides webcrypto)
+// ============================================================================
+const { webcrypto } = require('crypto');
+
+// Provide globalThis.crypto with subtle support
+if (!globalThis.crypto || !globalThis.crypto.subtle) {
+  globalThis.crypto = webcrypto;
+}
+
+// Provide TextEncoder/TextDecoder if not present
+if (typeof globalThis.TextEncoder === 'undefined') {
+  globalThis.TextEncoder = require('util').TextEncoder;
+}
+if (typeof globalThis.TextDecoder === 'undefined') {
+  globalThis.TextDecoder = require('util').TextDecoder;
+}
+
 // Create a more robust localStorage mock that simulates real behavior
 class LocalStorageMock {
   constructor() {
