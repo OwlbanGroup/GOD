@@ -53,6 +53,18 @@ class Sanitizer {
         // Remove control characters except newlines and tabs
         sanitized = sanitized.replace(/[\x00-\x08\x0B\x0C\x0E-\x1F\x7F]/g, '');
 
+        // Neutralize HTML tags to prevent XSS (strip angle brackets)
+        sanitized = sanitized.replace(/<(\/?)(script|img|iframe|object|embed|svg|style|link|meta|form|input|button|a|body|html|head|javascript|onerror|onclick|onload)[^>]*>/gi, '');
+
+        // Encode remaining angle brackets to prevent tag formation
+        sanitized = sanitized.replace(/</g, '<').replace(/>/g, '>');
+
+        // Strip SQL injection keywords
+        sanitized = sanitized.replace(/\b(DROP\s+TABLE|DELETE\s+FROM|INSERT\s+INTO|UPDATE\s+\w+\s+SET|ALTER\s+TABLE|CREATE\s+TABLE|SELECT\s+\*|UNION\s+SELECT|--)\b/gi, '');
+
+        // Strip path traversal attempts
+        sanitized = sanitized.replace(/\.\.(\/|\\)/g, '');
+
         return sanitized;
     }
 
@@ -148,7 +160,7 @@ class Sanitizer {
     static checkRateLimit(key, maxAttempts = 10, windowMs = 60000) {
         const now = Date.now();
         const storageKey = `rateLimit_${key}`;
-        
+
         try {
             const data = localStorage.getItem(storageKey);
             const attempts = data ? JSON.parse(data) : [];
@@ -171,7 +183,7 @@ class Sanitizer {
         }
     }
 
-/**
+    /**
      * Validates a number input
      * @param {any} value - The value to validate
      * @param {number} min - Minimum allowed value
@@ -296,7 +308,7 @@ class Sanitizer {
             /123456/i, /password/i, /qwerty/i, /abc/i, /111/i, /000/,
             /admin/i, /user/i, /love/i, /god/i
         ];
-        
+
         for (const pattern of commonPatterns) {
             if (pattern.test(password)) {
                 warnings.push('Avoid common words or sequences');
@@ -312,7 +324,7 @@ class Sanitizer {
         }
 
         const isValid = errors.length === 0;
-        
+
         return {
             valid: isValid,
             error: isValid ? null : errors.join('; '),
@@ -338,7 +350,7 @@ class Sanitizer {
 
         const now = Date.now();
         const clientData = rateLimitStore.get(ip);
-        
+
         if (!clientData) {
             // First request from this IP
             rateLimitStore.set(ip, {
