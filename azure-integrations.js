@@ -1,4 +1,7 @@
-import { info, error, warn, debug } from '../utils/loggerWrapper.js';
+import { info, error, warn, debug } from './utils/loggerWrapper.js';
+
+// Logger alias for backward compatibility with existing logger.* calls
+const logger = { info, error, warn, debug };
 
 // azure-integrations.js - Azure Cloud Integrations for GOD Project
 // Integrates Azure OpenAI, Blob Storage, Functions, and other services

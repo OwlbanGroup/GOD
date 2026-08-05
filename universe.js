@@ -1,4 +1,7 @@
-import { info, error, warn, debug } from '../utils/loggerWrapper.js';
+import { info, error, warn, debug } from './utils/loggerWrapper.js';
+
+// Logger alias for backward compatibility with existing logger.* calls
+const logger = { info, error, warn, debug };
 
 /**
  * Universe Class - Complete Phase 3 Implementation

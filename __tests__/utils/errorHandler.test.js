@@ -62,6 +62,7 @@ describe('ErrorHandler', () => {
       await ErrorHandler.handleAsyncError(error, 'Test Context');
       
       expect(console.error).toHaveBeenCalledWith(
+        '[ERROR]',
         'Error in Test Context:',
         error
       );
@@ -92,6 +93,7 @@ describe('ErrorHandler', () => {
       
       expect(result).toBeNull();
       expect(console.error).toHaveBeenCalledWith(
+        '[ERROR]',
         'Fallback error in Test Context:',
         expect.any(Error)
       );
@@ -193,7 +195,7 @@ describe('ErrorHandler', () => {
       
       ErrorHandler.showUserMessage('Test message', 'info');
       
-      expect(consoleSpy).toHaveBeenCalledWith('[INFO] Test message');
+      expect(consoleSpy).toHaveBeenCalledWith('[INFO]', '[INFO] Test message');
       consoleSpy.mockRestore();
     });
 
@@ -288,7 +290,7 @@ describe('ErrorHandler', () => {
 
     test('should log error to console', () => {
       ErrorHandler.handleWebGLError(new Error('WebGL error'));
-      expect(console.error).toHaveBeenCalledWith('WebGL Error:', expect.any(Error));
+      expect(console.error).toHaveBeenCalledWith('[ERROR]', 'WebGL Error:', expect.any(Error));
     });
   });
 
