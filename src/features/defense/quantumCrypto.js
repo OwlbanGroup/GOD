@@ -190,8 +190,8 @@ const encryptedBytes = new Uint8Array(encryptedData.encrypted);
     }
 
     async secureCommunication(message, sessionId) {
-        const session = this.sessions.get(sessionId);
-        if (!session || !session.active) {
+const session = this.sessions.get(sessionId);
+        if (!session?.active) {
             throw new Error('Invalid session');
         }
 

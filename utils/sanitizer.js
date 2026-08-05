@@ -1,4 +1,4 @@
-import { info, error, warn, debug } from '../utils/loggerWrapper.js';
+import { error } from '../utils/loggerWrapper.js';
 
 /**
  * Input Sanitization Utilities for GOD Project
@@ -48,22 +48,36 @@ class Sanitizer {
         }
 
         // Remove null bytes
-        sanitized = sanitized.replace(/\0/g, '');
+        sanitized = sanitized.replaceAll('\0', '');
 
         // Remove control characters except newlines and tabs
         sanitized = sanitized.replace(/[\x00-\x08\x0B\x0C\x0E-\x1F\x7F]/g, '');
 
         // Neutralize HTML tags to prevent XSS (strip angle brackets)
-        sanitized = sanitized.replace(/<(\/?)(script|img|iframe|object|embed|svg|style|link|meta|form|input|button|a|body|html|head|javascript|onerror|onclick|onload)[^>]*>/gi, '');
+        const dangerousTags = /<\/?(script|style|iframe|object|embed|svg|img|input|form|link|meta|button|body|html|head|javascript|on\w+|a)[^>]*>/gi;
+        sanitized = sanitized.replace(dangerousTags, '');
 
         // Encode remaining angle brackets to prevent tag formation
-        sanitized = sanitized.replace(/</g, '<').replace(/>/g, '>');
+        sanitized = sanitized.replaceAll('<', '&lt;').replaceAll('>', '&gt;');
 
         // Strip SQL injection keywords
-        sanitized = sanitized.replace(/\b(DROP\s+TABLE|DELETE\s+FROM|INSERT\s+INTO|UPDATE\s+\w+\s+SET|ALTER\s+TABLE|CREATE\s+TABLE|SELECT\s+\*|UNION\s+SELECT|--)\b/gi, '');
+        const sqlPatterns = [
+            /\bDROP\s+TABLE\b/gi,
+            /\bDELETE\s+FROM\b/gi,
+            /\bINSERT\s+INTO\b/gi,
+            /\bUPDATE\s+\w+\s+SET\b/gi,
+            /\bALTER\s+TABLE\b/gi,
+            /\bCREATE\s+TABLE\b/gi,
+            /\bSELECT\s+\*\b/gi,
+            /\bUNION\s+SELECT\b/gi,
+            /\b--\b/g
+        ];
+        for (const pattern of sqlPatterns) {
+            sanitized = sanitized.replace(pattern, '');
+        }
 
         // Strip path traversal attempts
-        sanitized = sanitized.replace(/\.\.(\/|\\)/g, '');
+        sanitized = sanitized.replace(/\.\.[/\\]/g, '');
 
         return sanitized;
     }
@@ -141,8 +155,13 @@ class Sanitizer {
      */
     static sanitizeForStorage(data) {
         try {
-            // Convert to JSON and back to remove any functions or undefined values
-            const cleaned = JSON.parse(JSON.stringify(data));
+            // Create a deep clone using structuredClone when available, otherwise fall back to JSON round-trip
+            let cleaned;
+            if (typeof structuredClone === 'function') {
+                cleaned = structuredClone(data);
+            } else {
+                cleaned = JSON.parse(JSON.stringify(data));
+            }
             return JSON.stringify(cleaned);
         } catch (err) {
             error('Error sanitizing data for storage:', err);
@@ -191,9 +210,9 @@ class Sanitizer {
      * @returns {Object} - {valid: boolean, value: number, error: string}
      */
     static validateNumber(value, min = 0, max = Number.MAX_SAFE_INTEGER) {
-        const num = parseFloat(value);
+        const num = Number.parseFloat(value);
 
-        if (isNaN(num)) {
+        if (Number.isNaN(num)) {
             return { valid: false, value: 0, error: 'Invalid number' };
         }
 
@@ -223,8 +242,8 @@ class Sanitizer {
         // Check character sets present
         if (/[a-z]/.test(password)) charsetSize += 26;         // lowercase
         if (/[A-Z]/.test(password)) charsetSize += 26;         // uppercase
-        if (/[0-9]/.test(password)) charsetSize += 10;        // digits
-        if (/[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]/.test(password)) charsetSize += 32; // special chars
+        if (/\d/.test(password)) charsetSize += 10;        // digits
+        if (/[!@#$%^&*()_+\-=[\]{};':"\\|,.<>/?]/.test(password)) charsetSize += 32; // special chars
 
         if (charsetSize === 0) return 0;
 
@@ -238,64 +257,42 @@ class Sanitizer {
      * @returns {Object} - {valid: boolean, error: string, entropy: number, score: number}
      */
     static validatePassword(password) {
-        const errors = [];
-        const warnings = [];
-        let score = 0;
-
         if (!password || typeof password !== 'string') {
             return { valid: false, error: 'Password is required', entropy: 0, score: 0 };
         }
 
-        // Minimum length check
-        if (password.length < 12) {
-            errors.push('Password must be at least 12 characters long');
-        } else {
-            score += 20;
+        const errors = [];
+        const warnings = [];
+        let score = 0;
+
+        const requirements = [
+            { test: (p) => p.length >= 12, error: 'Password must be at least 12 characters long', points: 20 },
+            { test: (p) => /[A-Z]/.test(p), error: 'Password must contain at least one uppercase letter', points: 15 },
+            { test: (p) => /[a-z]/.test(p), error: 'Password must contain at least one lowercase letter', points: 15 },
+            { test: (p) => /\d/.test(p), error: 'Password must contain at least one number', points: 15 },
+            { test: (p) => /[!@#$%^&*()_+\-=[\]{};':"\\|,.<>/?]/.test(p), error: 'Password must contain at least one special character', points: 15 }
+        ];
+
+        for (const requirement of requirements) {
+            if (requirement.test(password)) {
+                score += requirement.points;
+            } else {
+                errors.push(requirement.error);
+            }
         }
 
         if (password.length >= 16) {
             score += 10;
         }
 
-        // Uppercase check
-        if (!/[A-Z]/.test(password)) {
-            errors.push('Password must contain at least one uppercase letter');
-        } else {
-            score += 15;
-        }
-
-        // Lowercase check
-        if (!/[a-z]/.test(password)) {
-            errors.push('Password must contain at least one lowercase letter');
-        } else {
-            score += 15;
-        }
-
-        // Number check
-        if (!/[0-9]/.test(password)) {
-            errors.push('Password must contain at least one number');
-        } else {
-            score += 15;
-        }
-
-        // Special character check
-        if (!/[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]/.test(password)) {
-            errors.push('Password must contain at least one special character');
-        } else {
-            score += 15;
-        }
-
-        // Calculate entropy
         const entropy = this.calculateEntropy(password);
 
-        // Minimum entropy requirement (40 bits is considered strong)
         if (entropy < 40) {
             errors.push(`Password entropy too low (${entropy} bits). Need at least 40 bits.`);
         } else {
             score += 10;
         }
 
-        // Additional strength checks
         if (entropy >= 60) {
             score += 10;
             warnings.push('Excellent entropy');
@@ -303,38 +300,39 @@ class Sanitizer {
             warnings.push('Good entropy');
         }
 
-        // Check for common patterns to avoid
         const commonPatterns = [
             /123456/i, /password/i, /qwerty/i, /abc/i, /111/i, /000/,
             /admin/i, /user/i, /love/i, /god/i
         ];
-
-        for (const pattern of commonPatterns) {
-            if (pattern.test(password)) {
-                warnings.push('Avoid common words or sequences');
-                score -= 10;
-                break;
-            }
+        if (commonPatterns.some((pattern) => pattern.test(password))) {
+            warnings.push('Avoid common words or sequences');
+            score -= 10;
         }
 
-        // Check for repeated characters
         if (/(.)\1{2,}/.test(password)) {
             warnings.push('Avoid repeated characters');
             score -= 5;
         }
 
         const isValid = errors.length === 0;
+        let strength;
+        if (entropy >= 60) {
+            strength = 'strong';
+        } else if (entropy >= 40) {
+            strength = 'medium';
+        } else {
+            strength = 'weak';
+        }
 
         return {
             valid: isValid,
             error: isValid ? null : errors.join('; '),
-            entropy: entropy,
+            entropy,
             score: Math.max(0, Math.min(100, score)),
-            warnings: warnings,
-            strength: entropy >= 60 ? 'strong' : entropy >= 40 ? 'medium' : 'weak'
+            warnings,
+            strength
         };
     }
-
     /**
      * Server-side rate limit check (for use with session/IP tracking)
      * @param {string} ip - Client IP address
