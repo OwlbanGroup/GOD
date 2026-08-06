@@ -2,10 +2,10 @@
 
 ## GOD (Node/Express) server
 - [x] Diagnose why `node server.js` fails (missing `base64id` module)
-- [ ] Run `npm install` in GOD directory to restore/repair dependencies
-- [ ] Add `"type": "module"` to `GOD/package.json` to remove ES-module warning
-- [ ] Verify GOD server starts and `/health` returns 200
-- [ ] Mark steps 5 & 6 complete in `GOD/TODO_SETUP.md`
+- [x] Run `npm install` in GOD directory to restore/repair dependencies
+- [x] Add `"type": "module"` to `GOD/package.json` to remove ES-module warning
+- [x] Verify GOD server starts and `/health` returns 200
+- [x] Mark steps 5 & 6 complete in `GOD/TODO_SETUP.md`
 
 ## VINCERA (Flask) app
 - [x] Confirm VINCERA Flask app imports OK (162 routes)

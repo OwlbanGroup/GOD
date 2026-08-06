@@ -1,4 +1,0 @@
-object-assign: PRESENT
-cors: PRESENT
-cors/lib/index.js: PRESENT
-socket.io/dist/index.js: PRESENT
