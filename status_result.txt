@@ -1,0 +1,15 @@
+--- object-assign dir listing ---
+object-assign PRESENT
+package.json main: undefined
+require.resolve object-assign: FAIL Cannot find module 'object-assign'
+Require stack:
+- C:\Users\bsean\Desktop\GOD\status.cjs
+--- test require socket.io ---
+socket.io resolve OK
+socket.io require FAIL Cannot find module 'object-assign'
+Require stack:
+- C:\Users\bsean\Desktop\GOD\node_modules\cors\lib\index.js
+- C:\Users\bsean\Desktop\GOD\node_modules\socket.io\dist\index.js
+- C:\Users\bsean\Desktop\GOD\status.cjs
+--- health check ---
+HEALTH ERROR: 
