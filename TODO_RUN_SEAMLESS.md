@@ -10,4 +10,4 @@
 ## VINCERA (Flask) app
 - [x] Confirm VINCERA Flask app imports OK (162 routes)
 - [x] Confirm `/chat` and `/login` return 200
-- [ ] Start VINCERA app and confirm it serves on port 5000
+- [x] Start VINCERA app and confirm it serves on port 5000
