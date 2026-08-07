@@ -5,10 +5,13 @@
 ## Phase A — Complete Jest Test Fixes (OSCAR-BROOME-REVENUE + owlbangroup.io)
 
 ### A1. OSCAR-BROOME-REVENUE
-- [ ] A1.1. Fix `tests/quantum_ai_wallet.test.js` — correct import path (../quantum/quantumAIWallet.js) + Jest expect
-- [ ] A1.2. Fix `tests/quantumSecurity.test.js` — vitest → @jest/globals
-- [ ] A1.3. Fix `tests/pwa.test.js` — mock localhost:3000, increase timeout, mock puppeteer
-- [ ] A1.4. Verify stubs exist: `quantum/quantumAIWallet.js` ✅ (exists), `public/js/biometric-auth.js` (check)
+- [x] A1.1. Fix `tests/quantum_ai_wallet.test.js` — correct import path (../quantum/quantumAIWallet.js) + Jest expect (PASS 2/2)
+- [x] A1.2. Fix `tests/quantumSecurity.test.js` — vitest → @jest/globals (PASS 9/9)
+- [x] A1.3. Fix `tests/pwa.test.js` — mock localhost:3000, increase timeout, mock puppeteer (PASS 12/12)
+- [x] A1.4. Verify stubs exist: `quantum/quantumAIWallet.js` ✅ (exists), `public/js/biometric-auth.js` ✅ (mock exists)
+- [x] A1.5. Fix `quantum/quantumTransactionEngine.js` default import (PASS 2/2)
+- [x] A1.6. Fix `quantum/quantumControlCenter.js` default import + logger (PASS 2/2)
+- [x] A1.7. Fix `services/pmcIntegrationService.js` mock detection → `__tests__/pmc.test.js` (PASS 3/3)
 
 ### A2. owlbangroup.io
 - [ ] A2.1. Initialize/update owlbangroup.io submodule
