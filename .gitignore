@@ -192,3 +192,4 @@ GOD-TOKEN-COIN/deployments/
 !.gitkeep
 !.env.example
 !.github/
+node_modules
